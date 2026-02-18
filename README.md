@@ -8,7 +8,7 @@ Dit repository bevat de API-standaarden, gedeelde schemas en patronen voor het N
     - `apis/rest/`: OpenAPI (OAS) specificaties voor RESTful services.
     - `apis/events/`: AsyncAPI specificaties voor event-driven architecturen.
 - `schemas/`: Gedeelde JSON-schemas voor data-objecten (bijv. Adres, Organisatie).
-    - `schemas/v1/`: Stabiele, gepromoveerde schemas.
+    - `schemas/v1/`: Stabiele, gepromoveerde schemas (bijv. in `.json` formaat).
     - `schemas/candidates/`: Voorgestelde nieuwe gedeelde schemas.
 - `patterns/`: Herbruikbare API-fragmenten (bijv. paginering, zoek-endpoints).
 - `docs/`: Governance, Design Principes en Architectural Decision Records (ADRs).

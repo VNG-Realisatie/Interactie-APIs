@@ -32,4 +32,4 @@ components:
         omschrijving:
           type: string
         adres:
-          $ref: "../../../schemas/v1/adres.yaml"
+          $ref: "../../../schemas/v1/adres.json"
