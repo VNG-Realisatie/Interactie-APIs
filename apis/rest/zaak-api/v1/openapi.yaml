@@ -1,0 +1,35 @@
+openapi: 3.0.3
+info:
+  title: Zaak-API (Voorbeeld)
+  version: 1.0.0
+  description: Een voorbeeld API die gebruik maakt van gedeelde schemas en patronen.
+
+paths:
+  /zaken:
+    get:
+      summary: Lijst met zaken
+      parameters:
+        - $ref: "../../../patterns/pagination.yaml#/parameters/0"
+        - $ref: "../../../patterns/pagination.yaml#/parameters/1"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Zaak"
+
+components:
+  schemas:
+    Zaak:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        omschrijving:
+          type: string
+        adres:
+          $ref: "../../../schemas/v1/adres.yaml"

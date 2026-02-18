@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNG API Portal</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; color: #333; }
+        h1 { color: #004494; }
+        .api-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .version-tag { background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; }
+        a { color: #0077cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>VNG API Portal</h1>
+    <p>Welkom bij het centrale portal voor VNG API standaarden en schemas.</p>
+
+    <div class="api-card">
+        <h2>Zaak-API</h2>
+        <p>Beheer van zaken en zaakobjecten.</p>
+        <p>
+            Versies:
+            <a href="apis/rest/zaak-api/v1/openapi.yaml" class="version-tag">v1 (STABLE)</a>
+        </p>
+    </div>
+
+    <div class="api-card">
+        <h2>Gedeelde Schemas</h2>
+        <p>Herbruikbare bouwblokken voor alle API's.</p>
+        <p>
+            <a href="schemas/v1/adres.yaml">Adres (v1)</a>
+        </p>
+    </div>
+
+    <hr>
+    <p><small>Gegenereerd via GitHub Actions | <a href="https://github.com/vng-realisatie/vng-apis-schemas">Repository</a></small></p>
+</body>
+</html>

@@ -1,0 +1,25 @@
+name: Detect Breaking Changes
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  optic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Optic
+        run: npm install -g @useoptic/optic
+
+      - name: Compare with Main
+        run: |
+          # Dit vergelijkt de OAS in de PR met de main branch
+          # Alleen voor REST APIs in dit voorbeeld
+          for file in $(find apis/rest -name "openapi.yaml"); do
+            echo "Checking $file..."
+            optic diff $file --base main || echo "Potential breaking change detected in $file"
+          done

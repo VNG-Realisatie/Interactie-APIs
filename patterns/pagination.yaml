@@ -1,0 +1,15 @@
+# Pagination Pattern
+parameters:
+  - name: page
+    in: query
+    description: Het paginanummer dat moet worden opgehaald.
+    schema:
+      type: integer
+      default: 1
+  - name: pageSize
+    in: query
+    description: Het aantal items per pagina.
+    schema:
+      type: integer
+      default: 20
+      maximum: 100

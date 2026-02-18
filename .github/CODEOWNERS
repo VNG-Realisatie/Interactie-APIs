@@ -1,0 +1,13 @@
+# CODEOWNERS - VNG API Standards & Schemas
+
+# Gedeelde schemas en patronen vereisen goedkeuring van de Tech Lead of PO Generiek
+/schemas/ @vng-realisatie/tech-leads @vng-realisatie/po-generiek
+/patterns/ @vng-realisatie/tech-leads @vng-realisatie/po-generiek
+
+# Specifieke API's vallen onder de PO Proces
+/apis/rest/ @vng-realisatie/po-proces
+/apis/events/ @vng-realisatie/po-proces
+
+# Governance en procesdocumentatie
+/docs/governance/ @vng-realisatie/community-managers
+/docs/rfcs/ @vng-realisatie/tech-leads

@@ -1,0 +1,48 @@
+name: Validate APIs & Schemas
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Spectral
+        run: npm install -g @stoplight/spectral-cli
+
+      - name: Run Spectral Linting
+        run: spectral lint **/*.yaml **/*.json
+
+  validate-asyncapi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate AsyncAPI
+        uses: asyncapi/github-action@v0.2.0
+        with:
+          command: validate
+          filepath: apis/events/**/*.yaml
+
+  build-docs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Scalar Portal
+        run: |
+          # Dit is een placeholder voor de Scalar CLI builder
+          # In een echte setup zouden we hier voor elke API in `apis/` een HTML bestand genereren
+          mkdir -p public
+          echo "<h1>VNG API Portal Placeholder</h1>" > public/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

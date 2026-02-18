@@ -1,0 +1,28 @@
+name: Businesswens
+description: Stel een nieuwe functionele behoefte voor
+title: "[WENS] "
+labels: ["role: Communitymanager", "status: intake"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bedankt voor het indienen van deze businesswens! Dit is de eerste stap in het proces van API-harmonisatie.
+  - type: textarea
+    id: beschrijving
+    attributes:
+      label: Wat is de behoefte?
+      description: Beschrijf in eenvoudige termen wat een inwoner of medewerker moet kunnen doen.
+    validations:
+      required: true
+  - type: input
+    id: gemeenten
+    attributes:
+      label: Betrokken Gemeenten/Stakeholders
+      description: Welke gemeenten of organisaties hebben deze behoefte nog meer?
+    validations:
+      required: true
+  - type: textarea
+    id: relatie
+    attributes:
+      label: Relatie met bestaande API's
+      description: Is er een koppeling met bijvoorbeeld de Zaak-API of Klanten-register nodig?
