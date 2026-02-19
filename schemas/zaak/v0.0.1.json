@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zaak",
+  "description": "Een zaak die bij de gemeente is geregistreerd.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "omschrijving": {
+      "type": "string"
+    },
+    "adres": {
+      "$ref": "../../adres/v0.0.1.json"
+    }
+  },
+  "required": [
+    "id",
+    "omschrijving"
+  ]
+}
