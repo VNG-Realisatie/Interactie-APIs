@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { JsonSchemaViewer } from '@stoplight/json-schema-viewer';
 import UmlDiagram from './UmlDiagram';
 
 export default function FileView({ path }) {
@@ -46,19 +45,6 @@ export default function FileView({ path }) {
           <h3>Diagram</h3>
           <div className="diagram-container">
             <UmlDiagram schema={schema} />
-          </div>
-
-          {/* Stoplight property tree */}
-          <h3>Schema Details</h3>
-          <div className="schema-viewer-container">
-            <JsonSchemaViewer
-              schema={schema}
-              name={title}
-              expanded={true}
-              defaultExpandedDepth={3}
-              hideTopBar={false}
-              emptyText="Geen schema gedefinieerd"
-            />
           </div>
         </>
       )}

@@ -10,19 +10,14 @@
     "prep-docs": "node scripts/generate-portal-data.js",
     "dev": "pnpm prep-docs && vite",
     "build": "pnpm prep-docs && vite build",
-    "serve": "pnpm build && npx serve docs/dist",
+    "serve": "pnpm build && npx serve dist",
     "mock": "node scripts/mock-all.js"
   },
   "dependencies": {
-    "@stoplight/json-schema-viewer": "latest",
-    "@stoplight/mosaic": "latest",
-    "@stoplight/mosaic-code-viewer": "latest",
-    "@xyflow/react": "^12.10.1",
-    "jsoncrack-react": "^1.0.0",
-    "marked": "^15.0.0",
     "react": "^18.2.0",
-    "react-diagram-schema": "^0.3.8",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@xyflow/react": "^12.0.0",
+    "marked": "^15.0.0"
   },
   "devDependencies": {
     "@scalar/cli": "latest",
