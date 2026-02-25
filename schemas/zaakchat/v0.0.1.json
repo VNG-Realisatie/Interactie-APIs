@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ZaakChat",
+  "description": "Domain schemas for the ZaakChat application.",
+  "type": "object",
+  "$defs": {
+    "Issue": {
+      "description": "Zaak - een burgerzaak of aanvraag die door de gemeente behandeld wordt",
+      "properties": {
+        "assignee": {
+          "description": "Email van de ambtenaar die de zaak behandelt (bijv. \"alice@gemeente.nl\")",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "description": "Uitgebreide beschrijving: wat is de aanvraag, welke stappen zijn al ondernomen",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "involved": {
+          "description": "Lijst van betrokken personen (emails) bij deze zaak",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "resolution": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "description": "Huidige behandelstatus van de zaak",
+          "oneOf": [
+            {
+              "description": "Nieuw binnengekomen, nog niet in behandeling genomen",
+              "enum": [
+                "open"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Wordt momenteel behandeld door een ambtenaar",
+              "enum": [
+                "in_progress"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Behandeling afgerond, zaak is gesloten",
+              "enum": [
+                "closed"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "title": {
+          "description": "Korte, duidelijke titel van de zaak (bijv. \"Paspoort aanvragen\", \"Kapvergunning Dorpsstraat 12\")",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "title"
+      ],
+      "title": "Issue",
+      "type": "object"
+    },
+    "Comment": {
+      "description": "Reactie - een opmerking, vraag of toelichting bij een zaak",
+      "properties": {
+        "content": {
+          "description": "De tekst van de reactie (bijv. \"Documenten zijn goedgekeurd\", \"Burger gebeld voor aanvullende info\")",
+          "type": "string"
+        },
+        "mentions": {
+          "description": "Email adressen van collega's die specifiek genoemd worden (bijv. \"@alice@gemeente.nl\")",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "quote_comment": {
+          "description": "ID van de reactie waar dit een antwoord op is (voor discussies met meerdere berichten - 'quoting')",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "title": "Comment",
+      "type": "object"
+    },
+    "Task": {
+      "description": "Taak - een actie die uitgevoerd moet worden om een zaak te behandelen",
+      "properties": {
+        "completed": {
+          "description": "Is de taak voltooid? (true = klaar, false = nog te doen)",
+          "type": "boolean"
+        },
+        "cta": {
+          "description": "Korte actie-omschrijving (bijv. \"Documenten controleren\", \"Afspraak inplannen\")",
+          "type": "string"
+        },
+        "deadline": {
+          "description": "Uiterste datum voor voltooiing (YYYY-MM-DD, bijv. \"2024-01-25\")",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "description": "Uitgebreide uitleg: wat moet er precies gebeuren, welke voorwaarden gelden",
+          "type": "string"
+        },
+        "url": {
+          "description": "Link naar de plaats waar de taak uitgevoerd kan worden (bijv. formulier, overzicht)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "completed",
+        "cta",
+        "description",
+        "url"
+      ],
+      "title": "Task",
+      "type": "object"
+    },
+    "Document": {
+      "description": "Document dat bij een zaak hoort (bijv. paspoortfoto, uittreksel GBA)",
+      "properties": {
+        "size": {
+          "description": "Bestandsgrootte in bytes",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "title": {
+          "description": "Bestandsnaam of titel van het document (bijv. \"Paspoortfoto_Jan_Jansen.jpg\")",
+          "type": "string"
+        },
+        "url": {
+          "description": "Download URL van het document - moet toegankelijk zijn voor geautoriseerde gebruikers",
+          "type": "string"
+        }
+      },
+      "required": [
+        "size",
+        "title",
+        "url"
+      ],
+      "title": "Document",
+      "type": "object"
+    },
+    "Planning": {
+      "description": "Planning - een tijdlijn met verschillende stappen of fasen voor zaakbehandeling",
+      "properties": {
+        "description": {
+          "description": "Uitleg over wat deze planning behelst en welke stappen doorlopen worden",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "moments": {
+          "description": "Alle stappen/momenten in deze planning, in chronologische volgorde",
+          "items": {
+            "$ref": "#/$defs/PlanningMoment"
+          },
+          "type": "array"
+        },
+        "title": {
+          "description": "Naam van de planning (bijv. \"Vergunningsprocedure\", \"Paspoort aanvraag proces\")",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "moments"
+      ],
+      "title": "Planning",
+      "type": "object"
+    },
+    "PlanningMoment": {
+      "description": "Een specifieke stap of mijlpaal binnen een planning",
+      "properties": {
+        "date": {
+          "description": "Geplande of gerealiseerde datum (YYYY-MM-DD, bijv. \"2024-01-15\")",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "description": "In welke fase dit moment zich bevindt",
+          "oneOf": [
+            {
+              "description": "Afgerond - deze stap is voltooid",
+              "enum": [
+                "completed"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Huidig - deze stap wordt nu uitgevoerd",
+              "enum": [
+                "current"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Gepland - deze stap staat nog in de toekomst",
+              "enum": [
+                "planned"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "title": {
+          "description": "Naam van deze stap (bijv. \"Intake gesprek\", \"Documentcheck\", \"Besluit gemeente\")",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "title"
+      ],
+      "title": "PlanningMoment",
+      "type": "object"
+    }
+  }
+}

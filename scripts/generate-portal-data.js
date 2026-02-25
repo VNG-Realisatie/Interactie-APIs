@@ -6,6 +6,7 @@ const yaml = require('js-yaml');
 // Recursively resolve all $ref in a parsed object, relative to baseDir
 function resolveRefs(obj, baseDir, visited = new Set()) {
   if (obj === null || typeof obj !== 'object') return obj;
+  // console.log(`🔍 Resolving at ${baseDir}${obj['$ref'] ? ' ($ref: ' + obj['$ref'] + ')' : ''}`);
 
   if (Array.isArray(obj)) {
     return obj.map(item => resolveRefs(item, baseDir, visited));
@@ -13,24 +14,45 @@ function resolveRefs(obj, baseDir, visited = new Set()) {
 
   // If this object has a $ref to an external file (not a #/local/ref)
   if (obj['$ref'] && typeof obj['$ref'] === 'string' && !obj['$ref'].startsWith('#')) {
-    const refPath = path.resolve(baseDir, obj['$ref']);
-    if (visited.has(refPath)) {
-      console.warn(`⚠️ Circulaire $ref gedetecteerd: ${refPath}`);
+    const [refFilePath, fragment] = obj['$ref'].split('#');
+    const absoluteFilePath = path.resolve(baseDir, refFilePath);
+    const fullRefPath = fragment ? `${absoluteFilePath}#${fragment}` : absoluteFilePath;
+    console.log(`  👉 Resolving $ref: ${obj['$ref']} -> ${fullRefPath}`);
+
+    if (visited.has(fullRefPath)) {
+      console.warn(`⚠️ Circulaire $ref gedetecteerd: ${fullRefPath}`);
       return { description: `(circulaire ref: ${obj['$ref']})` };
     }
-    visited.add(refPath);
+    const nextVisited = new Set(visited);
+    nextVisited.add(fullRefPath);
+
     try {
-      const content = fs.readFileSync(refPath, 'utf8');
-      const refDir = path.dirname(refPath);
+      const content = fs.readFileSync(absoluteFilePath, 'utf8');
+      const refDir = path.dirname(absoluteFilePath);
       let parsed;
-      if (refPath.endsWith('.json')) {
+      if (absoluteFilePath.endsWith('.json')) {
         parsed = JSON.parse(content);
       } else {
         parsed = yaml.load(content);
       }
       // Remove JSON Schema's $schema key so OpenAPI doesn't choke
       delete parsed['$schema'];
-      return resolveRefs(parsed, refDir, visited);
+
+      // If there's a fragment (e.g. #/$defs/MyModel), navigate to it
+      let target = parsed;
+      if (fragment) {
+        const parts = fragment.split('/').filter(p => p && p !== '#');
+        for (const part of parts) {
+          if (target && typeof target === 'object' && part in target) {
+            target = target[part];
+          } else {
+            console.error(`❌ Kon fragment "${fragment}" niet vinden in ${absoluteFilePath}`);
+            return obj;
+          }
+        }
+      }
+
+      return resolveRefs(target, refDir, nextVisited);
     } catch (e) {
       console.error(`❌ Kon $ref "${obj['$ref']}" niet resolven vanuit ${baseDir}: ${e.message}`);
       return obj;

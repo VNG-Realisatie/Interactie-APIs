@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Events",
+  "description": "Shared event schemas including CloudEvents and JSONCommit.",
+  "type": "object",
+  "$defs": {
+    "CloudEvent": {
+      "description": "CloudEvents specification struct",
+      "properties": {
+        "data": {
+          "description": "De inhoud van de eigenlijke gebeurtenis. Bij JSONCommits zit hier de daadwerkelijke JSONCommit data in."
+        },
+        "datacontenttype": {
+          "description": "Formaat van de data (meestal \"application/json\")",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dataref": {
+          "description": "Verwijzing naar externe data locatie (indien data niet inline staat)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dataschema": {
+          "description": "URL naar het schema dat de data beschrijft",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "Unieke identificatie van deze gebeurtenis",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "Volgnummer voor het ordenen van gebeurtenissen",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sequencetype": {
+          "description": "Type van de volgnummering die gebruikt wordt",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "description": "Bron systeem dat de gebeurtenis heeft aangemaakt (bijv. \"zaaksysteem\", \"frontend-demo\")",
+          "type": "string"
+        },
+        "specversion": {
+          "description": "Versie van de CloudEvents specificatie (altijd \"1.0\")",
+          "type": "string"
+        },
+        "subject": {
+          "description": "Het onderwerp van de gebeurtenis, meestal de zaak ID waar het over gaat",
+          "type": "string"
+        },
+        "time": {
+          "description": "Tijdstip waarop de gebeurtenis plaatsvond (ISO 8601 formaat)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "Type gebeurtenis. Hier is het altijd \"json.commit\"",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "specversion",
+        "subject",
+        "type"
+      ],
+      "title": "CloudEvent",
+      "type": "object"
+    },
+    "JSONCommit": {
+      "description": "JSONCommit - Een commit van wijzigingen aan een JSON resource\n\nDit event type vertegenwoordigt elke wijziging aan een JSON resource, of het nu gaat om: - Het aanmaken van een nieuwe resource (resource_data bevat de volledige resource) - Het updaten van een bestaande resource (patch bevat de wijzigingen) - Het verwijderen van een resource (deleted: true markeert de resource als verwijderd)",
+      "properties": {
+        "actor": {
+          "description": "Email van de persoon die de actie heeft uitgevoerd (bijv. \"alice@gemeente.nl\", \"user@gemeente.nl\")",
+          "type": "string"
+        },
+        "deleted": {
+          "description": "Markeert de resource als verwijderd (bij verwijderingen). De resource (en de gerelateerde events) moeten dan uit de store verwijderd worden.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "patch": {
+          "description": "JSON Merge Patch (RFC 7396) met wijzigingen (bij updates). Velden met een null waarde worden verwijderd. Alle andere velden worden bijgewerkt / overgeschreven."
+        },
+        "resource_data": {
+          "description": "Complete resource data (bij aanmaken van nieuwe resources)"
+        },
+        "resource_id": {
+          "description": "Unieke identificatie van de resource waar deze commit over gaat.",
+          "type": "string"
+        },
+        "schema": {
+          "description": "URL naar het JSON Schema dat de structuur van de resource beschrijft (bijv. \"http://localhost:8000/schemas/Comment\") Dit bepaalt welke velden de resource moet hebben en wat hun dataype is.",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "Tijdstip waarop de commit plaatsvond (ISO 8601 formaat: 2024-01-15T10:30:00Z)",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "actor",
+        "resource_id",
+        "schema"
+      ],
+      "title": "JSONCommit",
+      "type": "object"
+    }
+  }
+}

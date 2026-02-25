@@ -1,0 +1,123 @@
+openapi: 3.1.0
+info:
+  title: ZaakChat Event API
+  version: 0.0.1
+  description: |
+    # ZaakChat Event API (SSE)
+
+    This API provides a real-time stream of events for ZaakChat using **Server-Sent Events (SSE)**. It allows clients to stay synchronized with the state of municipal cases (Zaken), comments, tasks, and documents without polling.
+
+    ## Protocol: Server-Sent Events
+    The `/events` endpoint is a long-running HTTP GET request that returns a stream of events (`text/event-stream`).
+
+    - **Persistent Connection**: Clients should establish a connection and keep it open.
+    - **Automatic Reconnection**: Standard SSE clients (like the browser's `EventSource`) automatically reconnect if the connection is dropped.
+    - **Event Format**: Each event is a JSON-encoded **CloudEvent 1.0** containing a **JSONCommit**.
+
+    ## Data Pattern: Delta Snapshot
+    The Event API follows a *delta-snapshot* pattern designed for efficient synchronization and conflict resolution.
+
+    1. **Snapshots**: When a client first connects (or after a long disconnect), it should typically fetch the current state (the snapshot) via the REST API.
+    2. **Deltas**: The Event API then delivers "deltas" (JSONCommits) that describe changes to that state.
+    3. **JSONCommit**: Each commit contains:
+        - `resource_id`: The ID of the resource being changed.
+        - `schema`: The type of resource (Issue, Comment, etc.).
+        - `resource_data`: The full resource state (for new resources).
+        - `patch`: A JSON Merge Patch (RFC 7396) containing only the changed fields (for updates).
+        - `deleted`: A boolean flag (for deletions).
+
+    Clients should apply these patches to their local state to stay updated.
+
+  contact:
+    name: VNG Realisatie
+    url: https://www.vngrealisatie.nl
+  license:
+    name: EUPL-1.2
+    url: https://opensource.org/licenses/EUPL-1.2
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server for ZaakChat
+
+paths:
+  /events:
+    get:
+      summary: Establish an SSE connection for real-time events
+      description: |
+        Connect to this endpoint to receive a continuous stream of ZaakChat events.
+
+        The stream uses the `text/event-stream` format. Each event in the stream follows the CloudEvent 1.0 specification.
+      operationId: subscribeToEvents
+      responses:
+        "200":
+          description: A successful SSE connection. Returns a stream of events.
+          content:
+            text/event-stream:
+              schema:
+                $ref: "../../../schemas/events/v0.0.1.json#/$defs/CloudEvent"
+              examples:
+                IssueCreated:
+                  summary: New municipal case created
+                  value: |
+                    event: message
+                    data: {
+                      "specversion": "1.0",
+                      "type": "json.commit",
+                      "source": "zaakchat-service",
+                      "subject": "1",
+                      "id": "01HF7K8QZ9X1Y2Z3A4B5C6D7E8",
+                      "time": "2025-01-15T10:30:00Z",
+                      "datacontenttype": "application/json",
+                      "data": {
+                        "resource_id": "1",
+                        "schema": "Issue",
+                        "actor": "user@gemeente.nl",
+                        "timestamp": "2025-01-15T10:30:00Z",
+                        "resource_data": {
+                          "id": "1",
+                          "title": "Paspoort aanvragen",
+                          "description": "Nieuwe paspoort aanvraag ingediend door burger",
+                          "status": "open",
+                          "assignee": "alice@gemeente.nl"
+                        }
+                      }
+                    }
+                CommentAdded:
+                  summary: New comment added to a case
+                  value: |
+                    event: message
+                    data: {
+                      "specversion": "1.0",
+                      "type": "json.commit",
+                      "source": "zaakchat-service",
+                      "subject": "1",
+                      "id": "01HF7K8QZ9X1Y2Z3A4B5C6D7E9",
+                      "time": "2025-01-15T10:35:00Z",
+                      "datacontenttype": "application/json",
+                      "data": {
+                        "resource_id": "comment-123",
+                        "schema": "Comment",
+                        "actor": "burger@eindhoven.nl",
+                        "timestamp": "2025-01-15T10:35:00Z",
+                        "resource_data": {
+                          "content": "Wanneer kan ik mijn paspoort ophalen?"
+                        }
+                      }
+                    }
+
+components:
+  schemas:
+    CloudEvent:
+      $ref: "../../../schemas/events/v0.0.1.json#/$defs/CloudEvent"
+    JSONCommit:
+      $ref: "../../../schemas/events/v0.0.1.json#/$defs/JSONCommit"
+    Issue:
+      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Issue"
+    Comment:
+      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Comment"
+    Task:
+      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Task"
+    Document:
+      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Document"
+    Planning:
+      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Planning"

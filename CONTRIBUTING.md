@@ -19,7 +19,7 @@ Voor grote wijzigingen of nieuwe services maken we een Architectural Decision Re
 
 ### 3. Implementatie (Pull Request)
 Pas na goedkeuring van het ontwerp wordt er code geschreven.
-- **Hergebruik verplicht**: Controleer eerst of er bestaande schemas in `schemas/v1/` of patronen in `patterns/` zijn die je kunt gebruiken.
+- **Hergebruik verplicht**: Controleer eerst of er bestaande schemas in `schemas/` of patronen in `patterns/` zijn die je kunt gebruiken.
 - **Linter**: Elke PR wordt automatisch gecontroleerd door Spectral op basis van de Nederlandse API-strategie.
 - **CODEOWNERS**: Je PR vereist automatisch goedkeuring van de Tech Lead of PO zodra je gedeelde componenten wijzigt.
 

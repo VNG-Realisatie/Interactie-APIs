@@ -4,19 +4,27 @@
   "properties": {
     "straatnaam": {
       "type": "string",
+      "description": "Een door of namens het gemeentebestuur aan een openbare ruimte toegekende naam.",
       "example": "Wilhelminaplein"
     },
     "huisnummer": {
       "type": "integer",
+      "description": "Een door of namens het gemeentebestuur ten aanzien van een adresseerbaar object toegekende nummering.",
       "example": 1
+    },
+    "huisletter en/of huisnummertoevoeging": {
+      "type": "string",
+      "description": "Een toevoeging aan het huisnummer (letters, cijfers of een combinatie daarvan)."
     },
     "postcode": {
       "type": "string",
+      "description": "De door PostNL vastgestelde code bij een adres, bestaande uit vier cijfers en twee letters.",
       "pattern": "^[1-9][0-9]{3}[A-Z]{2}$",
       "example": "1234AB"
     },
-    "woonplaats": {
+    "woonplaatsnaam": {
       "type": "string",
+      "description": "Een door of namens het gemeentebestuur aan een deel van het gemeentelijk grondgebied toegekende naam.",
       "example": "Utrecht"
     }
   },
@@ -24,6 +32,6 @@
     "straatnaam",
     "huisnummer",
     "postcode",
-    "woonplaats"
+    "woonplaatsnaam"
   ]
 }
