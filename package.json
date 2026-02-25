@@ -8,19 +8,33 @@
   "scripts": {
     "lint": "spectral lint \"apis/**/*.yaml\" \"schemas/**/*.json\" \"patterns/**/*.yaml\"",
     "prep-docs": "node scripts/generate-portal-data.js",
-    "serve": "pnpm prep-docs && echo '\n🚀 API Portal: http://localhost:3000/docs/\n' && npx serve .",
-    "mock": "node scripts/mock-all.js",
-    "dev": "pnpm prep-docs && npx concurrently \"npm run serve\" \"npm run mock\""
+    "dev": "pnpm prep-docs && vite",
+    "build": "pnpm prep-docs && vite build",
+    "serve": "pnpm build && npx serve docs/dist",
+    "mock": "node scripts/mock-all.js"
+  },
+  "dependencies": {
+    "@stoplight/json-schema-viewer": "latest",
+    "@stoplight/mosaic": "latest",
+    "@stoplight/mosaic-code-viewer": "latest",
+    "@xyflow/react": "^12.10.1",
+    "jsoncrack-react": "^1.0.0",
+    "marked": "^15.0.0",
+    "react": "^18.2.0",
+    "react-diagram-schema": "^0.3.8",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@scalar/cli": "latest",
     "@stoplight/prism-cli": "^5.11.0",
     "@stoplight/spectral-cli": "^6.11.0",
+    "@vitejs/plugin-react": "^4.2.0",
     "concurrently": "^8.2.2",
     "express": "^5.2.1",
     "fast-glob": "^3.3.3",
     "http-proxy-middleware": "^3.0.5",
     "js-yaml": "^4.1.1",
-    "serve": "^14.2.0"
+    "serve": "^14.2.0",
+    "vite": "^5.0.0"
   }
 }
