@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "spectral lint \"apis/**/*.yaml\" \"schemas/**/*.json\" \"patterns/**/*.yaml\"",
     "prep-docs": "node scripts/generate-portal-data.js",
-    "dev": "pnpm prep-docs && vite",
+    "dev": "pnpm prep-docs && concurrently \"vite\" \"pnpm mock\"",
     "build": "pnpm prep-docs && vite build",
     "serve": "pnpm build && npx serve dist",
     "mock": "node scripts/mock-all.js"

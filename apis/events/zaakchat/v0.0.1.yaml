@@ -36,7 +36,7 @@ info:
     url: https://opensource.org/licenses/EUPL-1.2
 
 servers:
-  - url: http://localhost:8000
+  - url: http://127.0.0.1:4010/apis/events/zaakchat/v1
     description: Local development server for ZaakChat
 
 paths:

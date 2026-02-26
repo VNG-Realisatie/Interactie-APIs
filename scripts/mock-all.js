@@ -4,6 +4,9 @@ const fg = require('fast-glob');
 const { spawn } = require('child_process');
 const path = require('path');
 
+const yaml = require('js-yaml');
+const fs = require('fs');
+
 async function startMocks() {
   const app = express();
   const mainPort = 4010;
@@ -20,8 +23,19 @@ async function startMocks() {
 
   specFiles.forEach((spec, index) => {
     const prismPort = 5000 + index;
-    // Gebruik het pad zonder extensie als base path, bijv. /apis/rest/demo/v1.0.0
-    const apiPath = '/' + spec.replace(path.extname(spec), '');
+
+    // Lees het YAML bestand om het base path te bepalen uit de 'servers'
+    let apiPath = '/' + spec.replace(path.extname(spec), '');
+    try {
+      const content = fs.readFileSync(spec, 'utf8');
+      const parsed = yaml.load(content);
+      const localServer = parsed.servers?.find(s => s.url.includes('4010'));
+      if (localServer) {
+        apiPath = new URL(localServer.url).pathname;
+      }
+    } catch (e) {
+      console.warn(`Kon pad niet bepalen voor ${spec}, fallback naar ${apiPath}`);
+    }
 
     console.log(`🚀 Start Prism voor ${spec} op localhost:${prismPort} (gateway path: ${apiPath})`);
 
