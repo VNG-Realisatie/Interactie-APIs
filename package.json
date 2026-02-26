@@ -1,10 +1,10 @@
 {
-  "name": "vng-apis-schemas",
+  "name": "vng-interactie-apis",
   "author": {
     "name": "Joep Meindertsma"
   },
   "version": "1.0.0",
-  "description": "VNG API Standards and Schemas",
+  "description": "VNG Interactie APIs and Schemas",
   "scripts": {
     "lint": "spectral lint \"apis/**/*.yaml\" \"schemas/**/*.json\" \"patterns/**/*.yaml\"",
     "prep-docs": "node scripts/generate-portal-data.js",

@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: ZaakChat Event API
+  title: Events
   version: 0.0.1
   description: |
-    # ZaakChat Event API (SSE)
+    # Events API (SSE)
 
     This API provides a real-time stream of events for ZaakChat using **Server-Sent Events (SSE)**. It allows clients to stay synchronized with the state of municipal cases (Zaken), comments, tasks, and documents without polling.
 

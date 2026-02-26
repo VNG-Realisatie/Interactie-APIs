@@ -2,11 +2,16 @@
 
 ## Wat zijn Schemas?
 
-Schemas beschrijven de exacte structuur van datamodellen in het formaat van **JSON Schema (draft 2020-12)**. Ze definiëren precies welke velden verplicht zijn, welke datatypes worden gebruikt (zoals tekst, een boolean of datum), enumeraties en hoe relaties met gerelateerde of externe bronnen werken (via `$ref`).
+Schemas beschrijven de exacte structuur van datamodellen in het formaat van **JSON Schema**. Ze definiëren precies welke velden verplicht zijn, welke datatypes worden gebruikt (zoals tekst, een boolean of datum), enumeraties en hoe relaties met gerelateerde of externe bronnen werken (via `$ref`).
 
 ## Waarom bestaan ze?
 
 Door de datamodellen los te trekken van de APIs creëren we herbruikbare **bouwblokken**. Het concept van een `Adres`, een `Zaak` of een `Contactpersoon` hoeft zo maar op één centrale plek gedefinieerd te worden. Dit zorgt voor landelijke standaardisatie en dwingt één duidelijke informatiestructuur af, zonder dat dit voor iedere API opnieuw moet worden vastgesteld.
+
+## Waarom JSON Schema?
+
+- De OpenAPI Spec (een ["Pas toe of leg uit" standaard](https://www.forumstandaardisatie.nl/open-standaarden/verplicht)) werkt intern met JSON Schema
+- JSON is het meestgebruikte serialisatieformaat
 
 ## Relatie tot APIs en Patronen
 

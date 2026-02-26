@@ -12,15 +12,14 @@ export default function Sidebar({ data, params, navigate }) {
       <h2>
         <a href="/" onClick={(e) => go(e, '')} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src={vngLogo} alt="VNG Logo" width="96" height="50" style={{ height: '32px', width: 'auto' }} />
-          API Portal
+          Interactie APIs
         </a>
       </h2>
       <nav>
         <div className="nav-section">
-          <h3>Algemeen</h3>
           <ul>
             <li><a href="/" onClick={(e) => go(e, '')}>Home</a></li>
-            <li><a href="/?doc=docs/design-principles.md" onClick={(e) => go(e, 'doc=docs/design-principles.md')}>API Portal Design Principes</a></li>
+            <li><a href="/?doc=docs/design-principles.md" onClick={(e) => go(e, 'doc=docs/design-principles.md')}>Design Principes</a></li>
             <li><a href="/?doc=CONTRIBUTING.md" onClick={(e) => go(e, 'doc=CONTRIBUTING.md')}>Bijdragen</a></li>
           </ul>
         </div>
@@ -28,7 +27,7 @@ export default function Sidebar({ data, params, navigate }) {
         {data && (
           <div className="nav-section">
             <h3>
-              <a href="/?doc=docs/apis.md" onClick={(e) => go(e, 'doc=docs/apis.md')}>APIs (OpenAPI)</a>
+              <a href="/?doc=docs/apis.md" onClick={(e) => go(e, 'doc=docs/apis.md')}>API's</a>
             </h3>
             <ul>
               {data.apis.map((api, i) => {
@@ -57,7 +56,7 @@ export default function Sidebar({ data, params, navigate }) {
         {data && (
           <div className="nav-section">
             <h3>
-              <a href="/?doc=docs/schemas.md" onClick={(e) => go(e, 'doc=docs/schemas.md')}>Schemas (JSON)</a>
+              <a href="/?doc=docs/schemas.md" onClick={(e) => go(e, 'doc=docs/schemas.md')}>Schema's</a>
             </h3>
             <ul>
               {data.schemas.map((s, i) => {

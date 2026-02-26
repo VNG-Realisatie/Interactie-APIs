@@ -8,7 +8,7 @@ export default function HomeView({ data, navigate }) {
 
   return (
     <div className="view-container">
-      <h1>VNG API & Schema Portaal</h1>
+      <h1>VNG Interactie APIs</h1>
 
       <p style={{ fontSize: '1.1em', color: 'var(--text-muted)', marginBottom: '2em', lineHeight: '1.6' }}>
         Welkom bij de centrale documentatie voor de API-standaarden van de VNG. Deze repository
@@ -30,7 +30,7 @@ export default function HomeView({ data, navigate }) {
         <div className="card" style={{ padding: '24px' }}>
           <h2>
             <a href="/?doc=docs/apis.md" onClick={(e) => go(e, 'doc=docs/apis.md')} style={{ textDecoration: 'none', color: 'inherit' }}>
-              🌐 APIs (OpenAPI)
+              🌐 API's
             </a>
           </h2>
           <p>
@@ -52,7 +52,7 @@ export default function HomeView({ data, navigate }) {
         <div className="card" style={{ padding: '24px' }}>
           <h2>
             <a href="/?doc=docs/schemas.md" onClick={(e) => go(e, 'doc=docs/schemas.md')} style={{ textDecoration: 'none', color: 'inherit' }}>
-              📦 Schemas (JSON)
+              📦 Schema's
             </a>
           </h2>
           <p>

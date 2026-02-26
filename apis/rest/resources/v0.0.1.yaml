@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Resource API
+  title: Resource
   version: 1.0.0
   description: Een algemene API voor het ophalen van resources op basis van een identifier.
   contact:
