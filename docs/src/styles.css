@@ -136,6 +136,21 @@ a {
   padding-bottom: 0;
 }
 
+.nav-section h3 a {
+  color: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  padding: 0;
+  display: inline;
+  border-radius: 0;
+  transition: color 0.15s;
+}
+
+.nav-section h3 a:hover {
+  background: none;
+  color: var(--text-color);
+}
+
 .nav-section ul {
   list-style: none;
   padding: 0;

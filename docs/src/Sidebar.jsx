@@ -1,4 +1,5 @@
 import React from 'react';
+import vngLogo from './vng-logo.svg';
 
 export default function Sidebar({ data, params, navigate }) {
   const go = (e, query) => {
@@ -8,7 +9,12 @@ export default function Sidebar({ data, params, navigate }) {
 
   return (
     <aside className="portal-sidebar">
-      <h2>VNG API Portal</h2>
+      <h2>
+        <a href="/" onClick={(e) => go(e, '')} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src={vngLogo} alt="VNG Logo" width="96" height="50" style={{ height: '32px', width: 'auto' }} />
+          API Portal
+        </a>
+      </h2>
       <nav>
         <div className="nav-section">
           <h3>Algemeen</h3>
@@ -21,7 +27,9 @@ export default function Sidebar({ data, params, navigate }) {
 
         {data && (
           <div className="nav-section">
-            <h3>APIs (OpenAPI)</h3>
+            <h3>
+              <a href="/?doc=docs/apis.md" onClick={(e) => go(e, 'doc=docs/apis.md')}>APIs (OpenAPI)</a>
+            </h3>
             <ul>
               {data.apis.map((api, i) => {
                 const latestUrl = api.versions[0].url;
@@ -48,7 +56,9 @@ export default function Sidebar({ data, params, navigate }) {
 
         {data && (
           <div className="nav-section">
-            <h3>Schemas (JSON)</h3>
+            <h3>
+              <a href="/?doc=docs/schemas.md" onClick={(e) => go(e, 'doc=docs/schemas.md')}>Schemas (JSON)</a>
+            </h3>
             <ul>
               {data.schemas.map((s, i) => {
                 const latestPath = s.versions[0].path;
@@ -75,7 +85,9 @@ export default function Sidebar({ data, params, navigate }) {
 
         {data && (
           <div className="nav-section">
-            <h3>Patronen</h3>
+            <h3>
+              <a href="/?doc=docs/patterns.md" onClick={(e) => go(e, 'doc=docs/patterns.md')}>Patronen</a>
+            </h3>
             <ul>
               {data.patterns.map((p, i) => {
                 const latestPath = p.versions[0].path;

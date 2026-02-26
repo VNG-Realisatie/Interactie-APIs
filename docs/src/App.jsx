@@ -38,11 +38,11 @@ export default function App() {
   if (params.url) {
     view = <ScalarView url={params.url} />;
   } else if (params.doc) {
-    view = <MarkdownView path={params.doc} />;
+    view = <MarkdownView path={params.doc} portalData={portalData} />;
   } else if (params.file) {
     view = <FileView path={params.file} portalData={portalData} />;
   } else {
-    view = <HomeView />;
+    view = <HomeView data={portalData} navigate={navigate} />;
   }
 
   return (
