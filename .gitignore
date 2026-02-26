@@ -1,3 +1,9 @@
 node_modules
 docs/bundled/
 docs/portal-data.json
+
+# Local Netlify folder
+.netlify
+
+# Build artifacts
+dist

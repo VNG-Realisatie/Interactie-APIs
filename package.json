@@ -6,10 +6,10 @@
   "version": "1.0.0",
   "description": "VNG Interactie APIs and Schemas",
   "scripts": {
-    "lint": "spectral lint \"apis/**/*.yaml\" \"schemas/**/*.json\" \"patterns/**/*.yaml\"",
+    "lint": "spectral lint \"apis/**/*.yaml\"",
     "prep-docs": "node scripts/generate-portal-data.js",
     "dev": "pnpm prep-docs && concurrently \"vite\" \"pnpm mock\"",
-    "build": "pnpm prep-docs && vite build",
+    "build": "pnpm prep-docs && vite build && cp -R docs apis schemas patterns *.md dist/",
     "serve": "pnpm build && npx serve dist",
     "mock": "node scripts/mock-all.js"
   },

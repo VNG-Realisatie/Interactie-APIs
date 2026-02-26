@@ -13,10 +13,17 @@ servers:
   - url: https://vng-realisatie.github.io/vng-apis-schemas/apis/rest/resources/v1
     description: Productie (GitHub Pages)
 
+tags:
+  - name: Resources
+    description: Resource retrieval
+
 paths:
   /resources/{identifier}:
     get:
       summary: Haal een resource op
+      operationId: getResource
+      tags:
+        - Resources
       description: Haal de volledige representatie van een resource op aan de hand van zijn unieke identifier (bijv. een UUID of URI).
       parameters:
         - name: identifier

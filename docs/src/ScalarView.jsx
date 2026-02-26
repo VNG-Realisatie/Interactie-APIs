@@ -16,6 +16,12 @@ export default function ScalarView({ url }) {
           defaultOpenAllTags: true,
           defaultModelsExpandDepth: 10,
           expandAllModelSections: true,
+          servers: [
+            {
+              url: 'https://sandbox.scalar.com',
+              description: 'Scalar Sandbox (Mock Server)'
+            }
+          ]
         });
       }
     };

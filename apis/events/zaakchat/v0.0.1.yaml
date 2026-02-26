@@ -39,10 +39,16 @@ servers:
   - url: http://127.0.0.1:4010/apis/events/zaakchat/v1
     description: Local development server for ZaakChat
 
+tags:
+  - name: Events
+    description: Real-time event streams
+
 paths:
   /events:
     get:
       summary: Establish an SSE connection for real-time events
+      tags:
+        - Events
       description: |
         Connect to this endpoint to receive a continuous stream of ZaakChat events.
 
@@ -58,66 +64,42 @@ paths:
               examples:
                 IssueCreated:
                   summary: New municipal case created
-                  value: |
-                    event: message
-                    data: {
-                      "specversion": "1.0",
-                      "type": "json.commit",
-                      "source": "zaakchat-service",
-                      "subject": "1",
-                      "id": "01HF7K8QZ9X1Y2Z3A4B5C6D7E8",
-                      "time": "2025-01-15T10:30:00Z",
-                      "datacontenttype": "application/json",
-                      "data": {
-                        "resource_id": "1",
-                        "schema": "Issue",
-                        "actor": "user@gemeente.nl",
-                        "timestamp": "2025-01-15T10:30:00Z",
-                        "resource_data": {
-                          "id": "1",
-                          "title": "Paspoort aanvragen",
-                          "description": "Nieuwe paspoort aanvraag ingediend door burger",
-                          "status": "open",
-                          "assignee": "alice@gemeente.nl"
-                        }
-                      }
-                    }
+                  value:
+                    specversion: "1.0"
+                    type: "json.commit"
+                    source: "zaakchat-service"
+                    subject: "1"
+                    id: "01HF7K8QZ9X1Y2Z3A4B5C6D7E8"
+                    time: "2025-01-15T10:30:00Z"
+                    datacontenttype: "application/json"
+                    data:
+                      resource_id: "1"
+                      schema: "Issue"
+                      actor: "user@gemeente.nl"
+                      timestamp: "2025-01-15T10:30:00Z"
+                      resource_data:
+                        id: "1"
+                        title: "Paspoort aanvragen"
+                        description: "Nieuwe paspoort aanvraag ingediend door burger"
+                        status: "open"
+                        assignee: "alice@gemeente.nl"
                 CommentAdded:
                   summary: New comment added to a case
-                  value: |
-                    event: message
-                    data: {
-                      "specversion": "1.0",
-                      "type": "json.commit",
-                      "source": "zaakchat-service",
-                      "subject": "1",
-                      "id": "01HF7K8QZ9X1Y2Z3A4B5C6D7E9",
-                      "time": "2025-01-15T10:35:00Z",
-                      "datacontenttype": "application/json",
-                      "data": {
-                        "resource_id": "comment-123",
-                        "schema": "Comment",
-                        "actor": "burger@eindhoven.nl",
-                        "timestamp": "2025-01-15T10:35:00Z",
-                        "resource_data": {
-                          "content": "Wanneer kan ik mijn paspoort ophalen?"
-                        }
-                      }
-                    }
+                  value:
+                    specversion: "1.0"
+                    type: "json.commit"
+                    source: "zaakchat-service"
+                    subject: "1"
+                    id: "01HF7K8QZ9X1Y2Z3A4B5C6D7E9"
+                    time: "2025-01-15T10:35:00Z"
+                    datacontenttype: "application/json"
+                    data:
+                      resource_id: "comment-123"
+                      schema: "Comment"
+                      actor: "burger@eindhoven.nl"
+                      timestamp: "2025-01-15T10:35:00Z"
+                      resource_data:
+                        content: "Wanneer kan ik mijn paspoort ophalen?"
 
 components:
-  schemas:
-    CloudEvent:
-      $ref: "../../../schemas/events/v0.0.1.json#/$defs/CloudEvent"
-    JSONCommit:
-      $ref: "../../../schemas/events/v0.0.1.json#/$defs/JSONCommit"
-    Issue:
-      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Issue"
-    Comment:
-      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Comment"
-    Task:
-      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Task"
-    Document:
-      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Document"
-    Planning:
-      $ref: "../../../schemas/zaakchat/v0.0.1.json#/$defs/Planning"
+  schemas: {}

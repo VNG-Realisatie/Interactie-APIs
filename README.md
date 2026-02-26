@@ -1,6 +1,16 @@
 # VNG Interactie APIs
 
-Dit repository bevat de API-standaarden, gedeelde schemas en patronen voor het Nederlandse gemeentelijke landschap (Common Ground).
+| Eigenaar | Ingevuld door |
+| --- | --- |
+| Project Omnichannel - MijnServices / Team Dienstverlening | Joep Meindertsma |
+
+Deze repository bevat de API-standaarden, gedeelde schemas en patronen voor de VNG Interactie API's.
+
+Bekijk op [vng-interactie-apis.netlify.app](https://vng-interactie-apis.netlify.app).
+
+## Status: Pre-alfa
+
+Dit project is nog in ontwikkeling, de API's en schema's vertegenwoordigen nog geen officiële standaarden.
 
 ## Wat doet deze repository
 
