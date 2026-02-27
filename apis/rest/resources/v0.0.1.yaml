@@ -5,13 +5,11 @@ info:
   description: Een algemene API voor het ophalen van resources op basis van een identifier.
   contact:
     name: VNG Realisatie
-    url: https://github.com/VNG-Realisatie/vng-apis-schemas
+    url: https://github.com/VNG-Realisatie/Interactie-APIs
 
 servers:
   - url: http://127.0.0.1:4010/apis/rest/resources/v1
     description: Lokale Mock Server (Gateway)
-  - url: https://vng-realisatie.github.io/vng-apis-schemas/apis/rest/resources/v1
-    description: Productie (GitHub Pages)
 
 tags:
   - name: Resources
@@ -51,12 +49,3 @@ paths:
           description: Verboden (geen rechten).
         "500":
           description: Interne serverfout.
-
-components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-Api-Key
-security:
-  - ApiKeyAuth: []
