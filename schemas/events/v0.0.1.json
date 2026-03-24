@@ -12,24 +12,15 @@
         },
         "datacontenttype": {
           "description": "Formaat van de data (meestal \"application/json\")",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "dataref": {
           "description": "Verwijzing naar externe data locatie (indien data niet inline staat)",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "dataschema": {
           "description": "URL naar het schema dat de data beschrijft",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "id": {
           "description": "Unieke identificatie van deze gebeurtenis",
@@ -37,17 +28,11 @@
         },
         "sequence": {
           "description": "Volgnummer voor het ordenen van gebeurtenissen",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "sequencetype": {
           "description": "Type van de volgnummering die gebruikt wordt",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "source": {
           "description": "Bron systeem dat de gebeurtenis heeft aangemaakt (bijv. \"zaaksysteem\", \"frontend-demo\")",
@@ -63,25 +48,58 @@
         },
         "time": {
           "description": "Tijdstip waarop de gebeurtenis plaatsvond (ISO 8601 formaat)",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "type": {
           "description": "Type gebeurtenis. Hier is het altijd \"json.commit\"",
           "type": "string"
         }
       },
-      "required": [
-        "id",
-        "source",
-        "specversion",
-        "subject",
-        "type"
-      ],
+      "required": ["id", "source", "specversion", "subject", "type"],
       "title": "CloudEvent",
-      "type": "object"
+      "type": "object",
+      "examples": [
+        {
+          "specversion": "1.0",
+          "type": "json.commit",
+          "source": "zaakchat-service",
+          "subject": "1",
+          "id": "01HF7K8QZ9X1Y2Z3A4B5C6D7E8",
+          "time": "2025-01-15T10:30:00Z",
+          "datacontenttype": "application/json",
+          "data": {
+            "resource_id": "1",
+            "schema": "Issue",
+            "actor": "user@gemeente.nl",
+            "timestamp": "2025-01-15T10:30:00Z",
+            "resource_data": {
+              "id": "1",
+              "title": "Paspoort aanvragen",
+              "description": "Nieuwe paspoort aanvraag ingediend door burger",
+              "status": "open",
+              "assignee": "alice@gemeente.nl"
+            }
+          }
+        },
+        {
+          "specversion": "1.0",
+          "type": "json.commit",
+          "source": "zaakchat-service",
+          "subject": "1",
+          "id": "01HF7K8QZ9X1Y2Z3A4B5C6D7E9",
+          "time": "2025-01-15T10:35:00Z",
+          "datacontenttype": "application/json",
+          "data": {
+            "resource_id": "comment-123",
+            "schema": "Comment",
+            "actor": "burger@eindhoven.nl",
+            "timestamp": "2025-01-15T10:35:00Z",
+            "resource_data": {
+              "content": "Wanneer kan ik mijn paspoort ophalen?"
+            }
+          }
+        }
+      ]
     },
     "JSONCommit": {
       "description": "JSONCommit - Een commit van wijzigingen aan een JSON resource\n\nDit event type vertegenwoordigt elke wijziging aan een JSON resource, of het nu gaat om: - Het aanmaken van een nieuwe resource (resource_data bevat de volledige resource) - Het updaten van een bestaande resource (patch bevat de wijzigingen) - Het verwijderen van een resource (deleted: true markeert de resource als verwijderd)",
@@ -92,10 +110,7 @@
         },
         "deleted": {
           "description": "Markeert de resource als verwijderd (bij verwijderingen). De resource (en de gerelateerde events) moeten dan uit de store verwijderd worden.",
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": ["boolean", "null"]
         },
         "patch": {
           "description": "JSON Merge Patch (RFC 7396) met wijzigingen (bij updates). Velden met een null waarde worden verwijderd. Alle andere velden worden bijgewerkt / overgeschreven."
@@ -113,17 +128,10 @@
         },
         "timestamp": {
           "description": "Tijdstip waarop de commit plaatsvond (ISO 8601 formaat: 2024-01-15T10:30:00Z)",
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         }
       },
-      "required": [
-        "actor",
-        "resource_id",
-        "schema"
-      ],
+      "required": ["actor", "resource_id", "schema"],
       "title": "JSONCommit",
       "type": "object"
     }

@@ -50,7 +50,7 @@ paths:
       tags:
         - Events
       description: |
-        Connect to this endpoint to receive a continuous stream of ZaakChat events.
+        Connect to this endpoint to receive a continuous stream of ZaakChat events, scoped to the user's identity.
 
         The stream uses the `text/event-stream` format. Each event in the stream follows the CloudEvent 1.0 specification.
       operationId: subscribeToEvents
@@ -61,45 +61,6 @@ paths:
             text/event-stream:
               schema:
                 $ref: "../../../schemas/events/v0.0.1.json#/$defs/CloudEvent"
-              examples:
-                IssueCreated:
-                  summary: New municipal case created
-                  value:
-                    specversion: "1.0"
-                    type: "json.commit"
-                    source: "zaakchat-service"
-                    subject: "1"
-                    id: "01HF7K8QZ9X1Y2Z3A4B5C6D7E8"
-                    time: "2025-01-15T10:30:00Z"
-                    datacontenttype: "application/json"
-                    data:
-                      resource_id: "1"
-                      schema: "Issue"
-                      actor: "user@gemeente.nl"
-                      timestamp: "2025-01-15T10:30:00Z"
-                      resource_data:
-                        id: "1"
-                        title: "Paspoort aanvragen"
-                        description: "Nieuwe paspoort aanvraag ingediend door burger"
-                        status: "open"
-                        assignee: "alice@gemeente.nl"
-                CommentAdded:
-                  summary: New comment added to a case
-                  value:
-                    specversion: "1.0"
-                    type: "json.commit"
-                    source: "zaakchat-service"
-                    subject: "1"
-                    id: "01HF7K8QZ9X1Y2Z3A4B5C6D7E9"
-                    time: "2025-01-15T10:35:00Z"
-                    datacontenttype: "application/json"
-                    data:
-                      resource_id: "comment-123"
-                      schema: "Comment"
-                      actor: "burger@eindhoven.nl"
-                      timestamp: "2025-01-15T10:35:00Z"
-                      resource_data:
-                        content: "Wanneer kan ik mijn paspoort ophalen?"
 
 components:
   schemas: {}

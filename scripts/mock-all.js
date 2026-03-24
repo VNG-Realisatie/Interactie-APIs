@@ -11,6 +11,17 @@ async function startMocks() {
   const app = express();
   const mainPort = 4010;
 
+  // CORS headers toestaan voor lokale ontwikkeling (Vite op :3000)
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(204);
+    }
+    next();
+  });
+
   // Zoek alle OpenAPI bestanden (flat file structure: apis/rest/demo/v1.0.0.yaml)
   const specFiles = await fg('apis/**/*.{yaml,yml}');
 
@@ -24,18 +35,9 @@ async function startMocks() {
   specFiles.forEach((spec, index) => {
     const prismPort = 5000 + index;
 
-    // Lees het YAML bestand om het base path te bepalen uit de 'servers'
-    let apiPath = '/' + spec.replace(path.extname(spec), '');
-    try {
-      const content = fs.readFileSync(spec, 'utf8');
-      const parsed = yaml.load(content);
-      const localServer = parsed.servers?.find(s => s.url.includes('4010'));
-      if (localServer) {
-        apiPath = new URL(localServer.url).pathname;
-      }
-    } catch (e) {
-      console.warn(`Kon pad niet bepalen voor ${spec}, fallback naar ${apiPath}`);
-    }
+    // Forceer het base path gebaseerd op het bestandspad (bijv. /apis/rest/resources/v0.0.1)
+    // Dit zorgt voor consistentie met de UI die dit pad ook dynamisch berekent.
+    const apiPath = '/' + spec.replace(path.extname(spec), '');
 
     console.log(`🚀 Start Prism voor ${spec} op localhost:${prismPort} (gateway path: ${apiPath})`);
 

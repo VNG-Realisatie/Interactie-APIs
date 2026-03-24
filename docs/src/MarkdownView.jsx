@@ -1,35 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { marked } from 'marked';
+import React, { useState, useEffect } from "react";
+import { marked } from "marked";
 
 export default function MarkdownView({ path, portalData }) {
-  const [html, setHtml] = useState('Laden...');
+  const [html, setHtml] = useState("Laden...");
 
   useEffect(() => {
-    fetch('/' + path)
-      .then(r => r.text())
-      .then(text => setHtml(marked.parse(text)))
-      .catch(e => setHtml('Fout bij laden document: ' + e.message));
+    fetch("/" + path)
+      .then((r) => r.text())
+      .then((text) => setHtml(marked.parse(text)))
+      .catch((e) => setHtml("Fout bij laden document: " + e.message));
   }, [path]);
 
   const renderDataList = () => {
     if (!portalData) return null;
 
     let items = [];
-    let title = '';
-    let linkPrefix = '';
+    let title = "";
+    let linkPrefix = "";
 
-    if (path === 'docs/apis.md' && portalData.apis) {
+    if (path === "docs/apis.md" && portalData.apis) {
       items = portalData.apis;
-      title = 'Beschikbare APIs';
-      linkPrefix = '/?url=';
-    } else if (path === 'docs/schemas.md' && portalData.schemas) {
+      title = "Beschikbare APIs";
+      linkPrefix = "/?url=";
+    } else if (path === "docs/schemas.md" && portalData.schemas) {
       items = portalData.schemas;
-      title = 'Beschikbare Schemas';
-      linkPrefix = '/?file=';
-    } else if (path === 'docs/patterns.md' && portalData.patterns) {
+      title = "Beschikbare Schemas";
+      linkPrefix = "/?file=";
+    } else if (path === "docs/patterns.md" && portalData.patterns) {
       items = portalData.patterns;
-      title = 'Beschikbare Patronen';
-      linkPrefix = '/?file=';
+      title = "Beschikbare Patronen";
+      linkPrefix = "/?file=";
     } else {
       return null;
     }
@@ -37,17 +37,52 @@ export default function MarkdownView({ path, portalData }) {
     if (items.length === 0) return null;
 
     return (
-      <div className="card" style={{ marginTop: '2em', padding: '24px' }}>
+      <div className="card" style={{ marginTop: "2em", padding: "24px" }}>
         <h2>{title}</h2>
-        <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
+        <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
           {items.map((item, i) => {
             const linkUrl = item.versions[0].url || item.versions[0].path;
             const displayName = item.title || item.name;
+            const fileName = item.versions[0].sourceUrl
+              ? item.versions[0].sourceUrl
+                  .split("/")
+                  .pop()
+                  .replace(/\.(json|yaml|yml)$/, "")
+              : null;
+            const respecHtml = fileName
+              ? `/docs/respec/${fileName}.html`
+              : null;
+            const respecPdf = fileName ? `/docs/respec/${fileName}.pdf` : null;
+
             return (
-              <li key={i}>
-                <a href={linkPrefix + linkUrl} style={{ textDecoration: 'none', fontWeight: '500' }}>
+              <li key={i} style={{ marginBottom: "8px" }}>
+                <a
+                  href={linkPrefix + linkUrl}
+                  style={{ textDecoration: "none", fontWeight: "500" }}
+                >
                   {displayName}
                 </a>
+                {respecHtml && (
+                  <span style={{ marginLeft: "10px", fontSize: "0.85em" }}>
+                    (
+                    <a
+                      href={respecHtml}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      HTML
+                    </a>
+                    {" | "}
+                    <a
+                      href={respecPdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      PDF
+                    </a>
+                    )
+                  </span>
+                )}
               </li>
             );
           })}

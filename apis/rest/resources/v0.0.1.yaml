@@ -41,6 +41,11 @@ paths:
                 type: object
                 description: De representatie van de resource.
                 additionalProperties: true
+              example:
+                identifier: "https://api.vng.nl/resources/123e4567-e89b-12d3-a456-426614174000"
+                naam: "Example Resource"
+                beschrijving: "Dit is een voorbeeld resource"
+                createdAt: "2024-01-01T00:00:00Z"
         "404":
           description: Resource niet gevonden.
         "401":

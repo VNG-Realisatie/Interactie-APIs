@@ -1,9 +1,14 @@
+# cache
 node_modules
-docs/bundled/
-docs/portal-data.json
+
 
 # Local Netlify folder
 .netlify
 
 # Build artifacts
 dist
+docs/bundled/
+docs/portal-data.json
+docs/respec
+
+.DS_Store

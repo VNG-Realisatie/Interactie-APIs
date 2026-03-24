@@ -7,17 +7,18 @@
   "description": "VNG Interactie APIs and Schemas",
   "scripts": {
     "lint": "spectral lint \"apis/**/*.yaml\"",
-    "prep-docs": "node scripts/generate-portal-data.js",
+    "prep-docs": "node scripts/generate-portal-data.js && pnpm respec",
+    "respec": "node scripts/generate-respec.js",
     "dev": "pnpm prep-docs && concurrently \"vite\" \"pnpm mock\"",
     "build": "pnpm prep-docs && vite build && cp -R docs apis schemas patterns *.md dist/",
     "serve": "pnpm build && npx serve dist",
     "mock": "node scripts/mock-all.js"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@xyflow/react": "^12.0.0",
-    "marked": "^15.0.0"
+    "marked": "^15.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@scalar/cli": "latest",
@@ -29,7 +30,9 @@
     "fast-glob": "^3.3.3",
     "http-proxy-middleware": "^3.0.5",
     "js-yaml": "^4.1.1",
+    "puppeteer": "^24.38.0",
     "serve": "^14.2.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "widdershins": "^4.0.1"
   }
 }

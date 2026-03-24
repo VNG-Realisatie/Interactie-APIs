@@ -7,6 +7,7 @@
 Deze repository bevat de API-standaarden, gedeelde schemas en patronen voor de VNG Interactie API's.
 
 Bekijk op [vng-interactie-apis.netlify.app](https://vng-interactie-apis.netlify.app).
+Issues / suggesties / verbeteringen op [Github Issues](https://github.com/VNG-Realisatie/Interactie-APIs/issues).
 
 ## Status: Pre-alfa
 
@@ -15,6 +16,7 @@ Dit project is nog in ontwikkeling, de API's en schema's vertegenwoordigen nog g
 ## Wat doet deze repository
 
 - **API Specificaties**. Dit beschrijft hoe APIs werken, welke endpoints er zijn, en wat voor soort antwoorden ze geven. De APIs zijn beschreven in OpenAPI spec of AsyncAPI spec.
+- **Technische Documentatie (ReSpec)**. Van elke API wordt automatisch een mensgerichte ReSpec specificatie gegenereerd (Single Source of Truth).
 - **JSON Schemas**. Dit beschrijft hoe de datamodellen er uit zien. Deze kunnen worden hergebruikt tussen API specificaties.
 - **Patterns**. Dit zijn manieren waarop APIs zijn ontworpen
 - **Versiebeheer**. Van alle schemas, APIs en patterns worden versies bijgehouden.
@@ -28,6 +30,7 @@ Dit project is nog in ontwikkeling, de API's en schema's vertegenwoordigen nog g
   - `[object]/[semver].json`: Expliciete versiebeheer (bijv. `adres/0.0.1.json`).
 - `patterns/`: Herbruikbare API-fragmenten (bijv. paginering).
 - `docs/`: Governance, Design Principes en Architectural Decision Records (ADRs).
+  - `respec/`: Automatisch gegenereerde ReSpec HTML specificaties en PDF versies hiervan.
 - `archive/`: Gearchiveerde versies (zie [Sunsetting Policy](docs/governance/sunsetting.md)).
 
 ## Governance & Bijdragen
@@ -50,17 +53,25 @@ Om de API-specificaties lokaal te bekijken of te testen:
    pnpm install
    ```
 
-2. **Alles-in-één development** (Portal + Mock Servers):
+2. **Alles-in-één development** (Portal + Mock Servers + ReSpec):
 
    ```bash
    pnpm run dev
    ```
 
-   Dit start automatisch:
-   - Het **Interactie APIs Portal** op [http://localhost:3000/](http://localhost:3000/)
-   - De **Mock Servers (Gateway)** op [http://127.0.0.1:4010](http://127.0.0.1:4010)
+    Dit start automatisch:
+    - Het **Interactie APIs Portal** op [http://localhost:3000/](http://localhost:3000/)
+    - De **Mock Servers (Gateway)** op [http://127.0.0.1:4010](http://127.0.0.1:4010)
+    - De **ReSpec Generatie** (HTML en PDF bestanden landen in `docs/respec/`)
 
-3. **Linter uitvoeren** (Optioneel):
+3. **ReSpec handmatig genereren**:
+   Als je alleen de ReSpec (HTML & PDF) bestanden wilt updaten:
+
+   ```bash
+   pnpm run respec
+   ```
+
+4. **Linter uitvoeren** (Optioneel):
    Controleer of je wijzigingen voldoen aan de Nederlandse API-strategie:
 
    ```bash
