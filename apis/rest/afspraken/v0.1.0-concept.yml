@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  title: Afspraken API — MijnAgenda-service
+  title: Afspraken
   version: 0.1.0-concept
   description: |
     **Conceptversie — datamodel onder actieve ontwikkeling**
@@ -102,7 +102,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AfsprakenZoekverzoek'
+              $ref: "#/components/schemas/AfsprakenZoekverzoek"
             examples:
               emailAdressen:
                 summary: Twee e-mailadressen met periodefilter
@@ -121,14 +121,14 @@ paths:
                     - type: email
                       waarde: gebruiker@example.nl
       responses:
-        '200':
+        "200":
           description: |
             Zoekopdracht succesvol uitgevoerd. De `afspraken`-array kan leeg zijn
             wanneer er geen overeenkomende afspraken zijn gevonden.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AfsprakenZoekresultaatEnvelope'
+                $ref: "#/components/schemas/AfsprakenZoekresultaatEnvelope"
               examples:
                 metResultaten:
                   summary: Twee gevonden afspraken
@@ -148,45 +148,45 @@ paths:
                   summary: Geen afspraken gevonden
                   value:
                     afspraken: []
-        '400':
+        "400":
           description: >
             Ongeldige request body (bijv. ontbrekende verplichte velden, ongeldig formaat,
             onbekend identificatietype, of `van` > `tot`).
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 400
                 code: "ONGELDIGE_AANVRAAG"
                 title: "Ongeldige aanvraag"
                 detail: "Het veld 'identificaties' is verplicht en moet minimaal één element bevatten."
                 instance: "/afspraken/opvragen"
-        '401':
+        "401":
           description: Geen of ongeldig authenticatietoken.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 401
                 code: "NIET_GEAUTHENTICEERD"
                 title: "Niet geauthenticeerd"
                 detail: "Er is geen geldig OAuth2-token aanwezig of het token is verlopen."
                 instance: "/afspraken/opvragen"
-        '403':
+        "403":
           description: Geldige authenticatie maar onvoldoende autorisatie voor deze operatie.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 403
                 code: "NIET_GEAUTORISEERD"
                 title: "Niet geautoriseerd"
                 detail: "De client heeft geen toegang tot deze resource of mist de vereiste scope."
                 instance: "/afspraken/opvragen"
-        '429':
+        "429":
           description: Te veel verzoeken — rate limit overschreden.
           headers:
             Retry-After:
@@ -196,31 +196,31 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 429
                 code: "TE_VEEL_VERZOEKEN"
                 title: "Te veel verzoeken"
                 detail: "Rate limit overschreden. Probeer het opnieuw na de aangegeven wachttijd."
                 instance: "/afspraken/opvragen"
-        '500':
+        "500":
           description: Interne serverfout.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 500
                 code: "INTERNE_FOUT"
                 title: "Interne serverfout"
                 detail: "Er is een onverwachte fout opgetreden. Neem contact op met de beheerder."
                 instance: "/afspraken/opvragen"
-        '503':
+        "503":
           description: Service tijdelijk niet beschikbaar, bijv. door een niet-bereikbaar downstream systeem.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 503
                 code: "SERVICE_NIET_BESCHIKBAAR"
@@ -261,12 +261,12 @@ paths:
             type: string
             example: "afspr-2026-001-xyz"
       responses:
-        '200':
+        "200":
           description: Details van de afspraak.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AfspraakDetails'
+                $ref: "#/components/schemas/AfspraakDetails"
               example:
                 afspraakreferentie: "afspr-2026-001-xyz"
                 titel: "Gesprek re-integratie"
@@ -285,58 +285,57 @@ paths:
                 meeTeNemen:
                   - "Geldig identiteitsbewijs"
                   - "Laatste loonstrook"
-        '400':
+        "400":
           description: Ongeldige afspraakreferentie (bijv. illegale tekens of te lange waarde).
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 400
                 code: "ONGELDIGE_REFERENTIE"
                 title: "Ongeldige referentie"
                 detail: "De opgegeven afspraakreferentie bevat ongeldige tekens."
                 instance: "/afspraken/afspr-2026-001-xyz"
-        '401':
+        "401":
           description: Geen of ongeldig authenticatietoken.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '403':
+                $ref: "#/components/schemas/ProblemDetails"
+        "403":
           description: Onvoldoende autorisatie voor het opvragen van deze specifieke afspraak.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '404':
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
           description: Afspraak niet gevonden voor de opgegeven referentie.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 404
                 code: "AFSPRAAK_NIET_GEVONDEN"
                 title: "Afspraak niet gevonden"
                 detail: "Er is geen afspraak gevonden met referentie 'afspr-2026-001-xyz'."
                 instance: "/afspraken/afspr-2026-001-xyz"
-        '500':
+        "500":
           description: Interne serverfout.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '503':
+                $ref: "#/components/schemas/ProblemDetails"
+        "503":
           description: Service tijdelijk niet beschikbaar.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
 
 components:
   schemas:
-
     # ─── Request ────────────────────────────────────────────────────────────────
 
     AfsprakenZoekverzoek:
@@ -356,7 +355,7 @@ components:
             de pilot; het model is uitbreidbaar zonder breaking changes. Onbekende typen
             worden afgewezen met een `400`-response.
           items:
-            $ref: '#/components/schemas/Identificatie'
+            $ref: "#/components/schemas/Identificatie"
         van:
           type: string
           format: date-time
@@ -424,7 +423,7 @@ components:
             Lijst van gevonden afspraken. Leeg wanneer geen afspraken werden gevonden
             die voldoen aan de opgegeven criteria.
           items:
-            $ref: '#/components/schemas/AfspraakZoekresultaat'
+            $ref: "#/components/schemas/AfspraakZoekresultaat"
 
     AfspraakZoekresultaat:
       type: object
@@ -544,7 +543,7 @@ components:
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Locatie van de afspraak. Kan fysiek, telefonisch of online zijn.
           allOf:
-            - $ref: '#/components/schemas/AfspraakLocatie'
+            - $ref: "#/components/schemas/AfspraakLocatie"
         kanaal:
           type: string
           x-provisional: true
@@ -628,7 +627,7 @@ components:
           description: |
             **Voorlopig** — gestructureerd adres; alleen relevant bij fysieke afspraken.
           allOf:
-            - $ref: '#/components/schemas/Adres'
+            - $ref: "#/components/schemas/Adres"
 
     Adres:
       type: object
