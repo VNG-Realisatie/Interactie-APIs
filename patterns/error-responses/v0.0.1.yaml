@@ -1,0 +1,27 @@
+---
+title: Foutafhandeling
+description: Definieert de `400` en `default` afhandeling gebaseerd op RFC 7807 `application/problem+json`.
+responses:
+  "400":
+    $ref: "#/components/responses/BadRequest"
+  default:
+    $ref: "#/components/responses/Error"
+
+components:
+  responses:
+    BadRequest:
+      headers:
+        API-version:
+          $ref: "../../schemas/zgw/headers/api-version/v0.0.1.yaml"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "../../schemas/fout/v0.0.1.json#/$defs/ValidatieFout"
+    Error:
+      headers:
+        API-version:
+          $ref: "../../schemas/zgw/headers/api-version/v0.0.1.yaml"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "../../schemas/fout/v0.0.1.json#/$defs/Fout"
