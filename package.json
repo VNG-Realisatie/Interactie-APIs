@@ -1,12 +1,12 @@
 {
   "name": "vng-interactie-apis",
+  "version": "1.0.0",
+  "description": "VNG Interactie APIs and Schemas",
   "author": {
     "name": "Joep Meindertsma"
   },
-  "version": "1.0.0",
-  "description": "VNG Interactie APIs and Schemas",
   "scripts": {
-    "lint": "spectral lint \"apis/**/*.yaml\"",
+    "lint": "spectral lint --fail-severity=error \"apis/**/*.yaml\" \"apis/**/*.yml\" \"patterns/**/*.yaml\" \"patterns/**/*.yml\"",
     "prep-docs": "node scripts/generate-portal-data.js && pnpm respec",
     "respec": "node scripts/generate-respec.js",
     "dev": "pnpm prep-docs && concurrently \"vite\" \"pnpm mock\"",

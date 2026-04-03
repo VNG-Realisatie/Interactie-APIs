@@ -14,5 +14,7 @@ dist
 docs/bundled/
 docs/portal-data.json
 docs/respec
+docs/.portal-cache.json
+docs/.respec-cache.json
 
 .DS_Store
