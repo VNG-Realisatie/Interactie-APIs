@@ -1,4 +1,4 @@
-title: File Upload (API Workflow)
+title: File Upload
 description: |
   Beschrijft het API-gedrag, de foutafhandeling en de (HTTP) OpenAPI request/response contracten voor het two-step (pre-signed URL) uploadproces.
 
