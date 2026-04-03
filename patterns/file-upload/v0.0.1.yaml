@@ -1,0 +1,40 @@
+title: File Upload (API Workflow)
+description: |
+  Beschrijft het API-gedrag, de foutafhandeling en de (HTTP) OpenAPI request/response contracten voor het two-step (pre-signed URL) uploadproces.
+
+  **Hoe werkt het voor de ontwikkelaar/gebruiker?**
+  1. De client doet een `POST` naar een upload-sessie endpoint (vaak `.../upload-sessie`) met de benodigde bestand-metadata.
+  2. Als dit slaagt (201), krijgt de client in het antwoord een tijdelijke, unieke `uploadUrl` (zoals een pre-signed S3 URL) terug om het ruwe bestand heen te sturen (meestal met `PUT`).
+  3. **Meerdere bestanden?** Wil de client 5 bestanden uploaden, dan roept hij deze `POST` operatie 5 keer aan. Batching voor bulk uploads naar cloud-storage verhoogt de complexiteit voor de proxy, vandaar dat single-file requests de voorkeur hebben in de API.
+  4. **Fouten (Errors)?**
+     - Bestandsgrootte groter dan toegestaan voor de server/tenant? Resultaat `413 Payload Too Large`.
+     - Ontbrekende metadata of foute bestandsnaamextensie? Resultaat `400 Bad Request` (of 422).
+     - Verlopen pre-signed URL (na stap 2)? Dan antwoordt de opslaglaag met een `403 Forbidden` tijdens de PUT. De client moet dan een nieuwe upload sessie starten in stap 1.
+
+requestBodies:
+  UploadSessieAanvraag:
+    description: Het verzoek om een nieuwe upload-sessie te starten voor één bestand. Voor meerdere bestanden moet dit proces iteratief worden herhaald door de client.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/file-upload/v0.0.1.json#/$defs/FileMetadata"
+
+responses:
+  UploadSessieAangemaakt:
+    description: De upload sessie is succesvol geregistreerd. De client kan nu het fysieke bestand overdragen naar de bijgeleverde URL.
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/file-upload/v0.0.1.json#/$defs/FileUploadInformatie"
+
+  # Deze error wordt specifiek gedefinieerd voor de upload-route omdat die uniek is voor grote uploads.
+  PayloadTooLarge:
+    description: De opgegeven bestandsomvang overschrijdt de maximale grootte (limiet) die voor deze resource is ingesteld.
+    headers:
+      API-version:
+        $ref: "../../schemas/zgw/headers/api-version/v0.0.1.yaml"
+    content:
+      application/problem+json:
+        schema:
+          $ref: "../../schemas/fout/v0.0.1.json#/$defs/Fout"
