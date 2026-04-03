@@ -1,0 +1,93 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="white"/>
+
+  <text x="400" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#2D7FF9">Voorgestelde situatie</text>
+
+  <g font-family="Arial, sans-serif">
+    <text x="180" y="120" font-size="20" font-weight="bold" fill="black">Generieke API</text>
+
+    <path d="M210,130 L110,180" stroke="#333" stroke-width="2"/>
+    <path d="M240,130 L240,180" stroke="#333" stroke-width="2"/>
+    <path d="M270,130 L370,180" stroke="#333" stroke-width="2"/>
+
+    <text x="80" y="210" font-size="18" font-weight="bold" fill="black">/events</text>
+    <g transform="translate(60, 230)">
+      <circle cx="5" cy="5" r="3" fill="#333"/>
+      <text x="15" y="10" font-size="14" fill="#333">aanmaken</text>
+
+      <circle cx="5" cy="25" r="3" fill="#333"/>
+      <text x="15" y="30" font-size="14" fill="#333">wijzigen</text>
+
+      <circle cx="5" cy="45" r="3" fill="#333"/>
+      <text x="15" y="50" font-size="14" fill="#333">synchroniseren</text>
+    </g>
+
+    <text x="210" y="210" font-size="18" font-weight="bold" fill="black">/resource</text>
+    <g transform="translate(200, 230)">
+      <circle cx="5" cy="5" r="3" fill="#333"/>
+      <text x="15" y="10" font-size="14" fill="#333">ophalen enkel</text>
+    </g>
+
+    <text x="360" y="210" font-size="18" font-weight="bold" fill="black">/query</text>
+    <g transform="translate(350, 230)">
+      <circle cx="5" cy="5" r="3" fill="#333"/>
+      <text x="15" y="10" font-size="14" fill="#333">zoeken</text>
+
+      <circle cx="5" cy="25" r="3" fill="#333"/>
+      <text x="15" y="30" font-size="14" fill="#333">filteren</text>
+
+      <circle cx="5" cy="45" r="3" fill="#333"/>
+      <text x="15" y="50" font-size="14" fill="#333">sorteren</text>
+
+      <circle cx="5" cy="65" r="3" fill="#333"/>
+      <text x="15" y="70" font-size="14" fill="#333">pagineren</text>
+    </g>
+  </g>
+
+  <g font-family="Arial, sans-serif" transform="translate(580, 100)">
+    <text x="0" y="20" font-size="20" font-weight="bold" fill="black">JSON Schema</text>
+
+    <g transform="translate(-10, 40)">
+      <circle cx="5" cy="5" r="3" fill="#333"/>
+      <text x="15" y="10" font-size="16" fill="#333">datamodellen</text>
+
+      <circle cx="5" cy="25" r="3" fill="#333"/>
+      <text x="15" y="30" font-size="16" fill="#333">validatie</text>
+
+      <circle cx="5" cy="45" r="3" fill="#333"/>
+      <text x="15" y="50" font-size="16" fill="#333">semantiek</text>
+    </g>
+  </g>
+
+  <g font-family="Arial, sans-serif" transform="translate(280, 360)">
+    <style>
+      .benefit-text { font-size: 16; font-weight: bold; fill: #333; }
+      .check-mark { stroke: #48BB78; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+
+    <g transform="translate(0, 0)">
+      <path d="M0,8 L6,14 L18,2" class="check-mark"/>
+      <text x="30" y="13" class="benefit-text">Korte, eenvoudige API specificatie</text>
+    </g>
+
+    <g transform="translate(0, 35)">
+      <path d="M0,8 L6,14 L18,2" class="check-mark"/>
+      <text x="30" y="13" class="benefit-text">Krachtige zoekmogelijkheden</text>
+    </g>
+
+    <g transform="translate(0, 70)">
+      <path d="M0,8 L6,14 L18,2" class="check-mark"/>
+      <text x="30" y="13" class="benefit-text">Veel hergebruik datamodellen</text>
+    </g>
+
+    <g transform="translate(0, 105)">
+      <path d="M0,8 L6,14 L18,2" class="check-mark"/>
+      <text x="30" y="13" class="benefit-text">Volledige synchronisatie</text>
+    </g>
+
+    <g transform="translate(0, 140)">
+      <path d="M0,8 L6,14 L18,2" class="check-mark"/>
+      <text x="30" y="13" class="benefit-text">Real-time data</text>
+    </g>
+  </g>
+</svg>
