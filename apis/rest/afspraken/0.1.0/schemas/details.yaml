@@ -1,0 +1,169 @@
+openapi: 3.2.0
+jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
+info:
+  title: Afspraken API - Detailschema's
+  version: 0.1.0-concept
+components:
+  schemas:
+    AfspraakDetails:
+      type: object
+      required:
+        - afspraakreferentie
+      description: |
+        Volledige details van één afspraak.
+
+        **Conceptversie** — het datamodel is nog in ontwikkeling. Alleen `afspraakreferentie`
+        is hard vastgesteld. Alle overige velden zijn voorlopig en kunnen wijzigen.
+
+        **Status**: De bron is intern niet volledig consistent over het leveren van
+        statusinformatie. Omdat het afsprakensysteem in het beschreven patroon alleen
+        niet-geannuleerde afspraken levert, is `status` als optioneel en voorlopig
+        opgenomen. Zie `x-source-note` voor verdere toelichting.
+      x-source-note: >
+        De bron vermeldt enerzijds dat het afsprakensysteem alleen niet-geannuleerde afspraken
+        levert en geen statusinformatie levert. Anderzijds wordt status later in het document
+        als verwacht veld van het toekomstige datamodel genoemd. Meest conservatieve keuze:
+        status is optioneel en niet gegarandeerd aanwezig. Productiebesluit vereist.
+      properties:
+        afspraakreferentie:
+          type: string
+          description: |
+            Unieke identifier van de afspraak, toegekend door het afsprakensysteem.
+            De waarde is opaque.
+          example: "afspr-2026-001-xyz"
+        titel:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Een beknopte omschrijving van de afspraak.
+          example: "Gesprek re-integratie"
+        beginDatumTijd:
+          type: string
+          format: date-time
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Begintijd van de afspraak als ISO 8601 datetime met timezone offset.
+            Voorbeeld: `2026-03-15T09:00:00+01:00`.
+          example: "2026-03-15T09:00:00+01:00"
+        eindDatumTijd:
+          type: string
+          format: date-time
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Eindtijd van de afspraak als ISO 8601 datetime met timezone offset.
+          example: "2026-03-15T10:00:00+01:00"
+        locatie:
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Locatie van de afspraak. Kan fysiek, telefonisch of online zijn.
+          allOf:
+            - $ref: '#/components/schemas/AfspraakLocatie'
+        kanaal:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Het kanaal of de modaliteit waarop de afspraak plaatsvindt.
+          enum:
+            - fysiek
+            - telefonisch
+            - video
+            - onbekend
+          example: fysiek
+        onderwerp:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Uitgebreidere omschrijving van het onderwerp van de afspraak.
+          example: "Bespreking re-integratieplan na langdurige ziekte"
+        meeTeNemen:
+          type: array
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Lijst van documenten of items die de inwoner moet meenemen naar de afspraak.
+          items:
+            type: string
+          example:
+            - "Geldig identiteitsbewijs"
+            - "Laatste loonstrook"
+        status:
+          type: string
+          x-provisional: true
+          x-source-note: >
+            Optioneel en voorlopig. De bron is intern niet consistent: eerder wordt vermeld
+            dat het afsprakensysteem alleen niet-geannuleerde afspraken levert en geen
+            statusinformatie levert; later wordt status als verwacht veld genoemd.
+            Conservatieve keuze: niet required, niet gegarandeerd aanwezig.
+            Productiebesluit over aanwezigheid en waardeset is vereist.
+          description: |
+            **Voorlopig veld — productiebesluit vereist.**
+            Status van de afspraak. Of en in welke vorm dit veld wordt geleverd door
+            het onderliggende afsprakensysteem is nog niet definitief vastgesteld.
+
+            Conservatieve aanname: alleen niet-geannuleerde afspraken worden geleverd,
+            waardoor `status` mogelijk niet aanwezig of altijd impliciet "gepland/bevestigd" is.
+          enum:
+            - gepland
+            - bevestigd
+            - onbekend
+          example: gepland
+
+    AfspraakLocatie:
+      type: object
+      x-provisional: true
+      description: |
+        **Voorlopig schema** — nog niet definitief vastgesteld.
+
+        Locatiegegevens van een afspraak. De bron beschrijft fysieke, telefonische en
+        online/video-afspraken; het model is hierop uitbreidbaar.
+      properties:
+        type:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig** — type locatie of modaliteit van de afspraak.
+          enum:
+            - fysiek
+            - telefonisch
+            - video
+            - onbekend
+          example: fysiek
+        omschrijving:
+          type: string
+          description: Vrije-tekst omschrijving van de locatie.
+          example: "Stadskantoor Rotterdam, ingang Coolsingel"
+        adres:
+          x-provisional: true
+          description: |
+            **Voorlopig** — gestructureerd adres; alleen relevant bij fysieke afspraken.
+          allOf:
+            - $ref: '#/components/schemas/Adres'
+
+    Adres:
+      type: object
+      x-provisional: true
+      description: |
+        **Voorlopig schema** — vereenvoudigd adresmodel voor fysieke locaties.
+        De exacte veldset is nog niet definitief vastgesteld.
+      properties:
+        straatnaam:
+          type: string
+          example: "Coolsingel"
+        huisnummer:
+          type: string
+          example: "40"
+        huisnummertoevoeging:
+          type: string
+          example: "A"
+        postcode:
+          type: string
+          example: "3011 AD"
+        woonplaats:
+          type: string
+          example: "Rotterdam"

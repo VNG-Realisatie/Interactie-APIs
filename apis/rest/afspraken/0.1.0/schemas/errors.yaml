@@ -1,0 +1,41 @@
+openapi: 3.2.0
+jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
+info:
+  title: Afspraken API - Foutschema's
+  version: 0.1.0-concept
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      required:
+        - code
+        - title
+      description: |
+        Uniforme foutstructuur conform RFC 7807 (Problem Details for HTTP APIs),
+        aangevuld met een machineleesbaar `code`-veld in lijn met de NLGov API Design Rules.
+
+        Content-type voor foutresponses: `application/problem+json`.
+      properties:
+        status:
+          type: integer
+          description: HTTP-statuscode van de foutresponse.
+          example: 400
+        code:
+          type: string
+          description: Machineleesbare, stabiele foutcode voor gebruik door consumers.
+          example: "ONGELDIGE_AANVRAAG"
+        title:
+          type: string
+          description: Korte, voor mensen leesbare omschrijving van de fout. Stabiel per fouttype.
+          example: "Ongeldige aanvraag"
+        detail:
+          type: string
+          description: |
+            Aanvullende, voor mensen leesbare uitleg van deze specifieke fout.
+            Kan per instantie variëren.
+          example: "Het veld 'identificaties' is verplicht en moet minimaal één element bevatten."
+        instance:
+          type: string
+          description: |
+            Relatieve URI die verwijst naar de resource of het pad waarop de fout is opgetreden.
+          example: "/afspraken/opvragen"

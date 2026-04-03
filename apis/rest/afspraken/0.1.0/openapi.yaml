@@ -1,0 +1,407 @@
+openapi: 3.2.0
+jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
+
+info:
+  title: Afspraken API — MijnAgenda-service
+  version: 0.1.0-concept
+  description: |
+    **Conceptversie — datamodel onder actieve ontwikkeling**
+
+    Deze API stelt een MijnOmgeving in staat om afspraken van een inwoner op te vragen bij
+    een Afsprakenbeheercomponent, op basis van geverifieerde contactgegevens.
+
+    ## Patroon
+
+    De MijnOmgeving haalt eerst geverifieerde e-mailadressen op uit de Klantregistratiecomponent
+    (buiten scope van deze API) en raadpleegt vervolgens deze Afspraken API in een twee-staps flow:
+
+    1. **Zoeken** via `POST /afspraken/opvragen` — retourneert een lijst met samengevatte afspraken
+       inclusief een `afspraakreferentie`.
+    2. **Detail opvragen** via `GET /afspraken/{afspraakreferentie}` — retourneert de volledige
+       details van één specifieke afspraak.
+
+    ## Scope pilot
+
+    De pilot is primair gericht op inwoners. Ondernemers- en KCC-scenario's vallen buiten de
+    pilotscope. Aanmaken, wijzigen en annuleren van afspraken valt buiten de scope van deze API.
+
+    ## Standaarden
+
+    - Nederlandse API Strategie
+    - NLGov REST API Design Rules 2.1.0
+    - NL GOV Assurance profile for OAuth 2.0 v1.1.0
+    - OpenAPI Specification 3.2.0
+    - Digikoppeling REST-API 3.0.1 (indien van toepassing op de specifieke inzet)
+
+    ## Implementatie en omgevingen
+
+    Deze specificatie beschrijft het canonieke functionele contract tussen een
+    consumerende applicatie en een Afsprakenbeheercomponent. De concrete invulling van
+    infrastructuur en vertrouwensrelaties is deployment-specifiek.
+
+    Dat betekent dat per omgeving of implementatieprofiel onder meer kan verschillen:
+
+    - de API-base-URL
+    - de authorization server en het token endpoint
+    - clientregistratie en trustconfiguratie
+    - aanvullende transportmaatregelen zoals mTLS
+
+    Deze omgevingsspecifieke afspraken horen in een apart aansluit- of implementatieprofiel
+    naast deze OpenAPI-specificatie.
+
+    ## Privacy
+
+    Identificaties worden in de request body meegegeven, niet als querystring-parameters,
+    om te voorkomen dat privacygevoelige gegevens in server logs, proxy-logs of
+    browsergeschiedenis terechtkomen. Logging van de request body moet minimaal zijn en
+    zorgvuldig worden ingericht.
+  contact:
+    name: VNG Realisatie
+    url: https://github.com/camieleggermont/vng-mijnafspraken
+  license:
+    name: EUPL-1.2
+    identifier: EUPL-1.2
+  x-notes:
+    - Geen gebruikerscontext in het systeemtoken; dit is system-to-system authenticatie.
+    - Strikte validatie van de request body is vereist aan serverzijde.
+    - Een vertrouwensrelatie tussen de consumer en de Afsprakenbeheercomponent is vereist.
+    - mTLS wordt aanbevolen maar is vanuit de bronspecificatie niet verplicht gesteld.
+    - Deze specificatie is canoniek voor het functionele contract; omgevingsspecifieke security- en trustafspraken horen in een apart profiel.
+
+servers:
+  - url: https://api.example.nl/afspraken/v1
+    description: >
+      Voorbeeldserver voor documentatiedoeleinden. De daadwerkelijke base URL van de
+      Afsprakenbeheercomponent is afhankelijk van leverancier en doelomgeving en wordt
+      vastgelegd in een aansluit- of implementatieprofiel.
+
+tags:
+  - name: afspraken
+    description: Operaties voor het opvragen van afspraken op basis van geverifieerde identificaties.
+
+security:
+  - oauth2ClientCredentials:
+      - afspraken:lezen
+
+paths:
+  /afspraken/opvragen:
+    post:
+      operationId: zoekAfspraken
+      tags:
+        - afspraken
+      summary: Zoek afspraken op basis van identificaties
+      description: |
+        Zoekt afspraken op bij de Afsprakenbeheercomponent op basis van één of meer
+        geverifieerde identificaties van een inwoner.
+
+        **Gebruik van POST**
+
+        POST wordt bewust gebruikt zodat identificaties (die privacygevoelig zijn) niet
+        zichtbaar zijn in de URL, querystring of server-accesslogs. De request body mag
+        niet onversleuteld worden gelogd.
+
+        **Lege resultaten**
+
+        Wanneer er geen afspraken worden gevonden retourneert de service `200 OK` met een
+        lege `afspraken`-array. `404` wordt niet gebruikt voor een lege zoekset.
+
+        **Periodefilter**
+
+        Wanneer `van` en/of `tot` zijn opgegeven, worden alleen afspraken geretourneerd
+        waarvan de begintijd binnen de opgegeven periode valt. De exacte semantiek
+        (inclusief/exclusief grenzen, overlappende afspraken) is nog niet definitief
+        vastgesteld — zie open punten.
+
+        **Identificatietypen**
+
+        Momenteel is `email` het enige vastgestelde identificatietype voor de pilot. Het
+        model is uitbreidbaar ontworpen zodat toekomstige typen toegevoegd kunnen worden
+        zonder breaking changes. Onbekende typen worden afgewezen met `400`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AfsprakenZoekverzoek'
+            examples:
+              emailAdressen:
+                summary: Twee e-mailadressen met periodefilter
+                value:
+                  identificaties:
+                    - type: email
+                      waarde: gebruiker@example.nl
+                    - type: email
+                      waarde: werk@bedrijf.nl
+                  van: "2026-01-01T00:00:00+01:00"
+                  tot: "2026-12-31T23:59:59+01:00"
+              minimaal:
+                summary: Minimaal verzoek — één e-mailadres, geen periodefilter
+                value:
+                  identificaties:
+                    - type: email
+                      waarde: gebruiker@example.nl
+      responses:
+        '200':
+          description: |
+            Zoekopdracht succesvol uitgevoerd. De `afspraken`-array kan leeg zijn
+            wanneer er geen overeenkomende afspraken zijn gevonden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AfsprakenZoekresultaatEnvelope'
+              examples:
+                metResultaten:
+                  summary: Twee gevonden afspraken
+                  value:
+                    afspraken:
+                      - afspraakreferentie: "afspr-2026-001-xyz"
+                        titel: "Gesprek re-integratie"
+                        beginDatumTijd: "2026-03-15T09:00:00+01:00"
+                        eindDatumTijd: "2026-03-15T10:00:00+01:00"
+                        locatieSamenvatting: "Stadskantoor, kamer 204"
+                      - afspraakreferentie: "afspr-2026-002-abc"
+                        titel: "Videogesprek schuldhulpverlening"
+                        beginDatumTijd: "2026-07-15T14:30:00+02:00"
+                        eindDatumTijd: "2026-07-15T15:00:00+02:00"
+                        locatieSamenvatting: "Online via Microsoft Teams"
+                leegResultaat:
+                  summary: Geen afspraken gevonden
+                  value:
+                    afspraken: []
+        '400':
+          description: >
+            Ongeldige request body (bijv. ontbrekende verplichte velden, ongeldig formaat,
+            onbekend identificatietype, of `van` > `tot`).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 400
+                code: "ONGELDIGE_AANVRAAG"
+                title: "Ongeldige aanvraag"
+                detail: "Het veld 'identificaties' is verplicht en moet minimaal één element bevatten."
+                instance: "/afspraken/opvragen"
+        '401':
+          description: Geen of ongeldig authenticatietoken.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 401
+                code: "NIET_GEAUTHENTICEERD"
+                title: "Niet geauthenticeerd"
+                detail: "Er is geen geldig OAuth2-token aanwezig of het token is verlopen."
+                instance: "/afspraken/opvragen"
+        '403':
+          description: Geldige authenticatie maar onvoldoende autorisatie voor deze operatie.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 403
+                code: "NIET_GEAUTORISEERD"
+                title: "Niet geautoriseerd"
+                detail: "De client heeft geen toegang tot deze resource of mist de vereiste scope."
+                instance: "/afspraken/opvragen"
+        '429':
+          description: Te veel verzoeken — rate limit overschreden.
+          headers:
+            Retry-After:
+              description: Aantal seconden tot het volgende verzoek is toegestaan.
+              schema:
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 429
+                code: "TE_VEEL_VERZOEKEN"
+                title: "Te veel verzoeken"
+                detail: "Rate limit overschreden. Probeer het opnieuw na de aangegeven wachttijd."
+                instance: "/afspraken/opvragen"
+        '500':
+          description: Interne serverfout.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 500
+                code: "INTERNE_FOUT"
+                title: "Interne serverfout"
+                detail: "Er is een onverwachte fout opgetreden. Neem contact op met de beheerder."
+                instance: "/afspraken/opvragen"
+        '503':
+          description: Service tijdelijk niet beschikbaar, bijv. door een niet-bereikbaar downstream systeem.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 503
+                code: "SERVICE_NIET_BESCHIKBAAR"
+                title: "Service niet beschikbaar"
+                detail: "Het afsprakensysteem is momenteel niet bereikbaar. Probeer het later opnieuw."
+                instance: "/afspraken/opvragen"
+
+  /afspraken/{afspraakreferentie}:
+    get:
+      operationId: haalAfspraakOp
+      tags:
+        - afspraken
+      summary: Haal details op van één afspraak
+      description: |
+        Haalt de gedetailleerde informatie op van één specifieke afspraak aan de hand van de
+        `afspraakreferentie` die verkregen is via `POST /afspraken/opvragen`.
+
+        **Autorisatie**
+
+        Het is aan de Afsprakenbeheercomponent om te valideren of de opvragende partij
+        gerechtigd is de details van deze specifieke afspraak in te zien. Of en hoe de
+        identiteitscontext van de eindgebruiker hierbij wordt meegegeven is nog niet
+        definitief vastgesteld — zie open punten.
+
+        **Opaque referentie**
+
+        De `afspraakreferentie` is opaque: consumers mogen er geen structuur uit afleiden
+        of er op parsen. De waarde is door het afsprakensysteem toegekend en kan een UUID,
+        interne ID of ander uniek kenmerk zijn.
+      parameters:
+        - name: afspraakreferentie
+          in: path
+          required: true
+          description: |
+            De unieke referentie van de afspraak, zoals ontvangen in het zoekresultaat.
+            De waarde is opaque en mag door de consumer niet worden geparst of geïnterpreteerd.
+          schema:
+            type: string
+            example: "afspr-2026-001-xyz"
+      responses:
+        '200':
+          description: Details van de afspraak.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AfspraakDetails'
+              example:
+                afspraakreferentie: "afspr-2026-001-xyz"
+                titel: "Gesprek re-integratie"
+                beginDatumTijd: "2026-03-15T09:00:00+01:00"
+                eindDatumTijd: "2026-03-15T10:00:00+01:00"
+                locatie:
+                  type: fysiek
+                  omschrijving: "Stadskantoor Rotterdam, ingang Coolsingel"
+                  adres:
+                    straatnaam: "Coolsingel"
+                    huisnummer: "40"
+                    postcode: "3011 AD"
+                    woonplaats: "Rotterdam"
+                kanaal: fysiek
+                onderwerp: "Bespreking re-integratieplan na langdurige ziekte"
+                meeTeNemen:
+                  - "Geldig identiteitsbewijs"
+                  - "Laatste loonstrook"
+        '400':
+          description: Ongeldige afspraakreferentie (bijv. illegale tekens of te lange waarde).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 400
+                code: "ONGELDIGE_REFERENTIE"
+                title: "Ongeldige referentie"
+                detail: "De opgegeven afspraakreferentie bevat ongeldige tekens."
+                instance: "/afspraken/afspr-2026-001-xyz"
+        '401':
+          description: Geen of ongeldig authenticatietoken.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: Onvoldoende autorisatie voor het opvragen van deze specifieke afspraak.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Afspraak niet gevonden voor de opgegeven referentie.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+              example:
+                status: 404
+                code: "AFSPRAAK_NIET_GEVONDEN"
+                title: "Afspraak niet gevonden"
+                detail: "Er is geen afspraak gevonden met referentie 'afspr-2026-001-xyz'."
+                instance: "/afspraken/afspr-2026-001-xyz"
+        '500':
+          description: Interne serverfout.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '503':
+          description: Service tijdelijk niet beschikbaar.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+components:
+  schemas:
+    AfsprakenZoekverzoek:
+      $ref: './schemas/zoek.yaml#/components/schemas/AfsprakenZoekverzoek'
+    Identificatie:
+      $ref: './schemas/zoek.yaml#/components/schemas/Identificatie'
+    AfsprakenZoekresultaatEnvelope:
+      $ref: './schemas/zoek.yaml#/components/schemas/AfsprakenZoekresultaatEnvelope'
+    AfspraakZoekresultaat:
+      $ref: './schemas/zoek.yaml#/components/schemas/AfspraakZoekresultaat'
+    AfspraakDetails:
+      $ref: './schemas/details.yaml#/components/schemas/AfspraakDetails'
+    AfspraakLocatie:
+      $ref: './schemas/details.yaml#/components/schemas/AfspraakLocatie'
+    Adres:
+      $ref: './schemas/details.yaml#/components/schemas/Adres'
+    ProblemDetails:
+      $ref: './schemas/errors.yaml#/components/schemas/ProblemDetails'
+
+  securitySchemes:
+    oauth2ClientCredentials:
+      type: oauth2
+      description: |
+        OAuth 2.0 Client Credentials flow voor system-to-system communicatie,
+        conform NL GOV Assurance profile for OAuth 2.0 v1.1.0.
+
+        De eindgebruiker-authenticatie vindt elders in de keten plaats (in de MijnOmgeving).
+        Deze API ontvangt een systeemtoken namens de consumerende applicatie, niet namens
+        een individuele eindgebruiker. Er is geen gebruikerscontext aanwezig in het token.
+
+        De consumerende partij is ervoor verantwoordelijk dat de identiteit van de eindgebruiker
+        is gevalideerd voordat een verzoek naar deze API wordt gestuurd.
+
+        Deze OpenAPI-specificatie legt het functionele securitymodel vast. De concrete
+        authorization server, het token endpoint, de clientregistratie en eventuele
+        aanvullende trustmaatregelen zijn deployment-specifiek en horen thuis in een
+        aansluit- of implementatieprofiel per omgeving.
+
+        De hieronder opgenomen `tokenUrl` is illustratief voor documentatiedoeleinden.
+        De daadwerkelijk te gebruiken authorization server en metadata zijn afhankelijk
+        van leverancier en doelomgeving.
+
+        Aanbevelingen:
+        - mTLS wordt aanbevolen maar is niet verplicht gesteld vanuit de bronspecificatie.
+        - Strikte scopevalidatie aan serverzijde is vereist.
+        - Een expliciete vertrouwensrelatie tussen consumer en Afsprakenbeheercomponent is vereist.
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.example.nl/oauth2/token
+          scopes:
+            afspraken:lezen: Toegang tot het opvragen van afspraken (leesbevoegdheid)
