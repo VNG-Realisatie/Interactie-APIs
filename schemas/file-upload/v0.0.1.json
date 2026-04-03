@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "File Upload",
+  "description": "Dit schema beschrijft de data-structuren voor een two-step upload proces (zoals gebruikt bij cloud storage oplossingen via S3 pre-signed URLs). Traditionele `multipart/form-data` uploads via een API gateway hebben als nadeel dat grote bestanden het geheugen van de applicatieserver zwaar belasten en moeilijk schalen omdat de volledige file via de API routeert. Door gebruik te maken van dit two-step patroon communiceert de client eerst enkel de metadata via `FileMetadata`. De API retourneert vervolgens een `FileUploadInformatie` object met een tijdelijke (pre-signed) URL. De client uploadt de ruwe binaire data daarna direct naar de opslaglaag (zoals een S3 bucket), waardoor de backend wordt ontlast en uiterst grote bestanden betrouwbaar verwerkt kunnen worden.",
+  "$defs": {
+    "FileMetadata": {
+      "type": "object",
+      "description": "Metadata voor het aanmaken van een nieuw bestands-record, voorafgaand aan de daadwerkelijke upload.",
+      "required": ["bestandsnaam", "bestandsomvang"],
+      "properties": {
+        "bestandsnaam": {
+          "type": "string",
+          "description": "De naam van het bestand inclusief extensie.",
+          "example": "bijlage.pdf"
+        },
+        "bestandsomvang": {
+          "type": "integer",
+          "format": "int64",
+          "description": "De verwachte grootte van het bestand in bytes. Belangrijk voor validatie bij het genereren van de pre-signed URL.",
+          "example": 1048576
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Het MIME-type van het bestand. Handig voor S3 om de juiste Content-Type metadata mee te geven.",
+          "example": "application/pdf"
+        },
+        "titel": {
+          "type": "string",
+          "description": "Een optionele, menselijk leesbare titel voor het bestand.",
+          "example": "Aanvullende bewijsstukken"
+        }
+      }
+    },
+    "FileUploadInformatie": {
+      "type": "object",
+      "description": "Antwoord van de API met de instructies en de pre-signed URL om het fysieke bestand te uploaden.",
+      "required": ["fileId", "uploadUrl", "verlooptOp"],
+      "properties": {
+        "fileId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "De unieke identificatie van het zojuist aangemaakte bestands-record."
+        },
+        "uploadUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "De tijdelijke (pre-signed) URL waar de client het binaire bestand naartoe kan sturen via een HTTP PUT request.",
+          "example": "https://my-bucket.s3.eu-central-1.amazonaws.com/uploads/123?X-Amz-Signature=..."
+        },
+        "verlooptOp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Het exacte tijdstip (ISO 8601) waarop de uploadUrl zijn geldigheid verliest."
+        }
+      }
+    }
+  }
+}
