@@ -31,9 +31,6 @@ responses:
   # Deze error wordt specifiek gedefinieerd voor de upload-route omdat die uniek is voor grote uploads.
   PayloadTooLarge:
     description: De opgegeven bestandsomvang overschrijdt de maximale grootte (limiet) die voor deze resource is ingesteld.
-    headers:
-      API-version:
-        $ref: "../../schemas/zgw/headers/api-version/v0.0.1.yaml"
     content:
       application/problem+json:
         schema:

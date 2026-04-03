@@ -10,17 +10,11 @@ responses:
 components:
   responses:
     BadRequest:
-      headers:
-        API-version:
-          $ref: "../../schemas/zgw/headers/api-version/v0.0.1.yaml"
       content:
         application/problem+json:
           schema:
             $ref: "../../schemas/fout/v0.0.1.json#/$defs/ValidatieFout"
     Error:
-      headers:
-        API-version:
-          $ref: "../../schemas/zgw/headers/api-version/v0.0.1.yaml"
       content:
         application/problem+json:
           schema:
