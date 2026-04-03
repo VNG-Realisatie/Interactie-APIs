@@ -5,6 +5,10 @@ node_modules
 # Local Netlify folder
 .netlify
 
+# local dev folders
+scratchpad
+.zed
+
 # Build artifacts
 dist
 docs/bundled/
