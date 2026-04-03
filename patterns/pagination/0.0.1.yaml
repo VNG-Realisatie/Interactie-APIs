@@ -1,15 +1,64 @@
-# Pagination Pattern
+# Pagination Pattern for ZGW APIs
+# Contains query parameters and paginated list schema templates
+
+title: Paginering
+description: Bevat herbruikbare parameters en het schemafundament voor gepagineerde lijst-endpoints (`PaginatedBase`), inclusief hypermedia-links (`next` en `previous`).
 parameters:
-  - name: page
+  page:
+    name: page
     in: query
     description: Het paginanummer dat moet worden opgehaald.
     schema:
       type: integer
       default: 1
-  - name: pageSize
+  pageSize:
+    name: pageSize
     in: query
     description: Het aantal items per pagina.
     schema:
       type: integer
       default: 20
       maximum: 100
+
+# Paginated list schema - use $ref with replacement for results item type
+# Example: $ref: '#/components/schemas/PaginatedList' with override for results.items.$ref
+
+schemas:
+  PaginatedBase:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 123
+      next:
+        type: string
+        nullable: true
+        format: uri
+        example: http://api.example.org/accounts/?page=4
+      previous:
+        type: string
+        nullable: true
+        format: uri
+        example: http://api.example.org/accounts/?page=2
+      results:
+        type: array
+        items: {}
+    required:
+      - count
+      - next
+      - previous
+      - results
+
+# Individual paginated list schemas reference PaginatedBase and override results items
+# To use: create schema that uses allOf with PaginatedBase, then override results.items.$ref
+
+# Example structure for a specific paginated list:
+#
+# PaginatedZaakList:
+#   allOf:
+#     - $ref: '#/components/schemas/PaginatedBase'
+#     - type: object
+#       properties:
+#         results:
+#           items:
+#             $ref: '#/components/schemas/ZaakExpanded'
