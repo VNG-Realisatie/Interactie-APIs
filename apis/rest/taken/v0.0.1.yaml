@@ -1,0 +1,56 @@
+openapi: 3.1.0
+info:
+  title: Taken
+  version: 0.0.1
+  description: Een algemene API voor het ophalen van resources op basis van een identifier.
+  contact:
+    name: VNG Realisatie
+    url: https://github.com/VNG-Realisatie/Interactie-APIs
+
+servers:
+  - url: http://127.0.0.1:4010/apis/rest/resources/v1
+    description: Lokale Mock Server (Gateway)
+
+tags:
+  - name: Resources
+    description: Resource retrieval
+
+paths:
+  /resources/{identifier}:
+    get:
+      summary: Haal een resource op
+      operationId: getResource
+      tags:
+        - Resources
+      description: Haal de volledige representatie van een resource op aan de hand van zijn unieke identifier (bijv. een UUID of URI).
+      parameters:
+        - name: identifier
+          in: path
+          required: true
+          description: De unieke identifier van de resource.
+          schema:
+            type: string
+            format: uri
+            example: "https://api.vng.nl/resources/123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Resource succesvol opgehaald.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: De representatie van de resource.
+                additionalProperties: true
+              example:
+                identifier: "https://api.vng.nl/resources/123e4567-e89b-12d3-a456-426614174000"
+                naam: "Example Resource"
+                beschrijving: "Dit is een voorbeeld resource"
+                createdAt: "2024-01-01T00:00:00Z"
+        "404":
+          description: Resource niet gevonden.
+        "401":
+          description: Niet geautoriseerd.
+        "403":
+          description: Verboden (geen rechten).
+        "500":
+          description: Interne serverfout.

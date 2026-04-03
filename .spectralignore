@@ -1,0 +1,7 @@
+.git/**
+.netlify/**
+dist/**
+docs/bundled/**
+docs/respec/**
+node_modules/**
+public/**
