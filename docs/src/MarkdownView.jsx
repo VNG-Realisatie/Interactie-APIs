@@ -45,8 +45,8 @@ export default function MarkdownView({ path, portalData }) {
             const displayName = item.title || item.name;
             const fileName = item.versions[0].sourceUrl
               ? item.versions[0].sourceUrl
-                  .split("/")
-                  .pop()
+                  .replace(/^\/apis\//, "")
+                  .replace(/\//g, "_")
                   .replace(/\.(json|yaml|yml)$/, "")
               : null;
             const isApi = path === "docs/apis.md";

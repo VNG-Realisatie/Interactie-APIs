@@ -52,31 +52,24 @@ export default function FileView({ path, navigate }) {
   const isSchema = path.startsWith("schemas/");
   const isPattern = path.startsWith("patterns/");
 
-  const showRespec = isYaml && !isPattern;
-  const respecHtml = showRespec ? `/docs/respec/${fileName.replace(/\.ya?ml$/, ".html")}` : null;
-  const respecPdf = showRespec ? `/docs/respec/${fileName.replace(/\.ya?ml$/, ".pdf")}` : null;
-
   const breadcrumbText = isSchema ? "Schema's" : isPattern ? "Patronen" : null;
   const breadcrumbDoc = isSchema ? "docs/schemas.md" : isPattern ? "docs/patterns.md" : null;
 
   return (
     <div className="view-container">
       {breadcrumbText && (
-        <div
-          className="breadcrumb"
-          style={{ marginBottom: "10px", fontSize: "0.95em", color: "#666" }}
-        >
+        <div className="breadcrumb">
           <a
             href={`/?doc=${breadcrumbDoc}`}
             onClick={(e) => {
               e.preventDefault();
               if (navigate) navigate(`doc=${breadcrumbDoc}`);
             }}
-            style={{ textDecoration: "none", color: "#007bff" }}
+            className="breadcrumb-link"
           >
             {breadcrumbText}
           </a>
-          <span style={{ margin: "0 8px" }}>/</span>
+          <span className="breadcrumb-separator">/</span>
           <span>{title}</span>
         </div>
       )}
@@ -86,22 +79,8 @@ export default function FileView({ path, navigate }) {
       {schema && schema.description && (
         <div
           className="schema-description"
-          style={{ fontSize: "1.1em", color: "#555", marginBottom: "20px", lineHeight: "1.5" }}
           dangerouslySetInnerHTML={{ __html: marked.parse(schema.description) }}
         />
-      )}
-
-      {showRespec && (
-        <div style={{ marginBottom: "1em" }}>
-          <strong>ReSpec: </strong>
-          <a href={respecHtml} target="_blank" rel="noopener noreferrer">
-            HTML
-          </a>
-          {" | "}
-          <a href={respecPdf} target="_blank" rel="noopener noreferrer">
-            PDF
-          </a>
-        </div>
       )}
 
       {schema && (
@@ -122,45 +101,19 @@ export default function FileView({ path, navigate }) {
 
           {/* Parameters for Patterns */}
           {isPattern && schema.parameters && (
-            <div style={{ marginBottom: "20px" }}>
+            <div className="pattern-section">
               <h3>Parameters</h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
+              <ul className="pattern-list">
                 {Object.entries(schema.parameters).map(([key, param]) => (
-                  <li
-                    key={key}
-                    style={{
-                      marginBottom: "12px",
-                      background: "#f9f9f9",
-                      padding: "12px",
-                      borderRadius: "6px",
-                    }}
-                  >
+                  <li key={key} className="pattern-card">
                     <strong style={{ fontSize: "1.1em" }}>{param.name || key}</strong>
-                    <span style={{ marginLeft: "8px", color: "#666", fontSize: "0.9em" }}>
-                      ({param.in})
-                    </span>
+                    <span className="pattern-meta">({param.in})</span>
                     {param.schema && param.schema.type && (
-                      <span
-                        style={{
-                          marginLeft: "8px",
-                          fontFamily: "monospace",
-                          color: "#c7254e",
-                          background: "#f9f2f4",
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                        }}
-                      >
-                        {param.schema.type}
-                      </span>
+                      <span className="pattern-type-chip">{param.schema.type}</span>
                     )}
                     {param.description && (
                       <div
-                        style={{
-                          marginTop: "6px",
-                          color: "#333",
-                          fontSize: "0.95em",
-                          lineHeight: "1.5",
-                        }}
+                        className="pattern-body-text"
                         dangerouslySetInnerHTML={{ __html: marked.parseInline(param.description) }}
                       />
                     )}
@@ -172,19 +125,11 @@ export default function FileView({ path, navigate }) {
 
           {/* RequestBodies for Patterns */}
           {isPattern && schema.requestBodies && (
-            <div style={{ marginBottom: "20px" }}>
+            <div className="pattern-section">
               <h3>Request Bodies</h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
+              <ul className="pattern-list">
                 {Object.entries(schema.requestBodies).map(([key, body]) => (
-                  <li
-                    key={key}
-                    style={{
-                      marginBottom: "12px",
-                      background: "#f9f9f9",
-                      padding: "12px",
-                      borderRadius: "6px",
-                    }}
-                  >
+                  <li key={key} className="pattern-card">
                     <strong style={{ fontSize: "1.1em" }}>{key}</strong>
                     {body.required && (
                       <span
@@ -200,12 +145,7 @@ export default function FileView({ path, navigate }) {
                     )}
                     {body.description && (
                       <div
-                        style={{
-                          marginTop: "6px",
-                          color: "#333",
-                          fontSize: "0.95em",
-                          lineHeight: "1.5",
-                        }}
+                        className="pattern-body-text"
                         dangerouslySetInnerHTML={{ __html: marked.parseInline(body.description) }}
                       />
                     )}
@@ -217,28 +157,15 @@ export default function FileView({ path, navigate }) {
 
           {/* Responses for Patterns */}
           {isPattern && schema.responses && (
-            <div style={{ marginBottom: "20px" }}>
+            <div className="pattern-section">
               <h3>Responses</h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
+              <ul className="pattern-list">
                 {Object.entries(schema.responses).map(([key, response]) => (
-                  <li
-                    key={key}
-                    style={{
-                      marginBottom: "12px",
-                      background: "#f9f9f9",
-                      padding: "12px",
-                      borderRadius: "6px",
-                    }}
-                  >
+                  <li key={key} className="pattern-card">
                     <strong style={{ fontSize: "1.1em" }}>{key}</strong>
                     {(response.description || response.$ref) && (
                       <div
-                        style={{
-                          marginTop: "6px",
-                          color: "#333",
-                          fontSize: "0.95em",
-                          lineHeight: "1.5",
-                        }}
+                        className="pattern-body-text"
                         dangerouslySetInnerHTML={{
                           __html: marked.parseInline(
                             response.description ||
