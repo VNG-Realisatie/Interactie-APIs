@@ -3,6 +3,18 @@ import { marked } from "marked";
 import yaml from "js-yaml";
 import UmlDiagram from "./UmlDiagram";
 
+function resolveRefLink(currentPath, refPath) {
+  if (!refPath) return "#";
+  if (refPath.startsWith("#")) return `/?file=${currentPath}`;
+  try {
+    const url = new URL(refPath, "http://dummy/" + currentPath);
+    const resolvedPath = url.pathname.slice(1);
+    return `/?file=${resolvedPath}`;
+  } catch (e) {
+    return "#";
+  }
+}
+
 export default function FileView({ path, navigate }) {
   const [content, setContent] = useState("Laden...");
   const [schema, setSchema] = useState(null);
@@ -229,7 +241,8 @@ export default function FileView({ path, navigate }) {
                         }}
                         dangerouslySetInnerHTML={{
                           __html: marked.parseInline(
-                            response.description || `Referentie naar ${response.$ref}`,
+                            response.description ||
+                              `Referentie naar [${response.$ref}](${resolveRefLink(path, response.$ref)})`,
                           ),
                         }}
                       />
