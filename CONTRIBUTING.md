@@ -2,6 +2,16 @@
 
 Welkom! Dit repository is de centrale plek voor API-harmonisatie binnen de Nederlandse gemeenten. Om de kwaliteit en herbuikbaarheid te waarborgen, hanteren we een gestructureerd proces.
 
+## Wijzigingen voorstellen
+
+Wil je een API, schema of patroon wijzigen? Gebruik dan GitHub als centrale plek voor afstemming en review:
+
+- Repository: https://github.com/VNG-Realisatie/Interactie-APIs
+- Issues: https://github.com/VNG-Realisatie/Interactie-APIs/issues
+- Pull Requests: https://github.com/VNG-Realisatie/Interactie-APIs/pulls
+
+Wijzigingsverzoeken starten bij voorkeur als issue. Concrete uitwerkingen en specificatiewijzigingen verlopen via een pull request, zodat review, discussie en besluitvorming zichtbaar blijven.
+
 ## Governance Rollen
 
 - **Communitymanager**: Eerste aanspreekpunt voor nieuwe initiatieven. Verantwoordelijk voor de intake en het verbinden van gemeenten.
@@ -31,9 +41,9 @@ Pas na goedkeuring van het ontwerp wordt er code geschreven.
 
 Tijdens de actieve ontwikkeling van een nieuwe (minor/major) versie van een API, schema of patroon hanteren we het **"next" patroon**:
 
-- Maak een kopie van het huidige bestand (bijv. `v0.2.1.yaml` -> `next.yaml`).
+- Als er nog geen `next` versie is, maak een kopie van de laatste versie (bijv. `v0.2.1.yaml` -> `next.yaml`).
 - Zet in de specificatie de `version` eigenschap expliciet op `"next"`.
-- Dit zorgt ervoor dat in de documentatie portal deze versie als concept/ontwikkelversie beschikbaar is in de dropdown, maar **niet** als default wordt getoond aan gebruikers.
+- De documentatie portal bepaalt de getoonde versie op basis van de **bestandsnaam**. Daardoor is `next.yaml` als concept/ontwikkelversie beschikbaar in de dropdown, maar **niet** de default voor gebruikers.
 - Pas bij een officiële release wordt `next.yaml` hernoemd naar het daadwerkelijke nieuwe versienummer (bijv. `v0.3.0.yaml`) en wordt de `version` eigenschap geüpdatet.
 
 ### 5. Promotie van Schemas
