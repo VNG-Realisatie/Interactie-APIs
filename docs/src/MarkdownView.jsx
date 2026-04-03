@@ -49,39 +49,45 @@ export default function MarkdownView({ path, portalData }) {
                   .pop()
                   .replace(/\.(json|yaml|yml)$/, "")
               : null;
-            const respecHtml = fileName
-              ? `/docs/respec/${fileName}.html`
-              : null;
-            const respecPdf = fileName ? `/docs/respec/${fileName}.pdf` : null;
+            const isApi = path === "docs/apis.md";
+            const respecHtml = isApi && fileName ? `/docs/respec/${fileName}.html` : null;
+            const respecPdf = isApi && fileName ? `/docs/respec/${fileName}.pdf` : null;
 
             return (
-              <li key={i} style={{ marginBottom: "8px" }}>
-                <a
-                  href={linkPrefix + linkUrl}
-                  style={{ textDecoration: "none", fontWeight: "500" }}
+              <li key={i} style={{ marginBottom: "16px" }}>
+                <div
+                  style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: "8px" }}
                 >
-                  {displayName}
-                </a>
-                {respecHtml && (
-                  <span style={{ marginLeft: "10px", fontSize: "0.85em" }}>
-                    (
-                    <a
-                      href={respecHtml}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      HTML
-                    </a>
-                    {" | "}
-                    <a
-                      href={respecPdf}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      PDF
-                    </a>
-                    )
-                  </span>
+                  <a
+                    href={linkPrefix + linkUrl}
+                    style={{ textDecoration: "none", fontWeight: "600", fontSize: "1.1em" }}
+                  >
+                    {displayName}
+                  </a>
+                  {respecHtml && (
+                    <span style={{ fontSize: "0.85em", color: "#666" }}>
+                      (
+                      <a href={respecHtml} target="_blank" rel="noopener noreferrer">
+                        HTML
+                      </a>
+                      {" | "}
+                      <a href={respecPdf} target="_blank" rel="noopener noreferrer">
+                        PDF
+                      </a>
+                      )
+                    </span>
+                  )}
+                </div>
+                {item.description && (
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      color: "#555",
+                      fontSize: "0.95em",
+                      lineHeight: "1.5",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: marked.parseInline(item.description) }}
+                  />
                 )}
               </li>
             );
@@ -93,10 +99,7 @@ export default function MarkdownView({ path, portalData }) {
 
   return (
     <div className="view-container">
-      <div
-        className="markdown-content"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="markdown-content" dangerouslySetInnerHTML={{ __html: html }} />
       {renderDataList()}
     </div>
   );

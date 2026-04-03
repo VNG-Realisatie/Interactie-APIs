@@ -18,38 +18,31 @@ export default function HomeView({ data, navigate }) {
           lineHeight: "1.6",
         }}
       >
-        Welkom bij de VNG Interacties API. Deze website en{" "}
-        <a href="https://github.com/vng-realisatie/interactie-apis">
-          repository
-        </a>
+        Deze website en <a href="https://github.com/vng-realisatie/interactie-apis">repository</a>{" "}
+        zijn er om de verschillende API's van VNG samen te presenteren en te harmoniseren.
       </p>
 
-      <div className="card" style={{ marginBottom: "2em" }}>
-        <h2>Portaal Features</h2>
-        <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
-          <li>
-            <strong>Versiebeheer</strong>: Navigeer naadloos tussen
-            verschillende versies van een specificatie via de branch-kiezer in
-            de zijbalk.
-          </li>
-          <li>
-            <strong>UML Diagrammen</strong>: Bekijk automatisch gegenereerde
-            UML-style visuele diagrammen voor elk JSON Schema om de structuur,
-            datatypes, en <code>$ref</code> relaties in één oogopslag te
-            snappen.
-          </li>
-          <li>
-            <strong>Interactieve REST Docs</strong>: Verken API specificaties
-            met de ingebouwde Scalar-viewer om direct test requests te doen,
-            rechtstreeks tegen de test- of mock-server.
-          </li>
-          <li>
-            <strong>Lokale Mocking</strong>: Ontwikkelaars kunnen een lokale
-            Prism-mock gateway draaien (op port <code>4010</code>) waarmee alle
-            API definities lokaal en dynamisch mocked reageren.
-          </li>
-        </ul>
-      </div>
+      <h2>Portaal Features</h2>
+      <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
+        <li>
+          <strong>Versiebeheer</strong>: Navigeer naadloos tussen verschillende versies van een
+          specificatie via de branch-kiezer in de zijbalk.
+        </li>
+        <li>
+          <strong>UML Diagrammen</strong>: Bekijk automatisch gegenereerde UML-style visuele
+          diagrammen voor elk JSON Schema om de structuur, datatypes, en <code>$ref</code> relaties
+          in één oogopslag te snappen.
+        </li>
+        <li>
+          <strong>Interactieve REST Docs</strong>: Verken API specificaties met de ingebouwde
+          Scalar-viewer om direct test requests te doen, rechtstreeks tegen de test- of mock-server.
+        </li>
+        <li>
+          <strong>Lokale Mocking</strong>: Ontwikkelaars kunnen een lokale Prism-mock gateway
+          draaien (op port <code>4010</code>) waarmee alle API definities lokaal en dynamisch mocked
+          reageren.
+        </li>
+      </ul>
 
       <div
         style={{
@@ -66,14 +59,13 @@ export default function HomeView({ data, navigate }) {
               onClick={(e) => go(e, "doc=docs/apis.md")}
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              🌐 API's
+              API's
             </a>
           </h2>
           <p>
-            Vind gestandaardiseerde definities voor diensten en webservices,
-            geschreven in OpenAPI 3.1. Deze bestanden beschrijven endpoints,
-            parameters en responscodes, en verwijzen voor hun datamodellen naar
-            de centrale Schemas.
+            Vind gestandaardiseerde definities voor diensten en webservices, geschreven in OpenAPI
+            3.1. Deze bestanden beschrijven endpoints, parameters en responscodes, en verwijzen voor
+            hun datamodellen naar de centrale Schemas.
           </p>
           <ul style={{ marginTop: "12px", paddingLeft: "20px" }}>
             {data &&
@@ -97,14 +89,13 @@ export default function HomeView({ data, navigate }) {
               onClick={(e) => go(e, "doc=docs/schemas.md")}
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              📦 Schema's
+              Schema's
             </a>
           </h2>
           <p>
-            De herbruikbare datamodellen van de gemeentelijke architectuur,
-            vastgelegd in JSON Schema. Begrippen zoals <code>Zaak</code>,{" "}
-            <code>Adres</code>, en <code>Document</code> zijn hier één keer
-            centraal ontworpen, om wildgroei en inconsistenties te voorkomen.
+            De herbruikbare datamodellen van de gemeentelijke architectuur, vastgelegd in JSON
+            Schema. Begrippen zoals <code>Zaak</code>, <code>Adres</code>, en <code>Document</code>{" "}
+            zijn hier één keer centraal ontworpen, om wildgroei en inconsistenties te voorkomen.
           </p>
           <ul style={{ marginTop: "12px", paddingLeft: "20px" }}>
             {data &&
@@ -128,14 +119,13 @@ export default function HomeView({ data, navigate }) {
               onClick={(e) => go(e, "doc=docs/patterns.md")}
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              🧩 Patronen
+              Patronen
             </a>
           </h2>
           <p>
-            Standaardoplossingen voor veelvoorkomende API ontwerpvraagstukken.
-            Hoe verwerken we foutmeldingen? Hoe werkt paginering? Door deze
-            patronen centraal te definiëren en her te gebruiken, creëren we een
-            uniforme ervaring voor alle afnemers.
+            Standaardoplossingen voor veelvoorkomende API ontwerpvraagstukken. Hoe verwerken we
+            foutmeldingen? Hoe werkt paginering? Door deze patronen centraal te definiëren en her te
+            gebruiken, creëren we een uniforme ervaring voor alle afnemers.
           </p>
           <ul style={{ marginTop: "12px", paddingLeft: "20px" }}>
             {data &&
