@@ -2,7 +2,7 @@ openapi: 3.2.0
 jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
 
 info:
-  title: Afspraken API — MijnAgenda-service
+  title: Afspraken
   version: 0.1.0-concept
   description: |
     **Conceptversie — datamodel onder actieve ontwikkeling**
@@ -123,7 +123,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AfsprakenZoekverzoek'
+              $ref: "#/components/schemas/AfsprakenZoekverzoek"
             examples:
               emailAdressen:
                 summary: Twee e-mailadressen met periodefilter
@@ -142,14 +142,14 @@ paths:
                     - type: email
                       waarde: gebruiker@example.nl
       responses:
-        '200':
+        "200":
           description: |
             Zoekopdracht succesvol uitgevoerd. De `afspraken`-array kan leeg zijn
             wanneer er geen overeenkomende afspraken zijn gevonden.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AfsprakenZoekresultaatEnvelope'
+                $ref: "#/components/schemas/AfsprakenZoekresultaatEnvelope"
               examples:
                 metResultaten:
                   summary: Twee gevonden afspraken
@@ -167,45 +167,45 @@ paths:
                   summary: Geen afspraken gevonden
                   value:
                     afspraken: []
-        '400':
+        "400":
           description: >
             Ongeldige request body (bijv. ontbrekende verplichte velden, ongeldig formaat,
             onbekend identificatietype, of `van` > `tot`).
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 400
                 code: "ONGELDIGE_AANVRAAG"
                 title: "Ongeldige aanvraag"
                 detail: "Het veld 'identificaties' is verplicht en moet minimaal één identificatie bevatten met zowel type als waarde."
                 instance: "/afspraken/opvragen"
-        '401':
+        "401":
           description: Geen of ongeldig authenticatietoken.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 401
                 code: "NIET_GEAUTHENTICEERD"
                 title: "Niet geauthenticeerd"
                 detail: "Er is geen geldig OAuth2-token aanwezig of het token is verlopen."
                 instance: "/afspraken/opvragen"
-        '403':
+        "403":
           description: Geldige authenticatie maar onvoldoende autorisatie voor deze operatie.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 403
                 code: "NIET_GEAUTORISEERD"
                 title: "Niet geautoriseerd"
                 detail: "De client heeft geen toegang tot deze resource of mist de vereiste scope."
                 instance: "/afspraken/opvragen"
-        '429':
+        "429":
           description: Te veel verzoeken — rate limit overschreden.
           headers:
             Retry-After:
@@ -215,31 +215,31 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 429
                 code: "TE_VEEL_VERZOEKEN"
                 title: "Te veel verzoeken"
                 detail: "Rate limit overschreden. Probeer het opnieuw na de aangegeven wachttijd."
                 instance: "/afspraken/opvragen"
-        '500':
+        "500":
           description: Interne serverfout.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 500
                 code: "INTERNE_FOUT"
                 title: "Interne serverfout"
                 detail: "Er is een onverwachte fout opgetreden. Neem contact op met de beheerder."
                 instance: "/afspraken/opvragen"
-        '503':
+        "503":
           description: Service tijdelijk niet beschikbaar, bijv. door een niet-bereikbaar downstream systeem.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 503
                 code: "SERVICE_NIET_BESCHIKBAAR"
@@ -280,12 +280,12 @@ paths:
             type: string
             example: "afspr-2026-001-xyz"
       responses:
-        '200':
+        "200":
           description: Details van de afspraak.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AfspraakDetails'
+                $ref: "#/components/schemas/AfspraakDetails"
               example:
                 afspraakIdentificatie: "afspr-2026-001-xyz"
                 onderwerp: "Gesprek re-integratie"
@@ -301,73 +301,340 @@ paths:
                 aanduidingWatMeeTeNemen:
                   - "Geldig identiteitsbewijs"
                   - "Laatste loonstrook"
-        '400':
+        "400":
           description: Ongeldige afspraakidentificatie (bijv. illegale tekens of te lange waarde).
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 400
                 code: "ONGELDIGE_REFERENTIE"
                 title: "Ongeldige referentie"
                 detail: "De opgegeven afspraakidentificatie bevat ongeldige tekens."
                 instance: "/afspraken/afspr-2026-001-xyz"
-        '401':
+        "401":
           description: Geen of ongeldig authenticatietoken.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '403':
+                $ref: "#/components/schemas/ProblemDetails"
+        "403":
           description: Onvoldoende autorisatie voor het opvragen van deze specifieke afspraak.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '404':
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
           description: Agenda-afspraak niet gevonden voor de opgegeven identificatie.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 404
                 code: "AFSPRAAK_NIET_GEVONDEN"
                 title: "Afspraak niet gevonden"
                 detail: "Er is geen agenda-afspraak gevonden met identificatie 'afspr-2026-001-xyz'."
                 instance: "/afspraken/afspr-2026-001-xyz"
-        '500':
+        "500":
           description: Interne serverfout.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '503':
+                $ref: "#/components/schemas/ProblemDetails"
+        "503":
           description: Service tijdelijk niet beschikbaar.
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ProblemDetails'
+                $ref: "#/components/schemas/ProblemDetails"
 
 components:
   schemas:
     AfsprakenZoekverzoek:
-      $ref: './schemas/zoek.yaml#/components/schemas/AfsprakenZoekverzoek'
+      type: object
+      required:
+        - identificaties
+      description: |
+        Verzoek om afspraken op te zoeken op basis van één of meer geverifieerde
+        identificaties van een partij, optioneel gefilterd op een tijdsperiode.
+      properties:
+        identificaties:
+          type: array
+          minItems: 1
+          description: |
+            Lijst van partij-identificaties waarop gezocht wordt. Minimaal één identificatie
+            is verplicht. Elke identificatie bevat zowel een `type` als een `waarde`.
+            Momenteel is `email` het enige vastgestelde identificatietype voor de pilot;
+            het model is uitbreidbaar zonder breaking changes. Onbekende typen worden
+            afgewezen met een `400`-response.
+          items:
+            $ref: "#/components/schemas/Identificatie"
+        van:
+          type: string
+          format: date-time
+          description: |
+            Optionele begindatum/-tijd van de te zoeken periode.
+            ISO 8601 datetime inclusief timezone offset.
+            Voorbeelden: `2026-01-01T00:00:00+01:00`, `2026-01-01T00:00:00Z`.
+            Wanneer `van` en `tot` zijn opgegeven, moet gelden dat `van <= tot`.
+            De exacte semantiek (inclusief/exclusief grens) is nog niet definitief vastgesteld.
+          example: "2026-01-01T00:00:00+01:00"
+        tot:
+          type: string
+          format: date-time
+          description: |
+            Optionele einddatum/-tijd tot en met de te zoeken periode.
+            ISO 8601 datetime inclusief timezone offset.
+            Voorbeelden: `2026-12-31T23:59:59+01:00`, `2026-12-31T23:59:59Z`.
+            Deze bovengrens is inclusief: afspraken met een gepland aanvangsmoment gelijk
+            aan `tot` vallen binnen de filter. Wanneer `van` en `tot` zijn opgegeven,
+            moet gelden dat `van <= tot`.
+          example: "2026-12-31T23:59:59+01:00"
     Identificatie:
-      $ref: './schemas/zoek.yaml#/components/schemas/Identificatie'
+      type: object
+      required:
+        - type
+        - waarde
+      description: |
+        Een identificatie van een partij waarmee agenda-afspraken worden opgezocht.
+
+        Het model is uitbreidbaar: nieuwe identificatietypen kunnen worden toegevoegd
+        zonder breaking changes in de API-structuur. Voor de pilot is `email` het enige
+        vastgestelde en ondersteunde type. Onbekende typen worden afgewezen met `400`.
+      properties:
+        type:
+          type: string
+          enum:
+            - email
+          description: |
+            Het type identificatie.
+
+            **Vastgesteld voor pilot**: `email`
+
+            Het model is bewust uitbreidbaar ontworpen — toekomstige typen (bijv.
+            `telefoonnummer`) kunnen worden toegevoegd zonder breaking changes.
+            Onbekende typen dienen door de service te worden afgewezen met een `400`-response;
+            stilzwijgende acceptatie is niet toegestaan.
+          example: email
+        waarde:
+          type: string
+          description: |
+            De identificatiewaarde, passend bij het opgegeven type.
+            Voor `email`: een geldig e-mailadres conform RFC 5321.
+          example: "gebruiker@example.nl"
     AfsprakenZoekresultaatEnvelope:
-      $ref: './schemas/zoek.yaml#/components/schemas/AfsprakenZoekresultaatEnvelope'
+      type: object
+      required:
+        - afspraken
+      description: Response-enveloppe voor het resultaat van een zoekopdracht.
+      properties:
+        afspraken:
+          type: array
+          description: |
+            Lijst van gevonden afspraken. Leeg wanneer geen afspraken werden gevonden
+            die voldoen aan de opgegeven criteria.
+          items:
+            $ref: "#/components/schemas/AfspraakZoekresultaat"
     AfspraakZoekresultaat:
-      $ref: './schemas/zoek.yaml#/components/schemas/AfspraakZoekresultaat'
+      type: object
+      required:
+        - afspraakIdentificatie
+      description: |
+        Samenvatting van een afspraak zoals teruggegeven in een zoekresultaat.
+        Bevat de basisgegevens die nodig zijn om de afspraak te identificeren en aan
+        de gebruiker te tonen in een lijstweergave.
+
+        Voor volledige details: gebruik `GET /afspraken/{afspraak-identificatie}`.
+
+        **Conceptversie** — alleen `afspraakIdentificatie` is hard vastgesteld.
+        Overige velden zijn voorlopig en kunnen zonder voorafgaande kennisgeving
+        wijzigen tijdens de ontwikkeling van het datamodel.
+      x-source-note: >
+        Datamodel is nog in ontwikkeling per ontwerpdocumentatie werkgroep MijnAfspraken.
+        Alleen afspraakIdentificatie is definitief vastgesteld.
+      properties:
+        afspraakIdentificatie:
+          type: string
+          description: |
+            Unieke identificatie van de agenda-afspraak, toegekend door het afsprakensysteem.
+            De waarde is opaque — consumers mogen er geen structuur uit afleiden of
+            op parsen. Kan een UUID, interne ID of ander uniek kenmerk zijn.
+          example: "afspr-2026-001-xyz"
+        onderwerp:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
+            Het onderwerp van de afspraak, bedoeld voor weergave in een lijstoverzicht.
+          example: "Gesprek re-integratie"
+        geplandAanvangsmoment:
+          type: string
+          format: date-time
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
+            Het geplande aanvangsmoment van de afspraak als ISO 8601 datetime met
+            timezone offset.
+            Voorbeelden: `2026-03-15T09:00:00+01:00`, `2026-07-15T14:30:00+02:00`.
+          example: "2026-03-15T09:00:00+01:00"
+        geplandEindmoment:
+          type: string
+          format: date-time
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
+            Het geplande eindmoment van de afspraak als ISO 8601 datetime met timezone offset.
+          example: "2026-03-15T10:00:00+01:00"
     AfspraakDetails:
-      $ref: './schemas/details.yaml#/components/schemas/AfspraakDetails'
+      type: object
+      required:
+        - afspraakIdentificatie
+      description: |
+        Volledige details van één afspraak.
+
+        **Conceptversie** — het datamodel is nog in ontwikkeling. Alleen `afspraakIdentificatie`
+        is hard vastgesteld. Alle overige velden zijn voorlopig en kunnen wijzigen.
+      x-source-note: >
+        Het datamodel is nog in ontwikkeling. Alleen afspraakIdentificatie is definitief
+        vastgesteld; overige velden blijven voorlopig.
+      properties:
+        afspraakIdentificatie:
+          type: string
+          description: |
+            Unieke identificatie van de agenda-afspraak, toegekend door het afsprakensysteem.
+            De waarde is opaque.
+          example: "afspr-2026-001-xyz"
+        onderwerp:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Het onderwerp van de afspraak.
+          example: "Gesprek re-integratie"
+        geplandAanvangsmoment:
+          type: string
+          format: date-time
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Het geplande aanvangsmoment van de afspraak als ISO 8601 datetime met timezone offset.
+            Voorbeeld: `2026-03-15T09:00:00+01:00`.
+          example: "2026-03-15T09:00:00+01:00"
+        geplandEindmoment:
+          type: string
+          format: date-time
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Het geplande eindmoment van de afspraak als ISO 8601 datetime met timezone offset.
+          example: "2026-03-15T10:00:00+01:00"
+        locatie:
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Locatie van de afspraak. Kan fysiek, telefonisch of online zijn.
+          allOf:
+            - $ref: "#/components/schemas/AfspraakLocatie"
+        aanduidingWatMeeTeNemen:
+          type: array
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Lijst van documenten of items die de inwoner moet meenemen naar de afspraak.
+          items:
+            type: string
+          example:
+            - "Geldig identiteitsbewijs"
+            - "Laatste loonstrook"
     AfspraakLocatie:
-      $ref: './schemas/details.yaml#/components/schemas/AfspraakLocatie'
+      type: object
+      x-provisional: true
+      description: |
+        **Voorlopig schema** — nog niet definitief vastgesteld.
+
+        Locatiegegevens van een afspraak. De bron beschrijft fysieke, telefonische en
+        online/video-afspraken; het model is hierop uitbreidbaar.
+      properties:
+        type:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig** — type locatie of modaliteit van de afspraak.
+          enum:
+            - fysiek
+            - telefonisch
+            - video
+            - onbekend
+          example: fysiek
+        naam:
+          type: string
+          description: Naam van de locatie.
+          example: "Stadskantoor Rotterdam, ingang Coolsingel"
+        bezoekadres:
+          x-provisional: true
+          description: |
+            **Voorlopig** — bezoekadres waar de fysieke afspraak plaatsvindt.
+          allOf:
+            - $ref: "#/components/schemas/Adres"
     Adres:
-      $ref: './schemas/details.yaml#/components/schemas/Adres'
+      type: object
+      x-provisional: true
+      description: |
+        **Voorlopig schema** — adresmodel conform het informatiemodel, opgebouwd uit
+        één tot drie adresregels en optioneel een land.
+      properties:
+        adresregel1:
+          type: string
+          description: Eerste adresregel.
+          example: "Coolsingel 40"
+        adresregel2:
+          type: string
+          description: Tweede adresregel.
+          example: "3011 AD Rotterdam"
+        adresregel3:
+          type: string
+          description: Derde adresregel, indien van toepassing.
+          example: "Gebouw C, kamer 204"
+        land:
+          type: string
+          description: Land van het bezoekadres, indien relevant.
+          example: "Nederland"
     ProblemDetails:
-      $ref: './schemas/errors.yaml#/components/schemas/ProblemDetails'
+      type: object
+      required:
+        - code
+        - title
+      description: |
+        Uniforme foutstructuur conform RFC 7807 (Problem Details for HTTP APIs),
+        aangevuld met een machineleesbaar `code`-veld in lijn met de NLGov API Design Rules.
+
+        Content-type voor foutresponses: `application/problem+json`.
+      properties:
+        status:
+          type: integer
+          description: HTTP-statuscode van de foutresponse.
+          example: 400
+        code:
+          type: string
+          description: Machineleesbare, stabiele foutcode voor gebruik door consumers.
+          example: "ONGELDIGE_AANVRAAG"
+        title:
+          type: string
+          description: Korte, voor mensen leesbare omschrijving van de fout. Stabiel per fouttype.
+          example: "Ongeldige aanvraag"
+        detail:
+          type: string
+          description: |
+            Aanvullende, voor mensen leesbare uitleg van deze specifieke fout.
+            Kan per instantie variëren.
+          example: "Het veld 'identificaties' is verplicht en moet minimaal één element bevatten."
+        instance:
+          type: string
+          description: |
+            Relatieve URI die verwijst naar de resource of het pad waarop de fout is opgetreden.
+          example: "/afspraken/opvragen"
 
   securitySchemes:
     oauth2ClientCredentials:
