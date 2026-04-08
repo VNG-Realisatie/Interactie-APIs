@@ -27,11 +27,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Detect AsyncAPI files
+        id: asyncapi-files
+        shell: bash
+        run: |
+          files=$(grep -R -l '^asyncapi:' apis --include='*.yaml' --include='*.yml' || true)
+          {
+            echo 'files<<EOF'
+            echo "$files"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Validate AsyncAPI
-        uses: asyncapi/cli@v2.16.0
-        with:
-          command: validate
-          filepath: apis/events/**/*.yaml
+        if: steps.asyncapi-files.outputs.files != ''
+        shell: bash
+        run: |
+          npm install -g @asyncapi/cli
+          while IFS= read -r file; do
+            [ -n "$file" ] || continue
+            asyncapi validate "$file"
+          done <<< "${{ steps.asyncapi-files.outputs.files }}"
+
+      - name: Skip AsyncAPI validation
+        if: steps.asyncapi-files.outputs.files == ''
+        run: echo "No AsyncAPI files found under apis/, skipping validation."
 
   build-docs:
     runs-on: ubuntu-latest
