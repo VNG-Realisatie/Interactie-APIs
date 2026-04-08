@@ -7,11 +7,11 @@ info:
     **Conceptversie — datamodel onder actieve ontwikkeling**
 
     Deze API stelt een MijnOmgeving in staat om afspraken van een inwoner op te vragen bij
-    een Afsprakenbeheercomponent, op basis van geverifieerde contactgegevens.
+    een Afsprakenbeheercomponent, op basis van contactgegevens van een partij.
 
     ## Patroon
 
-    De MijnOmgeving haalt eerst geverifieerde e-mailadressen op uit de Klantregistratiecomponent
+    De MijnOmgeving haalt eerst e-mailadressen op uit de Klantregistratiecomponent
     (buiten scope van deze API) en raadpleegt vervolgens deze Afspraken API in een twee-staps flow:
 
     1. **Zoeken** via `POST /afspraken/opvragen` — retourneert een lijst met samengevatte afspraken
@@ -76,7 +76,7 @@ servers:
 
 tags:
   - name: afspraken
-    description: Operaties voor het opvragen van agenda-afspraken op basis van geverifieerde identificaties van een partij.
+    description: Operaties voor het opvragen van agenda-afspraken op basis van identificaties van een partij.
 
 security:
   - oauth2ClientCredentials:
@@ -91,7 +91,11 @@ paths:
       summary: Zoek agenda-afspraken op basis van identificaties van een partij
       description: |
         Zoekt agenda-afspraken op bij de Afsprakenbeheercomponent op basis van één of meer
-        geverifieerde identificaties van een partij.
+        identificaties van een partij.
+
+        De API verifieert deze identificaties niet zelf. In de praktijk kan de consumer
+        dus ook niet-geverifieerde identificaties meesturen. Voor de pilot is het beoogde
+        gebruik beperkt tot het e-mailadres van de partij.
 
         **Gebruik van POST**
 
@@ -363,8 +367,8 @@ components:
       required:
         - identificaties
       description: |
-        Verzoek om agenda-afspraken op te zoeken op basis van één of meer geverifieerde
-        identificaties van een partij, optioneel gefilterd op een tijdsperiode.
+        Verzoek om agenda-afspraken op te zoeken op basis van één of meer identificaties
+        van een partij, optioneel gefilterd op een tijdsperiode.
         Alleen agenda-afspraken waarvan het geplande aanvangsmoment binnen de opgegeven
         periode valt, worden geretourneerd.
       properties:
@@ -374,9 +378,10 @@ components:
           description: |
             Lijst van partij-identificaties waarop gezocht wordt. Minimaal één identificatie
             is verplicht. Elke identificatie bevat zowel een `type` als een `waarde`.
-            Momenteel is `email` het enige vastgestelde identificatietype voor de pilot;
-            het model is uitbreidbaar zonder breaking changes. Onbekende typen worden
-            afgewezen met een `400`-response.
+            De API verifieert niet of een meegestuurde identificatie ook daadwerkelijk
+            geverifieerd is. Voor de pilot is `email` het enige vastgestelde
+            identificatietype; het model is uitbreidbaar zonder breaking changes.
+            Onbekende typen worden afgewezen met een `400`-response.
           items:
             $ref: "#/components/schemas/Identificatie"
         van:
@@ -407,6 +412,8 @@ components:
         - waarde
       description: |
         Een identificatie van een partij waarmee agenda-afspraken worden opgezocht.
+        De API valideert alleen structuur en ondersteunde typen, maar verifieert niet
+        of de identificatiewaarde zelf geverifieerd is.
 
         Het model is uitbreidbaar: nieuwe identificatietypen kunnen worden toegevoegd
         zonder breaking changes in de API-structuur. Voor de pilot is `email` het enige
@@ -431,6 +438,7 @@ components:
           description: |
             De identificatiewaarde, passend bij het opgegeven type.
             Voor `email`: een geldig e-mailadres conform RFC 5321.
+            De API controleert niet of dit e-mailadres eerder is geverifieerd.
           example: "gebruiker@example.nl"
     AfsprakenZoekresultaatEnvelope:
       type: object
