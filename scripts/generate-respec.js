@@ -124,8 +124,16 @@ async function generateRespec() {
     return;
   }
 
+  let browser = null;
+  let pdfEnabled = true;
+
   console.log(`\n🌐 Start PDF browser voor ${filesToProcess.length} gewijzigde bestand(en)...`);
-  const browser = await puppeteer.launch({ headless: "new" });
+  try {
+    browser = await puppeteer.launch({ headless: "new" });
+  } catch (e) {
+    pdfEnabled = false;
+    console.warn(`⚠️ PDF generatie overgeslagen: ${e.message}`);
+  }
 
   for (const { file, filePath, content } of filesToProcess) {
     try {
@@ -215,36 +223,40 @@ ${renderedHtml}
       fs.writeFileSync(outputPath, html);
       console.log(`✅ HTML Gegenereerd: ${outputPath}`);
 
-      console.log(`⏳ PDF genereren voor ${title}...`);
-      const page = await browser.newPage();
-      await page.goto(`file://${outputPath}`, { waitUntil: "networkidle2" });
-      await page.evaluate(() => {
-        return new Promise((resolve) => {
-          if (document.respec && document.respec.ready) {
-            document.respec.ready.then(resolve);
-          } else {
-            setTimeout(resolve, 5000);
-          }
+      if (pdfEnabled) {
+        console.log(`⏳ PDF genereren voor ${title}...`);
+        const page = await browser.newPage();
+        await page.goto(`file://${outputPath}`, { waitUntil: "networkidle2" });
+        await page.evaluate(() => {
+          return new Promise((resolve) => {
+            if (document.respec && document.respec.ready) {
+              document.respec.ready.then(resolve);
+            } else {
+              setTimeout(resolve, 5000);
+            }
+          });
         });
-      });
-      const pdfPath = outputPath.replace(".html", ".pdf");
-      await page.pdf({
-        path: pdfPath,
-        format: "A4",
-        printBackground: true,
-        margin: { top: "20mm", right: "20mm", bottom: "20mm", left: "20mm" },
-      });
-      await page.close();
-      console.log(`✅ PDF Gegenereerd: ${pdfPath}`);
+        const pdfPath = outputPath.replace(".html", ".pdf");
+        await page.pdf({
+          path: pdfPath,
+          format: "A4",
+          printBackground: true,
+          margin: { top: "20mm", right: "20mm", bottom: "20mm", left: "20mm" },
+        });
+        await page.close();
+        console.log(`✅ PDF Gegenereerd: ${pdfPath}`);
+      }
 
-      // Update cache with successful generation
+      // HTML generatie is voldoende om de cache te verversen; PDF is optioneel in CI/build-omgevingen.
       updateCache(filePath, content, cache);
     } catch (e) {
       console.error(`❌ Fout bij verwerken ${file}:`, e.message);
     }
   }
 
-  await browser.close();
+  if (browser) {
+    await browser.close();
+  }
   saveCache(cachePath, cache);
   console.log("💾 Cache bijgewerkt");
   console.log("🎉 ReSpec generatie voltooid!");
