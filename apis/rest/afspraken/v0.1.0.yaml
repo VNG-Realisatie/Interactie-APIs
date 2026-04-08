@@ -298,9 +298,7 @@ paths:
                     adresregel1: "Coolsingel 40"
                     adresregel2: "3011 AD Rotterdam"
                     land: "Nederland"
-                aanduidingWatMeeTeNemen:
-                  - "Geldig identiteitsbewijs"
-                  - "Laatste loonstrook"
+                aanduidingWatMeeTeNemen: "Neem een geldig identiteitsbewijs en je laatste loonstrook mee."
         "400":
           description: Ongeldige afspraakidentificatie (bijv. illegale tekens of te lange waarde).
           content:
@@ -357,8 +355,10 @@ components:
       required:
         - identificaties
       description: |
-        Verzoek om afspraken op te zoeken op basis van één of meer geverifieerde
+        Verzoek om agenda-afspraken op te zoeken op basis van één of meer geverifieerde
         identificaties van een partij, optioneel gefilterd op een tijdsperiode.
+        Alleen agenda-afspraken waarvan het geplande aanvangsmoment binnen de opgegeven
+        periode valt, worden geretourneerd.
       properties:
         identificaties:
           type: array
@@ -538,16 +538,13 @@ components:
           allOf:
             - $ref: "#/components/schemas/AfspraakLocatie"
         aanduidingWatMeeTeNemen:
-          type: array
+          type: string
           x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
-            Lijst van documenten of items die de inwoner moet meenemen naar de afspraak.
-          items:
-            type: string
-          example:
-            - "Geldig identiteitsbewijs"
-            - "Laatste loonstrook"
+            Vrije tekst met wat de inwoner moet meenemen naar de afspraak.
+            Opmaak of samengestelde instructies kunnen hierin worden opgenomen.
+          example: "Neem een geldig identiteitsbewijs en je laatste loonstrook mee."
     AfspraakLocatie:
       type: object
       x-provisional: true
