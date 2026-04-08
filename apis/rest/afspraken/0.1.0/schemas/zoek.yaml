@@ -11,16 +11,17 @@ components:
         - identificaties
       description: |
         Verzoek om afspraken op te zoeken op basis van één of meer geverifieerde
-        identificaties van een inwoner, optioneel gefilterd op een tijdsperiode.
+        identificaties van een partij, optioneel gefilterd op een tijdsperiode.
       properties:
         identificaties:
           type: array
           minItems: 1
           description: |
-            Lijst van identificaties waarop gezocht wordt. Minimaal één identificatie is
-            verplicht. Momenteel is `email` het enige vastgestelde identificatietype voor
-            de pilot; het model is uitbreidbaar zonder breaking changes. Onbekende typen
-            worden afgewezen met een `400`-response.
+            Lijst van partij-identificaties waarop gezocht wordt. Minimaal één identificatie
+            is verplicht. Elke identificatie bevat zowel een `type` als een `waarde`.
+            Momenteel is `email` het enige vastgestelde identificatietype voor de pilot;
+            het model is uitbreidbaar zonder breaking changes. Onbekende typen worden
+            afgewezen met een `400`-response.
           items:
             $ref: '#/components/schemas/Identificatie'
         van:
@@ -37,10 +38,12 @@ components:
           type: string
           format: date-time
           description: |
-            Optionele einddatum/-tijd van de te zoeken periode.
+            Optionele einddatum/-tijd tot en met de te zoeken periode.
             ISO 8601 datetime inclusief timezone offset.
             Voorbeelden: `2026-12-31T23:59:59+01:00`, `2026-12-31T23:59:59Z`.
-            Wanneer `van` en `tot` zijn opgegeven, moet gelden dat `van <= tot`.
+            Deze bovengrens is inclusief: afspraken met een gepland aanvangsmoment gelijk
+            aan `tot` vallen binnen de filter. Wanneer `van` en `tot` zijn opgegeven,
+            moet gelden dat `van <= tot`.
           example: "2026-12-31T23:59:59+01:00"
 
     Identificatie:
@@ -49,7 +52,7 @@ components:
         - type
         - waarde
       description: |
-        Een identificatie van een inwoner waarmee afspraken worden opgezocht.
+        Een identificatie van een partij waarmee agenda-afspraken worden opgezocht.
 
         Het model is uitbreidbaar: nieuwe identificatietypen kunnen worden toegevoegd
         zonder breaking changes in de API-structuur. Voor de pilot is `email` het enige
@@ -93,59 +96,51 @@ components:
     AfspraakZoekresultaat:
       type: object
       required:
-        - afspraakreferentie
+        - afspraakIdentificatie
       description: |
         Samenvatting van een afspraak zoals teruggegeven in een zoekresultaat.
         Bevat de basisgegevens die nodig zijn om de afspraak te identificeren en aan
         de gebruiker te tonen in een lijstweergave.
 
-        Voor volledige details: gebruik `GET /afspraken/{afspraakreferentie}`.
+        Voor volledige details: gebruik `GET /afspraken/{afspraak-identificatie}`.
 
-        **Conceptversie** — alleen `afspraakreferentie` is hard vastgesteld.
+        **Conceptversie** — alleen `afspraakIdentificatie` is hard vastgesteld.
         Overige velden zijn voorlopig en kunnen zonder voorafgaande kennisgeving
         wijzigen tijdens de ontwikkeling van het datamodel.
       x-source-note: >
         Datamodel is nog in ontwikkeling per ontwerpdocumentatie werkgroep MijnAfspraken.
-        Alleen afspraakreferentie is definitief vastgesteld.
+        Alleen afspraakIdentificatie is definitief vastgesteld.
       properties:
-        afspraakreferentie:
+        afspraakIdentificatie:
           type: string
           description: |
-            Unieke identifier van de afspraak, toegekend door het afsprakensysteem.
+            Unieke identificatie van de agenda-afspraak, toegekend door het afsprakensysteem.
             De waarde is opaque — consumers mogen er geen structuur uit afleiden of
             op parsen. Kan een UUID, interne ID of ander uniek kenmerk zijn.
           example: "afspr-2026-001-xyz"
-        titel:
+        onderwerp:
           type: string
           x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
-            Een beknopte omschrijving van de afspraak, bedoeld voor weergave in een
+            Het onderwerp van de afspraak, bedoeld voor weergave in een
             lijstoverzicht.
           example: "Gesprek re-integratie"
-        beginDatumTijd:
+        geplandAanvangsmoment:
           type: string
           format: date-time
           x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
-            Begintijd van de afspraak als ISO 8601 datetime met timezone offset.
+            Het geplande aanvangsmoment van de afspraak als ISO 8601 datetime met
+            timezone offset.
             Voorbeelden: `2026-03-15T09:00:00+01:00`, `2026-07-15T14:30:00+02:00`.
           example: "2026-03-15T09:00:00+01:00"
-        eindDatumTijd:
+        geplandEindmoment:
           type: string
           format: date-time
           x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
-            Eindtijd van de afspraak als ISO 8601 datetime met timezone offset.
+            Het geplande eindmoment van de afspraak als ISO 8601 datetime met timezone offset.
           example: "2026-03-15T10:00:00+01:00"
-        locatieSamenvatting:
-          type: string
-          x-provisional: true
-          description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
-            Beknopte omschrijving van de locatie, geschikt voor weergave in een
-            lijstoverzicht. Kan een adres, ruimtenaam of kanaalindicatie zijn
-            (bijv. "Online via Teams").
-          example: "Stadskantoor, kamer 204"

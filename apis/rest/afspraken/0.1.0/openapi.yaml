@@ -16,8 +16,8 @@ info:
     (buiten scope van deze API) en raadpleegt vervolgens deze Afspraken API in een twee-staps flow:
 
     1. **Zoeken** via `POST /afspraken/opvragen` — retourneert een lijst met samengevatte afspraken
-       inclusief een `afspraakreferentie`.
-    2. **Detail opvragen** via `GET /afspraken/{afspraakreferentie}` — retourneert de volledige
+       inclusief een `afspraakIdentificatie`.
+    2. **Detail opvragen** via `GET /afspraken/{afspraak-identificatie}` — retourneert de volledige
        details van één specifieke afspraak.
 
     ## Scope pilot
@@ -77,7 +77,7 @@ servers:
 
 tags:
   - name: afspraken
-    description: Operaties voor het opvragen van afspraken op basis van geverifieerde identificaties.
+    description: Operaties voor het opvragen van agenda-afspraken op basis van geverifieerde identificaties van een partij.
 
 security:
   - oauth2ClientCredentials:
@@ -89,10 +89,10 @@ paths:
       operationId: zoekAfspraken
       tags:
         - afspraken
-      summary: Zoek afspraken op basis van identificaties
+      summary: Zoek agenda-afspraken op basis van identificaties van een partij
       description: |
-        Zoekt afspraken op bij de Afsprakenbeheercomponent op basis van één of meer
-        geverifieerde identificaties van een inwoner.
+        Zoekt agenda-afspraken op bij de Afsprakenbeheercomponent op basis van één of meer
+        geverifieerde identificaties van een partij.
 
         **Gebruik van POST**
 
@@ -108,7 +108,8 @@ paths:
         **Periodefilter**
 
         Wanneer `van` en/of `tot` zijn opgegeven, worden alleen afspraken geretourneerd
-        waarvan de begintijd binnen de opgegeven periode valt. De exacte semantiek
+        waarvan het geplande aanvangsmoment binnen de opgegeven periode valt. `tot`
+        wordt daarbij geïnterpreteerd als "tot en met". De exacte semantiek
         (inclusief/exclusief grenzen, overlappende afspraken) is nog niet definitief
         vastgesteld — zie open punten.
 
@@ -154,16 +155,14 @@ paths:
                   summary: Twee gevonden afspraken
                   value:
                     afspraken:
-                      - afspraakreferentie: "afspr-2026-001-xyz"
-                        titel: "Gesprek re-integratie"
-                        beginDatumTijd: "2026-03-15T09:00:00+01:00"
-                        eindDatumTijd: "2026-03-15T10:00:00+01:00"
-                        locatieSamenvatting: "Stadskantoor, kamer 204"
-                      - afspraakreferentie: "afspr-2026-002-abc"
-                        titel: "Videogesprek schuldhulpverlening"
-                        beginDatumTijd: "2026-07-15T14:30:00+02:00"
-                        eindDatumTijd: "2026-07-15T15:00:00+02:00"
-                        locatieSamenvatting: "Online via Microsoft Teams"
+                      - afspraakIdentificatie: "afspr-2026-001-xyz"
+                        onderwerp: "Gesprek re-integratie"
+                        geplandAanvangsmoment: "2026-03-15T09:00:00+01:00"
+                        geplandEindmoment: "2026-03-15T10:00:00+01:00"
+                      - afspraakIdentificatie: "afspr-2026-002-abc"
+                        onderwerp: "Videogesprek schuldhulpverlening"
+                        geplandAanvangsmoment: "2026-07-15T14:30:00+02:00"
+                        geplandEindmoment: "2026-07-15T15:00:00+02:00"
                 leegResultaat:
                   summary: Geen afspraken gevonden
                   value:
@@ -180,7 +179,7 @@ paths:
                 status: 400
                 code: "ONGELDIGE_AANVRAAG"
                 title: "Ongeldige aanvraag"
-                detail: "Het veld 'identificaties' is verplicht en moet minimaal één element bevatten."
+                detail: "Het veld 'identificaties' is verplicht en moet minimaal één identificatie bevatten met zowel type als waarde."
                 instance: "/afspraken/opvragen"
         '401':
           description: Geen of ongeldig authenticatietoken.
@@ -248,7 +247,7 @@ paths:
                 detail: "Het afsprakensysteem is momenteel niet bereikbaar. Probeer het later opnieuw."
                 instance: "/afspraken/opvragen"
 
-  /afspraken/{afspraakreferentie}:
+  /afspraken/{afspraak-identificatie}:
     get:
       operationId: haalAfspraakOp
       tags:
@@ -256,7 +255,7 @@ paths:
       summary: Haal details op van één afspraak
       description: |
         Haalt de gedetailleerde informatie op van één specifieke afspraak aan de hand van de
-        `afspraakreferentie` die verkregen is via `POST /afspraken/opvragen`.
+        `afspraakIdentificatie` die verkregen is via `POST /afspraken/opvragen`.
 
         **Autorisatie**
 
@@ -265,17 +264,17 @@ paths:
         identiteitscontext van de eindgebruiker hierbij wordt meegegeven is nog niet
         definitief vastgesteld — zie open punten.
 
-        **Opaque referentie**
+        **Opaque afspraak-identificatie**
 
-        De `afspraakreferentie` is opaque: consumers mogen er geen structuur uit afleiden
+        De `afspraakIdentificatie` is opaque: consumers mogen er geen structuur uit afleiden
         of er op parsen. De waarde is door het afsprakensysteem toegekend en kan een UUID,
         interne ID of ander uniek kenmerk zijn.
       parameters:
-        - name: afspraakreferentie
+        - name: afspraak-identificatie
           in: path
           required: true
           description: |
-            De unieke referentie van de afspraak, zoals ontvangen in het zoekresultaat.
+            De unieke identificatie van de agenda-afspraak, zoals ontvangen in het zoekresultaat.
             De waarde is opaque en mag door de consumer niet worden geparst of geïnterpreteerd.
           schema:
             type: string
@@ -288,25 +287,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/AfspraakDetails'
               example:
-                afspraakreferentie: "afspr-2026-001-xyz"
-                titel: "Gesprek re-integratie"
-                beginDatumTijd: "2026-03-15T09:00:00+01:00"
-                eindDatumTijd: "2026-03-15T10:00:00+01:00"
+                afspraakIdentificatie: "afspr-2026-001-xyz"
+                onderwerp: "Gesprek re-integratie"
+                geplandAanvangsmoment: "2026-03-15T09:00:00+01:00"
+                geplandEindmoment: "2026-03-15T10:00:00+01:00"
                 locatie:
                   type: fysiek
-                  omschrijving: "Stadskantoor Rotterdam, ingang Coolsingel"
-                  adres:
-                    straatnaam: "Coolsingel"
-                    huisnummer: "40"
-                    postcode: "3011 AD"
-                    woonplaats: "Rotterdam"
-                kanaal: fysiek
-                onderwerp: "Bespreking re-integratieplan na langdurige ziekte"
-                meeTeNemen:
+                  naam: "Stadskantoor Rotterdam, ingang Coolsingel"
+                  bezoekadres:
+                    adresregel1: "Coolsingel 40"
+                    adresregel2: "3011 AD Rotterdam"
+                    land: "Nederland"
+                aanduidingWatMeeTeNemen:
                   - "Geldig identiteitsbewijs"
                   - "Laatste loonstrook"
         '400':
-          description: Ongeldige afspraakreferentie (bijv. illegale tekens of te lange waarde).
+          description: Ongeldige afspraakidentificatie (bijv. illegale tekens of te lange waarde).
           content:
             application/problem+json:
               schema:
@@ -315,7 +311,7 @@ paths:
                 status: 400
                 code: "ONGELDIGE_REFERENTIE"
                 title: "Ongeldige referentie"
-                detail: "De opgegeven afspraakreferentie bevat ongeldige tekens."
+                detail: "De opgegeven afspraakidentificatie bevat ongeldige tekens."
                 instance: "/afspraken/afspr-2026-001-xyz"
         '401':
           description: Geen of ongeldig authenticatietoken.
@@ -330,7 +326,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
         '404':
-          description: Afspraak niet gevonden voor de opgegeven referentie.
+          description: Agenda-afspraak niet gevonden voor de opgegeven identificatie.
           content:
             application/problem+json:
               schema:
@@ -339,7 +335,7 @@ paths:
                 status: 404
                 code: "AFSPRAAK_NIET_GEVONDEN"
                 title: "Afspraak niet gevonden"
-                detail: "Er is geen afspraak gevonden met referentie 'afspr-2026-001-xyz'."
+                detail: "Er is geen agenda-afspraak gevonden met identificatie 'afspr-2026-001-xyz'."
                 instance: "/afspraken/afspr-2026-001-xyz"
         '500':
           description: Interne serverfout.
