@@ -290,6 +290,9 @@ paths:
                 onderwerp: "Gesprek re-integratie"
                 geplandAanvangsmoment: "2026-03-15T09:00:00+01:00"
                 geplandEindmoment: "2026-03-15T10:00:00+01:00"
+                aanmeldkenmerkAlfanumeriek: "BALIE-204-A"
+                aanmeldkenmerkQrCode: "https://example.nl/qr/afspr-2026-001-xyz"
+                aanmeldkenmerkMobiel: "wallet://afspraken/afspr-2026-001-xyz"
                 locatie:
                   type: fysiek
                   naam: "Stadskantoor Rotterdam, ingang Coolsingel"
@@ -297,7 +300,13 @@ paths:
                     adresregel1: "Coolsingel 40"
                     adresregel2: "3011 AD Rotterdam"
                     land: "Nederland"
-                aanduidingWatMeeTeNemen: "Neem een geldig identiteitsbewijs en je laatste loonstrook mee."
+                activiteiten:
+                  - naamActiviteitsoort: "Paspoort verlengen"
+                    aantal: 1
+                    aanduidingWatMeeTeNemen: "Neem een geldig identiteitsbewijs en een recente pasfoto mee."
+                  - naamActiviteitsoort: "Rijbewijs aanvragen"
+                    aantal: 1
+                    aanduidingWatMeeTeNemen: "Neem je huidige rijbewijs mee."
         "400":
           description: Ongeldige afspraakidentificatie (bijv. illegale tekens of te lange waarde).
           content:
@@ -529,6 +538,29 @@ components:
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Het geplande eindmoment van de afspraak als ISO 8601 datetime met timezone offset.
           example: "2026-03-15T10:00:00+01:00"
+        aanmeldkenmerkAlfanumeriek:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Het alfanumerieke kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
+          example: "BALIE-204-A"
+        aanmeldkenmerkMobiel:
+          type: string
+          format: uri
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Het kenmerk op de mobiele telefoon waarmee een klant zich kan aanmelden voor een agenda-afspraak.
+          example: "wallet://afspraken/afspr-2026-001-xyz"
+        aanmeldkenmerkQrCode:
+          type: string
+          format: uri
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            De QR-code als kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
+          example: "https://example.nl/qr/afspr-2026-001-xyz"
         locatie:
           x-provisional: true
           description: |
@@ -536,14 +568,16 @@ components:
             Locatie van de afspraak. Kan fysiek, telefonisch of online zijn.
           allOf:
             - $ref: "#/components/schemas/AfspraakLocatie"
-        aanduidingWatMeeTeNemen:
-          type: string
+        activiteiten:
+          type: array
           x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
-            Vrije tekst met wat de inwoner moet meenemen naar de afspraak.
-            Opmaak of samengestelde instructies kunnen hierin worden opgenomen.
-          example: "Neem een geldig identiteitsbewijs en je laatste loonstrook mee."
+            De activiteitsoorten die op deze agenda-afspraak van toepassing zijn.
+            Per activiteit kan worden aangegeven wat de klant moet meenemen.
+          items:
+            $ref: "#/components/schemas/ActiviteitOpAfspraak"
+          minItems: 1
     AfspraakLocatie:
       type: object
       x-provisional: true
@@ -574,6 +608,37 @@ components:
             **Voorlopig** — bezoekadres waar de fysieke afspraak plaatsvindt.
           allOf:
             - $ref: "#/components/schemas/Adres"
+        onlineAdres:
+          type: string
+          format: uri
+          x-provisional: true
+          description: |
+            **Voorlopig** — het online adres waarop de agenda-afspraak plaatsvindt.
+          example: "https://teams.example.nl/meet/afspr-2026-002-abc"
+    ActiviteitOpAfspraak:
+      type: object
+      required:
+        - naamActiviteitsoort
+        - aantal
+      x-provisional: true
+      description: |
+        **Voorlopig schema** — activiteitsoort op een agenda-afspraak.
+      properties:
+        naamActiviteitsoort:
+          type: string
+          description: Naam van de activiteitsoort waarop de agenda-afspraak betrekking heeft.
+          example: "Paspoort verlengen"
+        aantal:
+          type: integer
+          minimum: 1
+          description: Het aantal van deze activiteitsoort op de agenda-afspraak.
+          example: 1
+        aanduidingWatMeeTeNemen:
+          type: string
+          description: |
+            Vrije tekst met wat de klant voor deze activiteit moet meenemen.
+            Markdown mag hierin worden gebruikt.
+          example: "Neem een geldig identiteitsbewijs en een recente pasfoto mee."
     Adres:
       type: object
       x-provisional: true
