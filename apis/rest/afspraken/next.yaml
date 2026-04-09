@@ -297,7 +297,7 @@ paths:
                 aanmeldkenmerkAlfanumeriek: "BALIE-204-A"
                 aanmeldkenmerkQrCode: "https://example.nl/qr/afspr-2026-001-xyz"
                 aanmeldkenmerkMobiel: "wallet://afspraken/afspr-2026-001-xyz"
-                locatie:
+                afspraakLocatie:
                   type: fysiek
                   naam: "Stadskantoor Rotterdam, ingang Coolsingel"
                   bezoekadres:
@@ -311,6 +311,14 @@ paths:
                   - naamActiviteitsoort: "Rijbewijs aanvragen"
                     aantal: 1
                     aanduidingWatMeeTeNemen: "Neem je huidige rijbewijs mee."
+                contactInformatie:
+                  naam: "Loketmedewerkers Paspoorten"
+                  emailadres: "paspoorten@gemeente.nl"
+                  telefoonnummer: "+31 (0)10 123 4567"
+                  adres:
+                    adresregel1: "Stadhuis, afdeling Paspoorten"
+                    adresregel2: "3011 AD Rotterdam"
+                    land: "Nederland"
         "400":
           description: Ongeldige afspraakidentificatie (bijv. illegale tekens of te lange waarde).
           content:
@@ -571,11 +579,11 @@ components:
             **Voorlopig veld** — nog niet definitief vastgesteld.
             De QR-code als kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
           example: "https://example.nl/qr/afspr-2026-001-xyz"
-        locatie:
+        afspraakLocatie:
           x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
-            Locatie van de afspraak. Kan fysiek, telefonisch of online zijn.
+            Locatie waar de afspraak plaatsvindt. Kan fysiek, telefonisch of online zijn.
           allOf:
             - $ref: "#/components/schemas/AfspraakLocatie"
         activiteiten:
@@ -588,6 +596,14 @@ components:
           items:
             $ref: "#/components/schemas/ActiviteitOpAfspraak"
           minItems: 1
+        contactInformatie:
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — nog niet definitief vastgesteld.
+            Contactinformatie van de organisatie of afdeling waarop de afspraak betrekking heeft,
+            conform het informatiemodel. Een afspraak heeft nul of één contactinformatieobject.
+          allOf:
+            - $ref: "#/components/schemas/ContactInformatie"
     AfspraakLocatie:
       type: object
       x-provisional: true
@@ -653,8 +669,11 @@ components:
       type: object
       x-provisional: true
       description: |
-        **Voorlopig schema** — adresmodel conform het informatiemodel, opgebouwd uit
-        één tot drie adresregels en optioneel een land.
+        **Voorlopig schema** — adresmodel conform het informatiemodel.
+        
+        Adres gestructureerd niet conform BAG, opgebouwd uit één tot drie adresregels
+        en optioneel een land. Dit model wordt hergebruikt voor bezoekad Aden (in `AfspraakLocatie`)
+        en voor contactadressen (in `ContactInformatie`).
       properties:
         adresregel1:
           type: string
@@ -672,6 +691,40 @@ components:
           type: string
           description: Land van het bezoekadres, indien relevant.
           example: "Nederland"
+    ContactInformatie:
+      type: object
+      x-provisional: true
+      required:
+        - naam
+      description: |
+        **Voorlopig schema** — contactinformatie van een organisatie of afdeling.
+        
+        Conform het informatiemodel. Een afspraak is gerelateerd aan nul of één
+        contactinformatieobject.
+      properties:
+        naam:
+          type: string
+          description: Naam van de organisatie of afdeling.
+          example: "Loketmedewerkers Paspoorten"
+        emailadres:
+          type: string
+          description: |
+            E-mailadres voor contactopname, indien beschikbaar.
+            Optioneel [0..1].
+          example: "paspoorten@gemeente.nl"
+        telefoonnummer:
+          type: string
+          description: |
+            Telefoonnummer voor contactopname, indien beschikbaar.
+            Optioneel [0..1].
+          example: "+31 (0)10 123 4567"
+        adres:
+          x-provisional: true
+          description: |
+            Adres voor contactdoeleinden, indien beschikbaar.
+            Optioneel [0..1].
+          allOf:
+            - $ref: "#/components/schemas/Adres"
     ProblemDetails:
       type: object
       required:
