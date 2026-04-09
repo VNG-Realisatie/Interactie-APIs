@@ -327,8 +327,8 @@ paths:
                 $ref: "#/components/schemas/ProblemDetails"
               example:
                 status: 400
-                code: "ONGELDIGE_REFERENTIE"
-                title: "Ongeldige referentie"
+                code: "ONGELDIGE_IDENTIFICATIE"
+                title: "Ongeldige identificatie"
                 detail: "De opgegeven afspraakidentificatie bevat ongeldige tekens."
                 instance: "/afspraken/afspr-2026-001-xyz"
         "401":
