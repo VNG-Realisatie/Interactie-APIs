@@ -262,7 +262,7 @@ paths:
 
         **Autorisatie**
 
-        Het is aan de Afsprakenbeheercomponent om te valideren of de opvragende partij
+        Het is aan de Afsprakenbeheercomponent om te valideren of het opvragende systeem
         gerechtigd is de details van deze specifieke afspraak in te zien. Of en hoe de
         identiteitscontext van de eindgebruiker hierbij wordt meegegeven is nog niet
         definitief vastgesteld — zie open punten.
@@ -767,12 +767,8 @@ components:
         OAuth 2.0 Client Credentials flow voor system-to-system communicatie,
         conform NL GOV Assurance profile for OAuth 2.0 v1.1.0.
 
-        De eindgebruiker-authenticatie vindt elders in de keten plaats (in de MijnOmgeving).
-        Deze API ontvangt een systeemtoken namens de consumerende applicatie, niet namens
-        een individuele eindgebruiker. Er is geen gebruikerscontext aanwezig in het token.
-
-        De consumerende partij is ervoor verantwoordelijk dat de identiteit van de eindgebruiker
-        is gevalideerd voordat een verzoek naar deze API wordt gestuurd.
+        Het opvragende systeem is ervoor verantwoordelijk dat de identificaties van de partij
+        zijn gevalideerd voordat een verzoek naar deze API wordt gestuurd.
 
         Deze OpenAPI-specificatie legt het functionele securitymodel vast. De concrete
         authorization server, het token endpoint, de clientregistratie en eventuele
