@@ -369,8 +369,10 @@ components:
       description: |
         Verzoek om agenda-afspraken op te zoeken op basis van één of meer identificaties
         van een partij, optioneel gefilterd op een tijdsperiode.
-        Alleen agenda-afspraken waarvan het geplande aanvangsmoment binnen de opgegeven
-        periode valt, worden geretourneerd.
+        
+        Het zoekresultaat bevat alleen agenda-afspraken waarvan het **geplande aanvangsmoment**
+        binnen de opgegeven periode valt. De filtering is dus gebaseerd op het gepland
+        aanvangsmoment, niet op andere timelineaspecten.
       properties:
         identificaties:
           type: array
