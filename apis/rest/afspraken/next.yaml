@@ -23,6 +23,7 @@ info:
 
     De pilot is primair gericht op inwoners. Ondernemers- en KCC-scenario's vallen buiten de
     pilotscope. Aanmaken, wijzigen en annuleren van afspraken valt buiten de scope van deze API.
+    Telefonische agenda-afspraken vallen in deze versie eveneens buiten scope.
 
     ## Standaarden
 
@@ -303,7 +304,6 @@ paths:
                   bezoekadres:
                     adresregel1: "Coolsingel 40"
                     adresregel2: "3011 AD Rotterdam"
-                    land: "Nederland"
                 activiteiten:
                   - naamActiviteitsoort: "Paspoort verlengen"
                     aantal: 1
@@ -318,7 +318,6 @@ paths:
                   adres:
                     adresregel1: "Stadhuis, afdeling Paspoorten"
                     adresregel2: "3011 AD Rotterdam"
-                    land: "Nederland"
         "400":
           description: Ongeldige afspraakidentificatie (bijv. illegale tekens of te lange waarde).
           content:
@@ -547,7 +546,8 @@ components:
           x-provisional: true
           description: |
             **Voorlopig veld** — soort agenda-afspraak conform het informatiemodel.
-            Een agenda-afspraak is ofwel fysiek ofwel online.
+            Een agenda-afspraak is in deze versie ofwel fysiek ofwel online.
+            Telefonische agenda-afspraken vallen buiten scope.
           enum:
             - fysiek
             - online
@@ -701,7 +701,7 @@ components:
         **Voorlopig schema** — adresmodel conform het informatiemodel.
 
         Adres gestructureerd niet conform BAG, opgebouwd uit één tot drie adresregels
-        en optioneel een land. Dit model wordt hergebruikt voor bezoekad Aden (in `AfspraakLocatie`)
+        en optioneel een land. Dit model wordt hergebruikt voor bezoekadressen (in `AfspraakLocatie`)
         en voor contactadressen (in `ContactInformatie`).
       properties:
         adresregel1:
@@ -717,9 +717,29 @@ components:
           description: Derde adresregel, indien van toepassing.
           example: "Gebouw C, kamer 204"
         land:
+          description: |
+            Land van het adres, alleen opnemen indien het adres buiten Nederland ligt.
+            Gebruik hierbij zowel landcode als landnaam conform de RvIG Landentabel.
+          allOf:
+            - $ref: "#/components/schemas/Land"
+    Land:
+      type: object
+      x-provisional: true
+      required:
+        - landcode
+        - landnaam
+      description: |
+        Landreferentie conform de RvIG Landentabel.
+        Alleen opnemen indien het adres buiten Nederland ligt.
+      properties:
+        landcode:
           type: string
-          description: Land van het bezoekadres, indien relevant.
-          example: "Nederland"
+          description: Code van het land conform de RvIG Landentabel.
+          example: "5001"
+        landnaam:
+          type: string
+          description: Naam van het land conform de RvIG Landentabel.
+          example: "België"
     ContactInformatie:
       type: object
       x-provisional: true
