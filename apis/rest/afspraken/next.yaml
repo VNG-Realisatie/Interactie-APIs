@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  title: Afspraken
+  title: MijnAgenda
   version: 0.1.0-concept
   description: |
     **Conceptversie — datamodel onder actieve ontwikkeling**
@@ -291,6 +291,7 @@ paths:
                 $ref: "#/components/schemas/AfspraakDetails"
               example:
                 afspraakIdentificatie: "afspr-2026-001-xyz"
+                afspraakSoort: fysiek
                 onderwerp: "Gesprek re-integratie"
                 geplandAanvangsmoment: "2026-03-15T09:00:00+01:00"
                 geplandEindmoment: "2026-03-15T10:00:00+01:00"
@@ -298,7 +299,6 @@ paths:
                 aanmeldkenmerkQrCode: "https://example.nl/qr/afspr-2026-001-xyz"
                 aanmeldkenmerkMobiel: "wallet://afspraken/afspr-2026-001-xyz"
                 afspraakLocatie:
-                  type: fysiek
                   naam: "Stadskantoor Rotterdam, ingang Coolsingel"
                   bezoekadres:
                     adresregel1: "Coolsingel 40"
@@ -377,7 +377,7 @@ components:
       description: |
         Verzoek om agenda-afspraken op te zoeken op basis van één of meer identificaties
         van een partij, optioneel gefilterd op een tijdsperiode.
-        
+
         Het zoekresultaat bevat alleen agenda-afspraken waarvan het **geplande aanvangsmoment**
         binnen de opgegeven periode valt. De filtering is dus gebaseerd op het gepland
         aanvangsmoment, niet op andere timelineaspecten.
@@ -514,9 +514,6 @@ components:
             Het geplande eindmoment van de afspraak als ISO 8601 datetime met timezone offset.
           example: "2026-03-15T10:00:00+01:00"
     AfspraakDetails:
-      type: object
-      required:
-        - afspraakIdentificatie
       description: |
         Volledige details van één afspraak.
 
@@ -525,6 +522,19 @@ components:
       x-source-note: >
         Het datamodel is nog in ontwikkeling. Alleen afspraakIdentificatie is definitief
         vastgesteld; overige velden blijven voorlopig.
+      discriminator:
+        propertyName: afspraakSoort
+        mapping:
+          fysiek: "#/components/schemas/FysiekeAfspraakDetails"
+          online: "#/components/schemas/OnlineAfspraakDetails"
+      oneOf:
+        - $ref: "#/components/schemas/FysiekeAfspraakDetails"
+        - $ref: "#/components/schemas/OnlineAfspraakDetails"
+    BaseAfspraakDetails:
+      type: object
+      required:
+        - afspraakIdentificatie
+        - afspraakSoort
       properties:
         afspraakIdentificatie:
           type: string
@@ -532,6 +542,16 @@ components:
             Unieke identificatie van de agenda-afspraak, toegekend door het afsprakensysteem.
             De waarde is opaque.
           example: "afspr-2026-001-xyz"
+        afspraakSoort:
+          type: string
+          x-provisional: true
+          description: |
+            **Voorlopig veld** — soort agenda-afspraak conform het informatiemodel.
+            Een agenda-afspraak is ofwel fysiek ofwel online.
+          enum:
+            - fysiek
+            - online
+          example: fysiek
         onderwerp:
           type: string
           x-provisional: true
@@ -579,13 +599,6 @@ components:
             **Voorlopig veld** — nog niet definitief vastgesteld.
             De QR-code als kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
           example: "https://example.nl/qr/afspr-2026-001-xyz"
-        afspraakLocatie:
-          x-provisional: true
-          description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
-            Locatie waar de afspraak plaatsvindt. Kan fysiek, telefonisch of online zijn.
-          allOf:
-            - $ref: "#/components/schemas/AfspraakLocatie"
         activiteiten:
           type: array
           x-provisional: true
@@ -604,26 +617,49 @@ components:
             conform het informatiemodel. Een afspraak heeft nul of één contactinformatieobject.
           allOf:
             - $ref: "#/components/schemas/ContactInformatie"
+    FysiekeAfspraakDetails:
+      allOf:
+        - $ref: "#/components/schemas/BaseAfspraakDetails"
+        - type: object
+          required:
+            - afspraakLocatie
+          properties:
+            afspraakSoort:
+              type: string
+              enum:
+                - fysiek
+              example: fysiek
+            afspraakLocatie:
+              description: |
+                De fysieke locatie waar de afspraak plaatsvindt.
+              allOf:
+                - $ref: "#/components/schemas/AfspraakLocatie"
+    OnlineAfspraakDetails:
+      allOf:
+        - $ref: "#/components/schemas/BaseAfspraakDetails"
+        - type: object
+          required:
+            - onlineAdres
+          properties:
+            afspraakSoort:
+              type: string
+              enum:
+                - online
+              example: online
+            onlineAdres:
+              type: string
+              format: uri
+              description: |
+                Het online adres waarop de agenda-afspraak plaatsvindt.
+              example: "https://teams.example.nl/meet/afspr-2026-002-abc"
     AfspraakLocatie:
       type: object
       x-provisional: true
       description: |
-        **Voorlopig schema** — nog niet definitief vastgesteld.
+        **Voorlopig schema** — fysieke locatie van een agenda-afspraak.
 
-        Locatiegegevens van een afspraak. De bron beschrijft fysieke, telefonische en
-        online/video-afspraken; het model is hierop uitbreidbaar.
+        Dit object wordt alleen gebruikt bij fysieke agenda-afspraken.
       properties:
-        type:
-          type: string
-          x-provisional: true
-          description: |
-            **Voorlopig** — type locatie of modaliteit van de afspraak.
-          enum:
-            - fysiek
-            - telefonisch
-            - video
-            - onbekend
-          example: fysiek
         naam:
           type: string
           description: Naam van de locatie.
@@ -634,13 +670,6 @@ components:
             **Voorlopig** — bezoekadres waar de fysieke afspraak plaatsvindt.
           allOf:
             - $ref: "#/components/schemas/Adres"
-        onlineAdres:
-          type: string
-          format: uri
-          x-provisional: true
-          description: |
-            **Voorlopig** — het online adres waarop de agenda-afspraak plaatsvindt.
-          example: "https://teams.example.nl/meet/afspr-2026-002-abc"
     ActiviteitOpAfspraak:
       type: object
       required:
@@ -670,7 +699,7 @@ components:
       x-provisional: true
       description: |
         **Voorlopig schema** — adresmodel conform het informatiemodel.
-        
+
         Adres gestructureerd niet conform BAG, opgebouwd uit één tot drie adresregels
         en optioneel een land. Dit model wordt hergebruikt voor bezoekad Aden (in `AfspraakLocatie`)
         en voor contactadressen (in `ContactInformatie`).
@@ -698,7 +727,7 @@ components:
         - naam
       description: |
         **Voorlopig schema** — contactinformatie van een organisatie of afdeling.
-        
+
         Conform het informatiemodel. Een afspraak is gerelateerd aan nul of één
         contactinformatieobject.
       properties:
