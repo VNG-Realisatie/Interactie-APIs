@@ -757,6 +757,7 @@ components:
           example: "Loketmedewerkers Paspoorten"
         emailadres:
           type: string
+          format: email
           description: |
             E-mailadres voor contactopname, indien beschikbaar.
             Optioneel [0..1].
@@ -816,8 +817,9 @@ components:
         OAuth 2.0 Client Credentials flow voor system-to-system communicatie,
         conform NL GOV Assurance profile for OAuth 2.0 v1.1.0.
 
-        Het opvragende systeem is ervoor verantwoordelijk dat de identificaties van de partij
-        zijn gevalideerd voordat een verzoek naar deze API wordt gestuurd.
+        Het opvragende systeem is verantwoordelijk voor de herkomst en het gebruik van de
+        meegestuurde identificaties van de partij. Deze API valideert structuur en
+        ondersteunde typen, maar verifieert identificaties niet zelf.
 
         Deze OpenAPI-specificatie legt het functionele securitymodel vast. De concrete
         authorization server, het token endpoint, de clientregistratie en eventuele
