@@ -2,7 +2,7 @@ openapi: 3.0.3
 
 info:
   title: MijnAgenda
-  version: next
+  version: 0.1.0-concept
   description: |
     **Conceptversie — datamodel onder actieve ontwikkeling**
 
