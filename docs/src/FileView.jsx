@@ -15,6 +15,75 @@ function resolveRefLink(currentPath, refPath) {
   }
 }
 
+function MimMetadataView({ schema }) {
+  const meta = schema["x-mim-metadata"];
+  const properties = schema.properties || {};
+  const defs = schema.$defs || {};
+
+  const allTypes = { ...defs };
+  if (schema.title && schema.properties) {
+    allTypes[schema.title] = schema;
+  }
+
+  return (
+    <div className="mim-section">
+      <h3>MIM Informatie (Conceptueel Model)</h3>
+
+      {Object.entries(allTypes).map(([typeName, typeDef]) => {
+        const typeMeta = typeDef["x-mim-metadata"];
+        if (!typeMeta && !typeDef.properties) return null;
+
+        return (
+          <div key={typeName} className="mim-card">
+            <h4>{typeMeta?.naam || typeDef.title || typeName}</h4>
+            {typeMeta && (
+              <div className="mim-type-meta">
+                {Object.entries(typeMeta).map(
+                  ([k, v]) =>
+                    k !== "id" &&
+                    k !== "naam" &&
+                    k !== "stereotype" && (
+                      <p key={k}>
+                        <strong>{k}:</strong> {v}
+                      </p>
+                    ),
+                )}
+              </div>
+            )}
+
+            <div className="mim-properties-grid">
+              {Object.entries(typeDef.properties || {}).map(([propName, propDef]) => {
+                const pMeta =
+                  propDef["x-mim-metadata"] || (propDef.items && propDef.items["x-mim-metadata"]);
+                if (!pMeta) return null;
+
+                return (
+                  <div key={propName} className="mim-prop-item">
+                    <div className="mim-prop-header">
+                      <strong>{pMeta.naam || propName}</strong>
+                      <span className="mim-tech-name">({propName})</span>
+                    </div>
+                    <div className="mim-prop-details">
+                      {Object.entries(pMeta).map(
+                        ([k, v]) =>
+                          k !== "naam" && (
+                            <div key={k} className="mim-prop-tag">
+                              <span className="mim-tag-label">{k}:</span> {v}
+                            </div>
+                          ),
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function FileView({ path, navigate }) {
   const [content, setContent] = useState("Laden...");
   const [schema, setSchema] = useState(null);
@@ -48,7 +117,6 @@ export default function FileView({ path, navigate }) {
   const fileName = path.split("/").pop();
   const title = schema?.title || fileName.replace(/\.(json|ya?ml)$/, "");
 
-  const isYaml = path.endsWith(".yaml") || path.endsWith(".yml");
   const isSchema = path.startsWith("schemas/");
   const isPattern = path.startsWith("patterns/");
 

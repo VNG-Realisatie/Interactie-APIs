@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MIM Meta-Schema",
+  "description": "Formele beschrijving van het Metamodel Informatie Modellering (MIM), inclusief alle metaklassen conform de Geonovum-standaard.",
+  "type": "object",
+  "$defs": {
+    "Enumeratiewaarde": {
+      "type": "object",
+      "title": "Enumeratiewaarde",
+      "description": "Een specifiek toegestane waarde binnen een enumeratie.",
+      "properties": {
+        "Code": {
+          "type": "string",
+          "description": "Een unieke korte code die een specifieke waarde in een enumeratie identificeert."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Relatieklasse": {
+      "type": "object",
+      "title": "Relatieklasse",
+      "description": "Een relatiesoort die zelf ook kenmerken (attribuutsoorten) heeft. Deze kenmerken horen bij de relatie zelf, en niet bij één van de twee gekoppelde objecten.",
+      "properties": {
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Relatiesoort": {
+      "type": "object",
+      "title": "Relatiesoort",
+      "description": "De typering van de relatie tussen twee objecttypen. Het geeft aan dat er een betekenisvolle verbinding bestaat tussen objecten (bijv. Persoon 'woont op' Adres).",
+      "properties": {
+        "Mogelijk geen waarde": {
+          "type": "string",
+          "description": "Indicatie of het gegeven ook geen waarde (null) kan hebben."
+        },
+        "Indicatie materiële historie": {
+          "type": "string",
+          "description": "Indicatie of de materiële historie van de attribuutsoort te bevragen is (gebeurtenis in de werkelijkheid)."
+        },
+        "Authentiek": {
+          "type": "string",
+          "description": "Aanduiding of het een authentiek gegeven (attribuutsoort) betreft. Authentieke gegevens zijn wettelijk verplicht te gebruiken zonder nader onderzoek naar de juistheid ervan."
+        },
+        "Alternatieve naam": {
+          "type": "string",
+          "description": "De naam in natuurlijke of formele taal; een alias voor het element."
+        },
+        "Indicatie afleidbaar": {
+          "type": "string",
+          "description": "Aanduiding dat het gegeven afleidbaar is uit andere attribuut- en/of relatiesoorten."
+        },
+        "Aanduiding strijdigheid/nietigheid": {
+          "type": "string",
+          "description": "MIM eigenschap: Aanduiding strijdigheid/nietigheid"
+        },
+        "Regels": {
+          "type": "string",
+          "description": "Optionaliteitsregels of waardebeperkende regels die gelden voor dit element."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Indicatie in onderzoek": {
+          "type": "string",
+          "description": "MIM eigenschap: Indicatie in onderzoek"
+        },
+        "Herkomst definitie": {
+          "type": "string",
+          "description": "MIM eigenschap: Herkomst definitie"
+        },
+        "Herkomst": {
+          "type": "string",
+          "description": "De basisregistratie in wiens catalogus het objecttype is gespecificeerd (oftewel de basisregistratie waar het objecttype deel van uitmaakt)."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Indicatie formele historie": {
+          "type": "string",
+          "description": "Indicatie of de formele historie van de attribuutsoort te bevragen is (registratie-momenten)."
+        },
+        "Datum opname": {
+          "type": "string",
+          "description": "MIM eigenschap: Datum opname"
+        },
+        "Toelichting": {
+          "type": "string",
+          "description": "Een inhoudelijke toelichting op de definitie, ter verheldering of nadere duiding."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Objecttype": {
+      "type": "object",
+      "title": "Objecttype",
+      "description": "De typering van een groep objecten die binnen een domein relevant zijn en als gelijksoortig worden beschouwd. Een objecttype beschrijft 'dingen' uit de werkelijkheid (zoals een Pand, Persoon of Afspraak) die dezelfde eigenschappen delen.",
+      "properties": {
+        "Eigenaar": {
+          "type": "string",
+          "description": "De partij die verantwoordelijk is voor de definitie en het beheer van dit gegeven."
+        },
+        "Alternatieve naam": {
+          "type": "string",
+          "description": "De naam in natuurlijke of formele taal; een alias voor het element."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Herkomst definitie": {
+          "type": "string",
+          "description": "MIM eigenschap: Herkomst definitie"
+        },
+        "Herkomst": {
+          "type": "string",
+          "description": "De basisregistratie in wiens catalogus het objecttype is gespecificeerd (oftewel de basisregistratie waar het objecttype deel van uitmaakt)."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Kwaliteitsbegrip": {
+          "type": "string",
+          "description": "Beschrijving van de kwaliteitseisen waaraan de waarden van de attribuutsoort moeten voldoen."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Datum opname": {
+          "type": "string",
+          "description": "MIM eigenschap: Datum opname"
+        },
+        "Toelichting": {
+          "type": "string",
+          "description": "Een inhoudelijke toelichting op de definitie, ter verheldering of nadere duiding."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        },
+        "Populatie": {
+          "type": "string",
+          "description": "De verzameling van alle objecten van een bepaald type die op een bepaald moment aanwezig zijn."
+        }
+      },
+      "additionalProperties": true
+    },
+    "Gegevensgroeptype": {
+      "type": "object",
+      "title": "Gegevensgroeptype",
+      "description": "Een verzameling van attribuutsoorten die als één geheel bij een objecttype horen.",
+      "properties": {
+        "Mogelijk geen waarde": {
+          "type": "string",
+          "description": "Indicatie of het gegeven ook geen waarde (null) kan hebben."
+        },
+        "Indicatie materiële historie": {
+          "type": "string",
+          "description": "Indicatie of de materiële historie van de attribuutsoort te bevragen is (gebeurtenis in de werkelijkheid)."
+        },
+        "Eigenaar": {
+          "type": "string",
+          "description": "De partij die verantwoordelijk is voor de definitie en het beheer van dit gegeven."
+        },
+        "Authentiek": {
+          "type": "string",
+          "description": "Aanduiding of het een authentiek gegeven (attribuutsoort) betreft. Authentieke gegevens zijn wettelijk verplicht te gebruiken zonder nader onderzoek naar de juistheid ervan."
+        },
+        "Alternatieve naam": {
+          "type": "string",
+          "description": "De naam in natuurlijke of formele taal; een alias voor het element."
+        },
+        "Regels": {
+          "type": "string",
+          "description": "Optionaliteitsregels of waardebeperkende regels die gelden voor dit element."
+        },
+        "Herkomst definitie": {
+          "type": "string",
+          "description": "MIM eigenschap: Herkomst definitie"
+        },
+        "Herkomst": {
+          "type": "string",
+          "description": "De basisregistratie in wiens catalogus het objecttype is gespecificeerd (oftewel de basisregistratie waar het objecttype deel van uitmaakt)."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Indicatie formele historie": {
+          "type": "string",
+          "description": "Indicatie of de formele historie van de attribuutsoort te bevragen is (registratie-momenten)."
+        },
+        "Datum opname": {
+          "type": "string",
+          "description": "MIM eigenschap: Datum opname"
+        },
+        "Toelichting": {
+          "type": "string",
+          "description": "Een inhoudelijke toelichting op de definitie, ter verheldering of nadere duiding."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Gestructureerd datatype": {
+      "type": "object",
+      "title": "Gestructureerd datatype",
+      "description": "Een samengesteld datatype dat bestaat uit meerdere elementen of andere datatypen.",
+      "properties": {
+        "Alternatieve naam": {
+          "type": "string",
+          "description": "De naam in natuurlijke of formele taal; een alias voor het element."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Herkomst definitie": {
+          "type": "string",
+          "description": "MIM eigenschap: Herkomst definitie"
+        },
+        "Herkomst": {
+          "type": "string",
+          "description": "De basisregistratie in wiens catalogus het objecttype is gespecificeerd (oftewel de basisregistratie waar het objecttype deel van uitmaakt)."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Formeel patroon": {
+          "type": "string",
+          "description": "Beschrijving van het gegevenspatroon in de vorm van een reguliere expressie (regex)."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Datum opname": {
+          "type": "string",
+          "description": "MIM eigenschap: Datum opname"
+        },
+        "Patroon": {
+          "type": "string",
+          "description": "Korte beschrijving van de opbouw van de waarde."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Primitief datatype": {
+      "type": "object",
+      "title": "Primitief datatype",
+      "description": "Een enkelvoudig, niet verder op te splitsen datatype (zoals String, Integer, Boolean).",
+      "properties": {
+        "Lengte": {
+          "type": "string",
+          "description": "De maximale lengte van de waarde in posities (bijv. '1-80' of '20')."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Restriction identifier": {
+          "type": "string",
+          "description": "MIM eigenschap: Restriction identifier"
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Formeel patroon": {
+          "type": "string",
+          "description": "Beschrijving van het gegevenspatroon in de vorm van een reguliere expressie (regex)."
+        },
+        "Patroon": {
+          "type": "string",
+          "description": "Korte beschrijving van de opbouw van de waarde."
+        },
+        "Toelichting": {
+          "type": "string",
+          "description": "Een inhoudelijke toelichting op de definitie, ter verheldering of nadere duiding."
+        },
+        "Minimum waarde (inclusief)": {
+          "type": "string",
+          "description": "MIM eigenschap: Minimum waarde (inclusief)"
+        },
+        "Maximum waarde (inclusief)": {
+          "type": "string",
+          "description": "MIM eigenschap: Maximum waarde (inclusief)"
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        },
+        "Minimum lengte": {
+          "type": "string",
+          "description": "MIM eigenschap: Minimum lengte"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Attribuutsoort": {
+      "type": "object",
+      "title": "Attribuutsoort",
+      "description": "De typering van een gelijksoortig kenmerk van een objecttype. Het legt vast welk type gegevens (zoals tekst of datum) voor dat kenmerk mag worden opgenomen.",
+      "properties": {
+        "Mogelijk geen waarde": {
+          "type": "string",
+          "description": "Indicatie of het gegeven ook geen waarde (null) kan hebben."
+        },
+        "Indicatie materiële historie": {
+          "type": "string",
+          "description": "Indicatie of de materiële historie van de attribuutsoort te bevragen is (gebeurtenis in de werkelijkheid)."
+        },
+        "Eigenaar": {
+          "type": "string",
+          "description": "De partij die verantwoordelijk is voor de definitie en het beheer van dit gegeven."
+        },
+        "Authentiek": {
+          "type": "string",
+          "description": "Aanduiding of het een authentiek gegeven (attribuutsoort) betreft. Authentieke gegevens zijn wettelijk verplicht te gebruiken zonder nader onderzoek naar de juistheid ervan."
+        },
+        "Lengte": {
+          "type": "string",
+          "description": "De maximale lengte van de waarde in posities (bijv. '1-80' of '20')."
+        },
+        "Alternatieve naam": {
+          "type": "string",
+          "description": "De naam in natuurlijke of formele taal; een alias voor het element."
+        },
+        "Indicatie afleidbaar": {
+          "type": "string",
+          "description": "Aanduiding dat het gegeven afleidbaar is uit andere attribuut- en/of relatiesoorten."
+        },
+        "Aanduiding strijdigheid/nietigheid": {
+          "type": "string",
+          "description": "MIM eigenschap: Aanduiding strijdigheid/nietigheid"
+        },
+        "Regels": {
+          "type": "string",
+          "description": "Optionaliteitsregels of waardebeperkende regels die gelden voor dit element."
+        },
+        "Indicatie classificerend": {
+          "type": "string",
+          "description": "Indicatie dat een attribuutsoort het objecttype waar het bijhoort classificeert in (sub)typen."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Indicatie in onderzoek": {
+          "type": "string",
+          "description": "MIM eigenschap: Indicatie in onderzoek"
+        },
+        "Herkomst definitie": {
+          "type": "string",
+          "description": "MIM eigenschap: Herkomst definitie"
+        },
+        "Herkomst": {
+          "type": "string",
+          "description": "De basisregistratie in wiens catalogus het objecttype is gespecificeerd (oftewel de basisregistratie waar het objecttype deel van uitmaakt)."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Formeel patroon": {
+          "type": "string",
+          "description": "Beschrijving van het gegevenspatroon in de vorm van een reguliere expressie (regex)."
+        },
+        "Locatie": {
+          "type": "string",
+          "description": "De verwijzing naar de plek waar de waarden beschikbaar worden gesteld (bijv. een URI naar een waardenlijst)."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Indicatie formele historie": {
+          "type": "string",
+          "description": "Indicatie of de formele historie van de attribuutsoort te bevragen is (registratie-momenten)."
+        },
+        "Datum opname": {
+          "type": "string",
+          "description": "MIM eigenschap: Datum opname"
+        },
+        "Patroon": {
+          "type": "string",
+          "description": "Korte beschrijving van de opbouw van de waarde."
+        },
+        "Toelichting": {
+          "type": "string",
+          "description": "Een inhoudelijke toelichting op de definitie, ter verheldering of nadere duiding."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Enumeratie": {
+      "type": "object",
+      "title": "Enumeratie",
+      "description": "Een lijst van vaste mogelijke waarden (enumeratiewaarden) for een attribuut.",
+      "properties": {
+        "Alternatieve naam": {
+          "type": "string",
+          "description": "De naam in natuurlijke of formele taal; een alias voor het element."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "properties": {
+    "x-mim-metadata": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Enumeratiewaarde"
+        },
+        {
+          "$ref": "#/$defs/Relatieklasse"
+        },
+        {
+          "$ref": "#/$defs/Relatiesoort"
+        },
+        {
+          "$ref": "#/$defs/Objecttype"
+        },
+        {
+          "$ref": "#/$defs/Gegevensgroeptype"
+        },
+        {
+          "$ref": "#/$defs/Gestructureerd datatype"
+        },
+        {
+          "$ref": "#/$defs/Primitief datatype"
+        },
+        {
+          "$ref": "#/$defs/Attribuutsoort"
+        },
+        {
+          "$ref": "#/$defs/Enumeratie"
+        }
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from "react";
 import {
   ReactFlow,
   Background,
@@ -7,66 +7,73 @@ import {
   useEdgesState,
   Handle,
   Position,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+  MarkerType,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 
-/**
- * Custom UML class node: shows class name header + property rows with types.
- */
 function UmlClassNode({ data }) {
-  const { label, properties, isExternal } = data;
-
+  const { label, properties, isExternal, isSelected, title, mimMeta, description } = data;
   return (
-    <div style={{
-      background: isExternal ? '#fef3c7' : '#fff',
-      border: `2px solid ${isExternal ? '#d97706' : '#1a56db'}`,
-      borderRadius: 8,
-      minWidth: 200,
-      fontSize: 13,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-      overflow: 'hidden',
-    }}>
-      <Handle type="target" position={Position.Left} style={{ background: '#1a56db' }} />
-      {/* Class name header */}
-      <div style={{
-        background: isExternal ? '#d97706' : '#1a56db',
-        color: '#fff',
-        padding: '6px 12px',
-        fontWeight: 600,
-        fontSize: 14,
-        textAlign: 'center',
-      }}>
-        {label}
+    <div
+      title={description || mimMeta?.Definitie || ""}
+      style={{
+        background: isExternal ? "#fef3c7" : "#fff",
+        border: `2px solid ${isSelected ? "#e11d48" : isExternal ? "#d97706" : "#1a56db"}`,
+        borderRadius: 8,
+        minWidth: 260,
+        fontSize: 13,
+        boxShadow: isSelected ? "0 0 0 4px rgba(225, 29, 72, 0.2)" : "0 4px 12px rgba(0,0,0,0.08)",
+        transition: "all 0.2s ease",
+      }}
+    >
+      {/* Top/Bottom targets for vertical flow */}
+      <Handle type="target" position={Position.Top} id="t" style={{ background: "#1a56db" }} />
+      <Handle type="target" position={Position.Left} id="l" style={{ background: "#1a56db" }} />
+      <Handle type="target" position={Position.Right} id="r" style={{ background: "#1a56db" }} />
+      <Handle type="target" position={Position.Bottom} id="b" style={{ background: "#1a56db" }} />
+
+      <div
+        style={{
+          background: isExternal ? "#d97706" : "#1a56db",
+          color: "#fff",
+          padding: "10px 14px",
+          fontWeight: 700,
+          textAlign: "center",
+          borderBottom: "1px solid rgba(0,0,0,0.1)",
+          fontSize: "14px",
+        }}
+      >
+        {title || label}
       </div>
-      {/* Properties */}
-      {properties && properties.length > 0 && (
-        <div style={{ padding: '4px 0' }}>
-          {properties.map((prop, i) => (
-            <div key={i} style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 16,
-              padding: '3px 12px',
-              borderTop: i > 0 ? '1px solid #e5e7eb' : 'none',
-            }}>
-              <span style={{
-                fontWeight: prop.required ? 600 : 400,
-                color: '#1f2937',
-              }}>
-                {prop.name}{prop.required ? ' *' : ''}
-              </span>
-              <span style={{
-                color: prop.isRef ? '#1a56db' : '#6b7280',
-                fontStyle: prop.isRef ? 'italic' : 'normal',
-                fontSize: 12,
-              }}>
-                {prop.type}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-      <Handle type="source" position={Position.Right} style={{ background: '#1a56db' }} />
+      <div style={{ padding: "6px 0" }}>
+        {properties.map((prop, i) => (
+          <div
+            key={`${prop.name}-${i}`}
+            title={prop.description || ""}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "4px 14px",
+              borderTop: i > 0 ? "1px solid #f3f4f6" : "none",
+              cursor: "help",
+            }}
+          >
+            <span style={{ fontWeight: prop.required ? 600 : 400, color: "#374151" }}>
+              {prop.displayName || prop.name}
+            </span>
+            <span
+              style={{ color: prop.isRef ? "#1a56db" : "#9ca3af", fontSize: 11, fontWeight: 500 }}
+            >
+              {prop.type}
+            </span>
+          </div>
+        ))}
+      </div>
+      {/* Sources directly on the handles for cleaner lines */}
+      <Handle type="source" position={Position.Bottom} id="sb" style={{ background: "#1a56db" }} />
+      <Handle type="source" position={Position.Top} id="st" style={{ background: "#1a56db" }} />
+      <Handle type="source" position={Position.Right} id="sr" style={{ background: "#1a56db" }} />
+      <Handle type="source" position={Position.Left} id="sl" style={{ background: "#1a56db" }} />
     </div>
   );
 }
@@ -74,165 +81,255 @@ function UmlClassNode({ data }) {
 const nodeTypes = { umlClass: UmlClassNode };
 
 /**
- * Parse a JSON Schema into ReactFlow nodes and edges for a UML diagram.
+ * Smart Grid Layout Algorithm
+ * Places root in center-top, then expands in a structured way
  */
 function schemaToUml(schema) {
   const nodes = [];
   const edges = [];
-  const classNames = new Set();
-
-  // Collect all $defs as classes
   const defs = schema.$defs || schema.definitions || {};
-  for (const name of Object.keys(defs)) {
-    classNames.add(name);
-  }
 
-  // Also treat the root schema as a class if it has properties
-  const rootName = schema.title || 'Root';
+  const classes = {};
   if (schema.properties) {
-    classNames.add(rootName);
+    classes["root"] = { id: "root", name: schema.title || "Hoofdmodel", def: schema };
   }
+  Object.entries(defs).forEach(([key, def]) => {
+    classes[key] = { id: key, name: def.title || key, def };
+  });
 
-  let col = 0;
-  // Track cumulative Y position per column
-  const colY = [0];
-  const COL_WIDTH = 350;
-  const ROW_GAP = 40;
-  const HEADER_HEIGHT = 34;
-  const ROW_HEIGHT = 28;
-  const PADDING = 8;
+  const ids = Object.keys(classes);
+  const rootId = ids.includes("agendaAfspraak")
+    ? "agendaAfspraak"
+    : ids.includes("root")
+      ? "root"
+      : ids[0];
 
-  function estimateNodeHeight(propCount) {
-    return HEADER_HEIGHT + PADDING + Math.max(propCount, 1) * ROW_HEIGHT;
+  // 1. Build Adjacency for connections
+  const connections = {};
+  ids.forEach((id) => (connections[id] = new Set()));
+
+  ids.forEach((id) => {
+    const propEntries = classes[id].def.properties || {};
+    Object.values(propEntries).forEach((p) => {
+      const refs = [];
+      if (p.$ref) refs.push(p.$ref);
+      if (p.items?.$ref) refs.push(p.items.$ref);
+      if (p.oneOf) p.oneOf.forEach((s) => s.$ref && refs.push(s.$ref));
+
+      refs.forEach((ref) => {
+        const m = ref.match(/#\/\$defs\/(.+)/);
+        const targetId = m ? m[1] : null;
+        if (targetId && classes[targetId]) {
+          connections[id].add(targetId);
+          connections[targetId].add(id);
+        }
+      });
+    });
+  });
+
+  // 2. Simple Circle/Grid Hybrid Layout
+  // We place the root at 0,0 and others in rows
+  const COLS = 3;
+  const X_GAP = 450;
+  const Y_GAP = 350;
+
+  // Order nodes by distance from root
+  const orderedIds = [];
+  const visited = new Set();
+  const queue = [rootId];
+  visited.add(rootId);
+
+  while (queue.length > 0) {
+    const id = queue.shift();
+    orderedIds.push(id);
+    Array.from(connections[id]).forEach((neighbor) => {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push(neighbor);
+      }
+    });
   }
+  // Add any remaining
+  ids.forEach((id) => {
+    if (!visited.has(id)) orderedIds.push(id);
+  });
 
-  function addClassNode(name, def, isExternal = false) {
-    const required = new Set(def.required || []);
-    const properties = [];
-    const propEntries = def.properties || {};
+  // 3. Create actual Nodes and Edges
+  orderedIds.forEach((id, index) => {
+    const cls = classes[id];
+    const col = index % COLS;
+    const row = Math.floor(index / COLS);
 
-    for (const [propName, propDef] of Object.entries(propEntries)) {
-      const ref = propDef.$ref;
-      if (ref) {
-        // Internal ref: #/$defs/CLASSNAME
-        const internalMatch = ref.match(/#\/\$defs\/(.+)/);
-        if (internalMatch) {
-          const targetClass = internalMatch[1];
-          properties.push({
-            name: propName,
-            type: targetClass,
-            isRef: true,
-            required: required.has(propName),
-          });
+    const x = col * X_GAP;
+    const y = row * Y_GAP;
+
+    const propEntries = cls.def.properties || {};
+    const required = new Set(cls.def.required || []);
+
+    const properties = Object.entries(propEntries).map(([propName, propDef]) => {
+      const pMeta = propDef["x-mim-metadata"] || (propDef.items && propDef.items["x-mim-metadata"]);
+      const description = propDef.description || (propDef.items && propDef.items.description);
+
+      const refs = [];
+      if (propDef.$ref) refs.push(propDef.$ref);
+      if (propDef.items?.$ref) refs.push(propDef.items.$ref);
+      if (propDef.oneOf) propDef.oneOf.forEach((s) => s.$ref && refs.push(s.$ref));
+
+      refs.forEach((ref) => {
+        const m = ref.match(/#\/\$defs\/(.+)/);
+        const targetId = m ? m[1] : null;
+        if (targetId && classes[targetId]) {
           edges.push({
-            id: `${name}->${targetClass}`,
-            source: name,
-            target: targetClass,
-            label: propName,
-            type: 'default',
-            style: { stroke: '#1a56db', strokeWidth: 2 },
-            labelStyle: { fontSize: 11, fill: '#6b7280' },
-            animated: false,
-          });
-        } else {
-          // External ref
-          const extName = ref.split('/').pop().replace('.json', '');
-          properties.push({
-            name: propName,
-            type: `→ ${extName}`,
-            isRef: true,
-            required: required.has(propName),
-          });
-          // Add external class if not already added
-          if (!classNames.has(extName)) {
-            classNames.add(extName);
-            addClassNode(extName, {}, true);
-          }
-          edges.push({
-            id: `${name}->${extName}`,
-            source: name,
-            target: extName,
-            label: propName,
-            type: 'default',
-            style: { stroke: '#d97706', strokeWidth: 2, strokeDasharray: '5,5' },
-            labelStyle: { fontSize: 11, fill: '#d97706' },
-            animated: false,
+            id: `${id}-${propName}->${targetId}`,
+            source: id,
+            target: targetId,
+            type: "smoothstep",
+            style: { stroke: "#1a56db", strokeWidth: 2, opacity: 0.4 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: "#1a56db" },
           });
         }
-      } else {
-        let type = propDef.type || 'any';
-        if (Array.isArray(type)) type = type.join('|');
-        if (propDef.format) type += ` (${propDef.format})`;
-        if (propDef.enum) type = propDef.enum.join(' | ');
-        properties.push({
-          name: propName,
-          type,
-          isRef: false,
-          required: required.has(propName),
-        });
-      }
-    }
+      });
 
-    // Ensure current column exists in colY tracker
-    if (colY[col] === undefined) colY[col] = 0;
-
-    const nodeHeight = estimateNodeHeight(properties.length);
-
-    nodes.push({
-      id: name,
-      type: 'umlClass',
-      position: { x: col * COL_WIDTH, y: colY[col] },
-      data: { label: name, properties, isExternal },
+      return {
+        name: propName,
+        displayName: pMeta?.naam,
+        type: propDef.$ref ? propDef.$ref.split("/").pop() : propDef.type || "Object",
+        isRef: refs.length > 0,
+        required: required.has(propName),
+        meta: pMeta,
+        description,
+      };
     });
 
-    colY[col] += nodeHeight + ROW_GAP;
-
-    // Move to next column if this column gets too tall (> 3 nodes worth)
-    if (colY[col] > 900) {
-      col++;
-      if (colY[col] === undefined) colY[col] = 0;
-    }
-  }
-
-  // Add root schema as first node
-  if (schema.properties) {
-    addClassNode(rootName, schema);
-  }
-
-  // Add $defs classes
-  for (const [name, def] of Object.entries(defs)) {
-    if (name !== rootName) {
-      addClassNode(name, def);
-    }
-  }
+    nodes.push({
+      id,
+      type: "umlClass",
+      position: { x, y },
+      data: {
+        label: id,
+        title: cls.name,
+        description: cls.def.description,
+        properties,
+        mimMeta: cls.def["x-mim-metadata"],
+      },
+    });
+  });
 
   return { nodes, edges };
 }
 
 export default function UmlDiagram({ schema }) {
-  const { initialNodes, initialEdges } = useMemo(() => {
-    const { nodes, edges } = schemaToUml(schema);
-    return { initialNodes: nodes, initialEdges: edges };
-  }, [schema]);
-
+  const [selectedNode, setSelectedNode] = useState(null);
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => schemaToUml(schema), [schema]);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  const onNodeClick = useCallback(
+    (event, node) => {
+      setSelectedNode(node);
+      setNodes((nds) =>
+        nds.map((n) => ({ ...n, data: { ...n.data, isSelected: n.id === node.id } })),
+      );
+    },
+    [setNodes],
+  );
+
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+    setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, isSelected: false } })));
+  }, [setNodes]);
+
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      nodeTypes={nodeTypes}
-      fitView
-      fitViewOptions={{ padding: 0.2 }}
-      minZoom={0.3}
-      maxZoom={2}
-      proOptions={{ hideAttribution: true }}
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        position: "relative",
+        background: "#f8fafc",
+      }}
     >
-      <Background color="#e5e7eb" gap={20} />
-      <Controls />
-    </ReactFlow>
+      <div style={{ flex: 1 }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          nodeTypes={nodeTypes}
+          fitView
+          fitViewOptions={{ padding: 0.2 }}
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background color="#cbd5e1" gap={24} size={1} />
+          <Controls />
+        </ReactFlow>
+      </div>
+      {selectedNode && (
+        <div className="diagram-inspector">
+          <button className="inspector-close" onClick={() => setSelectedNode(null)}>
+            ×
+          </button>
+          <h3>{selectedNode.data.title}</h3>
+          {selectedNode.data.description && (
+            <div className="inspector-section">
+              <p
+                style={{
+                  fontSize: "0.95em",
+                  color: "#4b5563",
+                  lineHeight: "1.5",
+                  marginBottom: "20px",
+                }}
+              >
+                {selectedNode.data.description}
+              </p>
+            </div>
+          )}
+          <div className="inspector-section">
+            <h4>Conceptuele Details</h4>
+            {selectedNode.data.mimMeta ? (
+              Object.entries(selectedNode.data.mimMeta).map(
+                ([k, v]) =>
+                  !["id", "naam", "stereotype"].includes(k) && (
+                    <div key={k} className="meta-row">
+                      <strong>{k}:</strong> <span>{v}</span>
+                    </div>
+                  ),
+              )
+            ) : (
+              <p style={{ fontSize: "0.9em", color: "#9ca3af" }}>Geen metadata beschikbaar.</p>
+            )}
+          </div>
+          <div className="inspector-section">
+            <h4>Attributen / Velden</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {selectedNode.data.properties.map((p, i) => (
+                <div key={`${p.name}-${i}`} className="inspector-prop">
+                  <div className="prop-main">
+                    <strong>{p.displayName || p.name}</strong> <code>{p.type}</code>
+                  </div>
+                  {p.description && (
+                    <p style={{ margin: "4px 0 0 0", fontSize: "0.88em", color: "#374151" }}>
+                      {p.description}
+                    </p>
+                  )}
+                  {p.meta &&
+                    Object.entries(p.meta).map(
+                      ([k, v]) =>
+                        !["naam", "type"].includes(k) && (
+                          <div key={k} className="prop-sub-meta">
+                            <small>
+                              <strong>{k}:</strong> {v}
+                            </small>
+                          </div>
+                        ),
+                    )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

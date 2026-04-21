@@ -1,0 +1,392 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MijnAgenda",
+  "description": "Conceptueel informatiemodel voor agenda-afspraken, automatisch gegenereerd vanuit Enterprise Architect.",
+  "type": "object",
+  "$defs": {
+    "activiteitsoort": {
+      "type": "object",
+      "title": "ACTIVITEITSOORT",
+      "x-mim-metadata": {
+        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "id": "EAID_53575186_FAEC_4da9_8AAE_E1E7AEFEE078",
+        "stereotype": "Objecttype"
+      },
+      "properties": {
+        "aanduidingWatMeeTeNemen": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "1-1.000.000",
+            "Mogelijk geen waarde": "Nee",
+            "type": "CharacterString",
+            "naam": "Aanduiding wat mee te nemen"
+          }
+        },
+        "naamActiviteitsoort": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "type": "CharacterString",
+            "naam": "Naam activiteitsoort"
+          }
+        },
+        "agendaAfspraak": {
+          "$ref": "#/$defs/agendaAfspraak",
+          "description": "Relatie: AGENDA AFSPRAAK"
+        }
+      },
+      "required": ["naamActiviteitsoort"]
+    },
+    "adres": {
+      "type": "object",
+      "title": "ADRES",
+      "x-mim-metadata": {
+        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "id": "EAID_662C7BDC_7FC7_43dc_9926_DAD86E10B980",
+        "stereotype": "Objecttype"
+      },
+      "properties": {
+        "huisletterEnOfHuisnummertoevoeging": {
+          "type": "string",
+          "description": "Lijkt BRP 11.30 Huisletter en 11.40 Huisnummertoevoeging, maar is in de agenda-aspraaksystemen vaak niet zo strak geregistreerd.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "10",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Lijkt BRP 11.30 Huisletter en 11.40 Huisnummertoevoeging, maar is in de agenda-aspraaksystemen vaak niet zo strak geregistreerd.",
+            "type": "CharacterString",
+            "naam": "huisletter en/of huisnummertoevoeging"
+          }
+        },
+        "huisnummer": {
+          "type": "integer",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "1-5",
+            "Mogelijk geen waarde": "Nee",
+            "type": "Integer",
+            "naam": "huisnummer"
+          }
+        },
+        "postcode": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "6-7",
+            "Mogelijk geen waarde": "Nee",
+            "type": "CharacterString",
+            "naam": "postcode"
+          }
+        },
+        "straatnaam": {
+          "type": "string",
+          "description": "Mogelijk de naam van de openbare ruimte (BRP 11.15), aangezien straatnaam (BRP 11.10) wellicht afgekort is. Dus afgeleid van naam openbare ruimte.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "1-80",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Mogelijk de naam van de openbare ruimte (BRP 11.15), aangezien straatnaam (BRP 11.10) wellicht afgekort is. Dus afgeleid van naam openbare ruimte.",
+            "type": "CharacterString",
+            "naam": "straatnaam"
+          }
+        },
+        "woonplaatsnaam": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "1-80",
+            "Mogelijk geen waarde": "Nee",
+            "type": "CharacterString",
+            "naam": "woonplaatsnaam"
+          }
+        }
+      },
+      "required": ["huisnummer", "postcode", "straatnaam", "woonplaatsnaam"]
+    },
+    "agendaAfspraak": {
+      "type": "object",
+      "title": "AGENDA AFSPRAAK",
+      "x-mim-metadata": {
+        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "id": "EAID_541B0C7B_99D4_4330_B55C_AD112218B702",
+        "stereotype": "Objecttype"
+      },
+      "properties": {
+        "aanmeldkenmerkAlfanumeriek": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "type": "CharacterString",
+            "naam": "Aanmeldkenmerk alfanumeriek"
+          }
+        },
+        "aanmeldkenmerkMobiel": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "type": "URI",
+            "naam": "Aanmeldkenmerk mobiel"
+          },
+          "format": "uri"
+        },
+        "aanmeldkenmerkQrCode": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "type": "URI",
+            "naam": "Aanmeldkenmerk QR-code"
+          },
+          "format": "uri"
+        },
+        "geplandAanvangsmoment": {
+          "type": "string",
+          "description": "Niet de voorbereidingstijd van de ambtenaar.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Niet de voorbereidingstijd van de ambtenaar.",
+            "type": "DateTime",
+            "naam": "Gepland aanvangsmoment"
+          },
+          "format": "date-time"
+        },
+        "geplandEindmoment": {
+          "type": "string",
+          "description": "Niet de afrondtijd van de ambtenaar.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Niet de afrondtijd van de ambtenaar.",
+            "type": "DateTime",
+            "naam": "Gepland eindmoment"
+          },
+          "format": "date-time"
+        },
+        "onderwerp": {
+          "type": "string",
+          "description": "Bijv. paspoort aanvragen.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "?",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Bijv. paspoort aanvragen.",
+            "type": "CharacterString",
+            "naam": "Onderwerp"
+          }
+        },
+        "referentie": {
+          "type": "string",
+          "description": "Kan hetzelfde zijn als aanmeldkenmerk.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "?",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Kan hetzelfde zijn als aanmeldkenmerk.",
+            "type": "CharacterString",
+            "naam": "Referentie"
+          }
+        },
+        "samengesteldeTitel": {
+          "type": "string",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "type": "CharacterString",
+            "naam": "Samengestelde titel"
+          }
+        }
+      },
+      "required": [
+        "geplandAanvangsmoment",
+        "geplandEindmoment",
+        "onderwerp",
+        "referentie",
+        "samengesteldeTitel"
+      ]
+    },
+    "fysiekeAgendaAfspraak": {
+      "type": "object",
+      "title": "FYSIEKE AGENDA AFSPRAAK",
+      "x-mim-metadata": {
+        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "id": "EAID_75A90C07_929A_4206_B727_ADF3859D7C4F",
+        "stereotype": "Objecttype"
+      },
+      "properties": {
+        "telefonischeAgendaAfspraak": {
+          "$ref": "#/$defs/agendaAfspraak",
+          "description": "Relatie: TELEFONISCHE AGENDA AFSPRAAK"
+        }
+      }
+    },
+    "onlineAgendaAfspraak": {
+      "type": "object",
+      "title": "ONLINE AGENDA AFSPRAAK",
+      "x-mim-metadata": {
+        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "id": "EAID_2D04F7A5_E5D5_4ee7_9487_17F5142516DD",
+        "stereotype": "Objecttype"
+      },
+      "properties": {
+        "onlineAdres": {
+          "type": "string",
+          "description": "De URL naar bijv. een Teams-meeting.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "De URL naar bijv. een Teams-meeting.",
+            "type": "URI",
+            "naam": "online adres"
+          },
+          "format": "uri"
+        },
+        "adres": {
+          "$ref": "#/$defs/agendaAfspraak",
+          "description": "Relatie: ADRES"
+        }
+      },
+      "required": ["onlineAdres"]
+    },
+    "telefonischeAgendaAfspraak": {
+      "type": "object",
+      "title": "TELEFONISCHE AGENDA AFSPRAAK",
+      "x-mim-metadata": {
+        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "id": "EAID_A71E34E7_C58F_4da6_9EE0_20DA365B0F18",
+        "stereotype": "Objecttype"
+      },
+      "properties": {
+        "telefoonnummerAgendaAfspraak": {
+          "type": "string",
+          "description": "De gemeente belt de klant, en niet andersom. Voor het maken van een telefonische afspraak is dit gegeven noodzakelijk om in te voeren. Het is niet (altijd) nodig om dit gegeven te tonen in de mijn-omgeving.",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "15",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "De gemeente belt de klant, en niet andersom. Voor het maken van een telefonische afspraak is dit gegeven noodzakelijk om in te voeren. Het is niet (altijd) nodig om dit gegeven te tonen in de mijn-omgeving.",
+            "type": "CharacterString",
+            "naam": "telefoonnummer agenda-afspraak"
+          }
+        }
+      },
+      "required": ["telefoonnummerAgendaAfspraak"]
+    },
+    "activiteitsoortOpAgendaAfspraak": {
+      "type": "object",
+      "title": "ACTIVITEITSOORT OP AGENDA AFSPRAAK",
+      "x-mim-metadata": {
+        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "id": "EAID_8C7472B4_ACED_4eb2_BCB3_DDAACD86AB0F",
+        "stereotype": "Relatieklasse"
+      },
+      "properties": {
+        "aantal": {
+          "type": "integer",
+          "x-mim-metadata": {
+            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Authentiek",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "type": "Integer",
+            "naam": "Aantal"
+          }
+        }
+      },
+      "required": ["aantal"]
+    }
+  },
+  "$ref": "#/$defs/agendaAfspraak"
+}
