@@ -7,7 +7,8 @@
   },
   "scripts": {
     "lint": "spectral lint --fail-severity=error \"apis/**/*.yaml\" \"apis/**/*.yml\" \"patterns/**/*.yaml\" \"patterns/**/*.yml\"",
-    "prep-docs": "node scripts/generate-portal-data.js && pnpm respec",
+    "convert-xmi": "node scripts/xmi-to-json-schema.js",
+    "prep-docs": "pnpm convert-xmi && node scripts/generate-portal-data.js && pnpm respec",
     "respec": "node scripts/generate-respec.js",
     "dev": "pnpm prep-docs && concurrently \"vite\" \"pnpm mock\"",
     "build": "pnpm prep-docs && vite build && cp -R docs apis schemas patterns *.md dist/",
