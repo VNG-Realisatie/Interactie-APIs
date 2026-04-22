@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from "react";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
 import {
   ReactFlow,
   Background,
@@ -10,213 +10,295 @@ import {
   MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import dagre from "dagre";
+
+// --- Custom Nodes ---
 
 function UmlClassNode({ data }) {
   const { label, properties, isExternal, isSelected, title, mimMeta, description } = data;
+
+  const isYellow =
+    mimMeta?.isExternal ||
+    mimMeta?.stereotype === "Referentielijst" ||
+    label.toLowerCase() === "partij" ||
+    label.toLowerCase() === "actor" ||
+    label.toLowerCase() === "land";
+  const accentColor = isYellow ? "#d97706" : "#1a56db";
+  const bgColor = isYellow ? "#fef3c7" : "#fff";
+
   return (
     <div
       title={description || mimMeta?.Definitie || ""}
       style={{
-        background: isExternal ? "#fef3c7" : "#fff",
-        border: `2px solid ${isSelected ? "#e11d48" : isExternal ? "#d97706" : "#1a56db"}`,
-        borderRadius: 8,
-        minWidth: 260,
-        fontSize: 13,
-        boxShadow: isSelected ? "0 0 0 4px rgba(225, 29, 72, 0.2)" : "0 4px 12px rgba(0,0,0,0.08)",
+        background: bgColor,
+        border: `1.5px solid ${isSelected ? "#e11d48" : accentColor}`,
+        borderRadius: 2,
+        minWidth: 220,
+        fontSize: "11px", // Smaller font for EA look
+        boxShadow: isSelected ? "0 0 0 4px rgba(225, 29, 72, 0.2)" : "0 2px 8px rgba(0,0,0,0.05)",
         transition: "all 0.2s ease",
       }}
     >
-      {/* Top/Bottom targets for vertical flow */}
-      <Handle type="target" position={Position.Top} id="t" style={{ background: "#1a56db" }} />
-      <Handle type="target" position={Position.Left} id="l" style={{ background: "#1a56db" }} />
-      <Handle type="target" position={Position.Right} id="r" style={{ background: "#1a56db" }} />
-      <Handle type="target" position={Position.Bottom} id="b" style={{ background: "#1a56db" }} />
+      <Handle type="target" position={Position.Top} id="t" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Left} id="l" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Right} id="r" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Bottom} id="b" style={{ opacity: 0 }} />
 
       <div
         style={{
-          background: isExternal ? "#d97706" : "#1a56db",
+          background: accentColor,
           color: "#fff",
-          padding: "10px 14px",
+          padding: "6px 10px",
           fontWeight: 700,
           textAlign: "center",
           borderBottom: "1px solid rgba(0,0,0,0.1)",
-          fontSize: "14px",
         }}
       >
-        {title || label}
+        <div style={{ fontSize: "8px", fontWeight: 400, opacity: 0.9, marginBottom: "2px" }}>
+          «{mimMeta?.stereotype || "Objecttype"}»
+          {mimMeta?.packageName && (
+            <div style={{ fontSize: "7px", fontStyle: "italic", opacity: 0.8 }}>
+              ({mimMeta.packageName})
+            </div>
+          )}
+        </div>
+        <span style={{ fontSize: "13px" }}>{title || label}</span>
       </div>
-      <div style={{ padding: "6px 0" }}>
+
+      <div style={{ padding: "3px 0" }}>
         {properties.map((prop, i) => (
           <div
-            key={`${prop.name}-${i}`}
+            key={i}
             title={prop.description || ""}
             style={{
               display: "flex",
               justifyContent: "space-between",
-              padding: "4px 14px",
-              borderTop: i > 0 ? "1px solid #f3f4f6" : "none",
-              cursor: "help",
+              padding: "2px 10px",
+              borderTop: i > 0 ? "1px solid #f1f5f9" : "none",
             }}
           >
-            <span style={{ fontWeight: prop.required ? 600 : 400, color: "#374151" }}>
-              {prop.displayName || prop.name}
+            <span style={{ fontWeight: prop.required ? 600 : 400, color: "#1e293b" }}>
+              + {prop.displayName || prop.name}
             </span>
-            <span
-              style={{ color: prop.isRef ? "#1a56db" : "#9ca3af", fontSize: 11, fontWeight: 500 }}
-            >
-              {prop.type}
+            <span style={{ color: "#64748b", fontSize: "10px", marginLeft: "8px" }}>
+              {prop.type} {prop.cardinality || ""} {prop.isId ? "{id}" : ""}
             </span>
           </div>
         ))}
       </div>
-      {/* Sources directly on the handles for cleaner lines */}
-      <Handle type="source" position={Position.Bottom} id="sb" style={{ background: "#1a56db" }} />
-      <Handle type="source" position={Position.Top} id="st" style={{ background: "#1a56db" }} />
-      <Handle type="source" position={Position.Right} id="sr" style={{ background: "#1a56db" }} />
-      <Handle type="source" position={Position.Left} id="sl" style={{ background: "#1a56db" }} />
+
+      <Handle type="source" position={Position.Top} id="st" style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Left} id="sl" style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Right} id="sr" style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Bottom} id="sb" style={{ opacity: 0 }} />
     </div>
   );
 }
 
-const nodeTypes = { umlClass: UmlClassNode };
+function UmlNoteNode({ data }) {
+  return (
+    <div
+      style={{
+        background: "#fefce8",
+        border: "1px solid #fde047",
+        borderRadius: "0 8px 0 0",
+        padding: "10px",
+        width: 180,
+        fontSize: 10,
+        color: "#713f12",
+        boxShadow: "2px 2px 5px rgba(0,0,0,0.03)",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: 0,
+          height: 0,
+          borderBottom: "10px solid #fef3c7",
+          borderRight: "10px solid #f8fafc",
+        }}
+      ></div>
+      <Handle type="target" position={Position.Left} id="tl" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Top} id="tt" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Right} id="tr" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Bottom} id="tb" style={{ opacity: 0 }} />
+      <div style={{ lineHeight: 1.4 }}>{data.text}</div>
+    </div>
+  );
+}
 
-/**
- * Smart Grid Layout Algorithm
- * Places root in center-top, then expands in a structured way
- */
+const nodeTypes = { umlClass: UmlClassNode, umlNote: UmlNoteNode };
+
+// --- Layout Logic ---
+
 function schemaToUml(schema) {
-  const nodes = [];
-  const edges = [];
+  const initialNodes = [];
+  const initialEdges = [];
   const defs = schema.$defs || schema.definitions || {};
-
   const classes = {};
-  if (schema.properties) {
-    classes["root"] = { id: "root", name: schema.title || "Hoofdmodel", def: schema };
-  }
+
   Object.entries(defs).forEach(([key, def]) => {
     classes[key] = { id: key, name: def.title || key, def };
   });
 
-  const ids = Object.keys(classes);
-  const rootId = ids.includes("agendaAfspraak")
-    ? "agendaAfspraak"
-    : ids.includes("root")
-      ? "root"
-      : ids[0];
+  Object.values(classes).forEach((cls) => {
+    const mim = cls.def["x-mim-metadata"] || {};
 
-  // 1. Build Adjacency for connections
-  const connections = {};
-  ids.forEach((id) => (connections[id] = new Set()));
-
-  ids.forEach((id) => {
-    const propEntries = classes[id].def.properties || {};
-    Object.values(propEntries).forEach((p) => {
-      const refs = [];
-      if (p.$ref) refs.push(p.$ref);
-      if (p.items?.$ref) refs.push(p.items.$ref);
-      if (p.oneOf) p.oneOf.forEach((s) => s.$ref && refs.push(s.$ref));
-
-      refs.forEach((ref) => {
-        const m = ref.match(/#\/\$defs\/(.+)/);
-        const targetId = m ? m[1] : null;
-        if (targetId && classes[targetId]) {
-          connections[id].add(targetId);
-          connections[targetId].add(id);
-        }
-      });
-    });
-  });
-
-  // 2. Simple Circle/Grid Hybrid Layout
-  // We place the root at 0,0 and others in rows
-  const COLS = 3;
-  const X_GAP = 450;
-  const Y_GAP = 350;
-
-  // Order nodes by distance from root
-  const orderedIds = [];
-  const visited = new Set();
-  const queue = [rootId];
-  visited.add(rootId);
-
-  while (queue.length > 0) {
-    const id = queue.shift();
-    orderedIds.push(id);
-    Array.from(connections[id]).forEach((neighbor) => {
-      if (!visited.has(neighbor)) {
-        visited.add(neighbor);
-        queue.push(neighbor);
-      }
-    });
-  }
-  // Add any remaining
-  ids.forEach((id) => {
-    if (!visited.has(id)) orderedIds.push(id);
-  });
-
-  // 3. Create actual Nodes and Edges
-  orderedIds.forEach((id, index) => {
-    const cls = classes[id];
-    const col = index % COLS;
-    const row = Math.floor(index / COLS);
-
-    const x = col * X_GAP;
-    const y = row * Y_GAP;
-
-    const propEntries = cls.def.properties || {};
-    const required = new Set(cls.def.required || []);
-
-    const properties = Object.entries(propEntries).map(([propName, propDef]) => {
-      const pMeta = propDef["x-mim-metadata"] || (propDef.items && propDef.items["x-mim-metadata"]);
-      const description = propDef.description || (propDef.items && propDef.items.description);
-
-      const refs = [];
-      if (propDef.$ref) refs.push(propDef.$ref);
-      if (propDef.items?.$ref) refs.push(propDef.items.$ref);
-      if (propDef.oneOf) propDef.oneOf.forEach((s) => s.$ref && refs.push(s.$ref));
-
-      refs.forEach((ref) => {
-        const m = ref.match(/#\/\$defs\/(.+)/);
-        const targetId = m ? m[1] : null;
-        if (targetId && classes[targetId]) {
-          edges.push({
-            id: `${id}-${propName}->${targetId}`,
-            source: id,
-            target: targetId,
-            type: "smoothstep",
-            style: { stroke: "#1a56db", strokeWidth: 2, opacity: 0.4 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: "#1a56db" },
-          });
-        }
-      });
+    const properties = Object.entries(cls.def.properties || {}).map(([pName, pDef]) => {
+      const pMeta = pDef["x-mim-metadata"] || {};
+      let typeLabel = pDef.$ref ? pDef.$ref.split("/").pop() : pDef.type || "string";
+      if (pMeta.umlType) typeLabel = pMeta.umlType;
 
       return {
-        name: propName,
-        displayName: pMeta?.naam,
-        type: propDef.$ref ? propDef.$ref.split("/").pop() : propDef.type || "Object",
-        isRef: refs.length > 0,
-        required: required.has(propName),
-        meta: pMeta,
-        description,
+        name: pName,
+        displayName: pMeta.naam || pName,
+        type: typeLabel,
+        required: (cls.def.required || []).includes(pName),
+        cardinality: pMeta.cardinality,
+        isId: pMeta.isId,
+        visibility: pMeta.visibility,
+        description: pDef.description || pMeta.Definitie,
       };
     });
 
-    nodes.push({
-      id,
+    const position = mim.position ? { x: mim.position.x, y: mim.position.y } : { x: 0, y: 0 };
+
+    initialNodes.push({
+      id: cls.id,
       type: "umlClass",
-      position: { x, y },
+      position,
       data: {
-        label: id,
+        label: cls.id,
         title: cls.name,
-        description: cls.def.description,
+        mimMeta: mim,
+        description: cls.def.description || mim.Definitie,
         properties,
-        mimMeta: cls.def["x-mim-metadata"],
       },
     });
+
+    if (mim.supertype && classes[mim.supertype]) {
+      initialEdges.push({
+        id: `gen-${cls.id}->${mim.supertype}`,
+        source: cls.id,
+        target: mim.supertype,
+        type: "step",
+        label: "«generalization»",
+        labelStyle: { fontSize: 9, fontStyle: "italic", fill: "#94a3b8" },
+        markerEnd: { type: MarkerType.Arrow, color: "#94a3b8", width: 22, height: 22 },
+        style: { stroke: "#cbd5e1", strokeWidth: 1.5 },
+      });
+    }
+
+    if (mim.associations) {
+      mim.associations.forEach((a) => {
+        if (classes[a.target]) {
+          initialEdges.push({
+            id: `assoc-${cls.id}->${a.target}-${a.name}`,
+            source: cls.id,
+            target: a.target,
+            type: "step",
+            label: `${a.direction === "Source -> Destination" ? "►" : ""} ${a.name || ""} ${a.targetCard ? `[${a.targetCard}]` : ""}`,
+            labelStyle: { fontSize: 10, fontWeight: 600, fill: "#1a56db" },
+            labelBgStyle: { fill: "rgba(255,255,255,0.9)", padding: 2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: "#1a56db" },
+            style: { stroke: "#1a56db", strokeWidth: 1.5, opacity: 0.6 },
+          });
+        }
+      });
+    }
+
+    if (mim.notes && mim.notes.length > 0) {
+      mim.notes.forEach((note, idx) => {
+        const noteId = `note-${cls.id}-${idx}`;
+        const notePos = note.position
+          ? { x: note.position.x, y: note.position.y }
+          : { x: position.x + 280, y: position.y + idx * 80 + 40 };
+        initialNodes.push({
+          id: noteId,
+          type: "umlNote",
+          position: notePos,
+          data: { text: note.text },
+        });
+        initialEdges.push({
+          id: `link-${noteId}`,
+          source: cls.id,
+          target: noteId,
+          type: "straight",
+          style: { stroke: "#94a3b8", strokeWidth: 1.2, strokeDasharray: "4,4" },
+        });
+      });
+    }
   });
 
-  return { nodes, edges };
+  const hasPositions =
+    initialNodes.filter((n) => n.position.x !== 0 || n.position.y !== 0).length >
+    initialNodes.length / 2;
+  return hasPositions
+    ? assignHandles(initialNodes, initialEdges)
+    : getLayoutedElements(initialNodes, initialEdges);
 }
+
+function assignHandles(nodes, edges) {
+  const finalEdges = edges.map((edge) => {
+    const sourceNode = nodes.find((n) => n.id === edge.source);
+    const targetNode = nodes.find((n) => n.id === edge.target);
+
+    if (sourceNode && targetNode) {
+      const dx = targetNode.position.x - sourceNode.position.x;
+      const dy = targetNode.position.y - sourceNode.position.y;
+      let sourceHandle = "sb";
+      let targetHandle = "t";
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0) {
+          sourceHandle = "sr";
+          targetHandle = "l";
+        } else {
+          sourceHandle = "sl";
+          targetHandle = "r";
+        }
+      } else {
+        if (dy > 0) {
+          sourceHandle = "sb";
+          targetHandle = "t";
+        } else {
+          sourceHandle = "st";
+          targetHandle = "b";
+        }
+      }
+      if (edge.id.startsWith("gen-") && dy < -50) {
+        sourceHandle = "st";
+        targetHandle = "b";
+      }
+      return { ...edge, sourceHandle, targetHandle };
+    }
+    return edge;
+  });
+  return { nodes, edges: finalEdges };
+}
+
+const getLayoutedElements = (nodes, edges, direction = "TB") => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({ rankdir: direction, ranksep: 120, nodesep: 80 });
+  nodes.forEach((node) => {
+    const width = node.type === "umlNote" ? 200 : 260;
+    const height = node.type === "umlNote" ? 60 : 80 + (node.data.properties?.length || 0) * 24;
+    dagreGraph.setNode(node.id, { width, height });
+  });
+  edges.forEach((edge) => dagreGraph.setEdge(edge.source, edge.target));
+  dagre.layout(dagreGraph);
+  nodes.forEach((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    node.position = {
+      x: nodeWithPosition.x - nodeWithPosition.width / 2,
+      y: nodeWithPosition.y - nodeWithPosition.height / 2,
+    };
+  });
+  return assignHandles(nodes, edges);
+};
 
 export default function UmlDiagram({ schema }) {
   const [selectedNode, setSelectedNode] = useState(null);
@@ -224,8 +306,15 @@ export default function UmlDiagram({ schema }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  useEffect(() => {
+    const { nodes: n, edges: e } = schemaToUml(schema);
+    setNodes(n);
+    setEdges(e);
+  }, [schema, setNodes, setEdges]);
+
   const onNodeClick = useCallback(
-    (event, node) => {
+    (e, node) => {
+      if (node.type === "umlNote") return;
       setSelectedNode(node);
       setNodes((nds) =>
         nds.map((n) => ({ ...n, data: { ...n.data, isSelected: n.id === node.id } })),
@@ -246,7 +335,7 @@ export default function UmlDiagram({ schema }) {
         height: "100%",
         display: "flex",
         position: "relative",
-        background: "#f8fafc",
+        background: "#fcfcfc",
       }}
     >
       <div style={{ flex: 1 }}>
@@ -258,10 +347,10 @@ export default function UmlDiagram({ schema }) {
           onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
           fitView
-          fitViewOptions={{ padding: 0.2 }}
+          fitViewOptions={{ padding: 0.1 }}
           proOptions={{ hideAttribution: true }}
         >
-          <Background color="#cbd5e1" gap={24} size={1} />
+          <Background color="#f1f5f9" gap={20} />
           <Controls />
         </ReactFlow>
       </div>
@@ -271,59 +360,44 @@ export default function UmlDiagram({ schema }) {
             ×
           </button>
           <h3>{selectedNode.data.title}</h3>
-          {selectedNode.data.description && (
-            <div className="inspector-section">
-              <p
-                style={{
-                  fontSize: "0.95em",
-                  color: "#4b5563",
-                  lineHeight: "1.5",
-                  marginBottom: "20px",
-                }}
-              >
-                {selectedNode.data.description}
-              </p>
-            </div>
-          )}
           <div className="inspector-section">
-            <h4>Conceptuele Details</h4>
+            <h4>Conceptual Details</h4>
             {selectedNode.data.mimMeta ? (
               Object.entries(selectedNode.data.mimMeta).map(
                 ([k, v]) =>
-                  !["id", "naam", "stereotype"].includes(k) && (
+                  ![
+                    "id",
+                    "naam",
+                    "stereotype",
+                    "associations",
+                    "supertype",
+                    "notes",
+                    "isExternal",
+                    "packageName",
+                    "position",
+                  ].includes(k) && (
                     <div key={k} className="meta-row">
-                      <strong>{k}:</strong> <span>{v}</span>
+                      <strong>{k}:</strong> <span>{String(v)}</span>
                     </div>
                   ),
               )
             ) : (
-              <p style={{ fontSize: "0.9em", color: "#9ca3af" }}>Geen metadata beschikbaar.</p>
+              <p>No extra metadata.</p>
             )}
           </div>
           <div className="inspector-section">
-            <h4>Attributen / Velden</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <h4>Attributes</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {selectedNode.data.properties.map((p, i) => (
                 <div key={`${p.name}-${i}`} className="inspector-prop">
                   <div className="prop-main">
                     <strong>{p.displayName || p.name}</strong> <code>{p.type}</code>
                   </div>
                   {p.description && (
-                    <p style={{ margin: "4px 0 0 0", fontSize: "0.88em", color: "#374151" }}>
+                    <p style={{ margin: "4px 0 0 0", fontSize: "0.85em", color: "#475569" }}>
                       {p.description}
                     </p>
                   )}
-                  {p.meta &&
-                    Object.entries(p.meta).map(
-                      ([k, v]) =>
-                        !["naam", "type"].includes(k) && (
-                          <div key={k} className="prop-sub-meta">
-                            <small>
-                              <strong>{k}:</strong> {v}
-                            </small>
-                          </div>
-                        ),
-                    )}
                 </div>
               ))}
             </div>

@@ -1,352 +1,677 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "MijnAgenda",
-  "description": "Conceptueel informatiemodel voor agenda-afspraken, automatisch gegenereerd vanuit Enterprise Architect.",
+  "description": "Volledig Conceptueel Informatiemodel (MIM), automatisch gegenereerd vanuit Enterprise Architect.",
   "type": "object",
   "$defs": {
-    "activiteitsoort": {
+    "adresGestructureerdNietConformBag": {
       "type": "object",
-      "title": "ACTIVITEITSOORT",
+      "title": "Adres gestructureerd niet conform BAG",
+      "description": "Adres waaraan een bezoek gebracht kan worden.",
       "x-mim-metadata": {
-        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
-        "id": "EAID_53575186_FAEC_4da9_8AAE_E1E7AEFEE078",
-        "stereotype": "Objecttype"
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Is afgeleid": "Zie package",
+        "Definitie": "Adres waaraan een bezoek gebracht kan worden.",
+        "mimType": "Gestructureerd datatype",
+        "id": "EAID_BF048309_078D_5E21_8C48_CF47B48AE39B",
+        "stereotype": "Gestructureerd datatype",
+        "packageName": "Complex datatype",
+        "isExternal": false,
+        "position": {
+          "x": 505,
+          "y": 1228
+        },
+        "notes": [],
+        "associations": []
       },
       "properties": {
-        "aanduidingWatMeeTeNemen": {
+        "adresregel1": {
           "type": "string",
+          "description": "Eerste deel van de beschrijving van een adres waarbij de beschrijving niet is opgemaakt volgens de standaard van de Basisregistratie Adressen en Gebouwen (BAG).",
           "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
             "Is afgeleid": "Zie package",
-            "Lengte": "1-1.000.000",
-            "Mogelijk geen waarde": "Nee",
-            "type": "CharacterString",
-            "naam": "Aanduiding wat mee te nemen"
+            "Definitie": "Eerste deel van de beschrijving van een adres waarbij de beschrijving niet is opgemaakt volgens de standaard van de Basisregistratie Adressen en Gebouwen (BAG).",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Adresregel 1",
+            "cardinality": "[0..1]",
+            "isId": false
           }
         },
-        "naamActiviteitsoort": {
+        "adresregel2": {
           "type": "string",
+          "description": "Tweede deel van de beschrijving van een adres waarbij de beschrijving niet is opgemaakt volgens de standaard van de Basisregistratie Adressen en Gebouwen (BAG).",
           "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
             "Is afgeleid": "Zie package",
-            "Mogelijk geen waarde": "Nee",
-            "type": "CharacterString",
-            "naam": "Naam activiteitsoort"
+            "Definitie": "Tweede deel van de beschrijving van een adres waarbij de beschrijving niet is opgemaakt volgens de standaard van de Basisregistratie Adressen en Gebouwen (BAG).",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Adresregel 2",
+            "cardinality": "[0..1]",
+            "isId": false
           }
         },
-        "agendaAfspraak": {
-          "$ref": "#/$defs/agendaAfspraak",
-          "description": "Relatie: AGENDA AFSPRAAK"
-        }
-      },
-      "required": ["naamActiviteitsoort"]
-    },
-    "adres": {
-      "type": "object",
-      "title": "ADRES",
-      "x-mim-metadata": {
-        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
-        "id": "EAID_662C7BDC_7FC7_43dc_9926_DAD86E10B980",
-        "stereotype": "Objecttype"
-      },
-      "properties": {
-        "huisletterEnOfHuisnummertoevoeging": {
+        "adresregel3": {
           "type": "string",
-          "description": "Lijkt BRP 11.30 Huisletter en 11.40 Huisnummertoevoeging, maar is in de agenda-aspraaksystemen vaak niet zo strak geregistreerd.",
+          "description": "Derde deel van de beschrijving van een adres waarbij de beschrijving niet is opgemaakt volgens de standaard van de Basisregistratie Adressen en Gebouwen (BAG).",
           "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
             "Is afgeleid": "Zie package",
-            "Lengte": "10",
-            "Mogelijk geen waarde": "Nee",
-            "Toelichting": "Lijkt BRP 11.30 Huisletter en 11.40 Huisnummertoevoeging, maar is in de agenda-aspraaksystemen vaak niet zo strak geregistreerd.",
-            "type": "CharacterString",
-            "naam": "huisletter en/of huisnummertoevoeging"
+            "Definitie": "Derde deel van de beschrijving van een adres waarbij de beschrijving niet is opgemaakt volgens de standaard van de Basisregistratie Adressen en Gebouwen (BAG).",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Adresregel 3",
+            "cardinality": "[0..1]",
+            "isId": false
           }
         },
-        "huisnummer": {
-          "type": "integer",
+        "land": {
+          "$ref": "#/$defs/land",
+          "description": "Een code, opgenomen in Tabel 34 Landentabel, die een land buiten Nederland aangeeft waar het adres gevonden kan worden.",
           "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
             "Is afgeleid": "Zie package",
-            "Lengte": "1-5",
-            "Mogelijk geen waarde": "Nee",
-            "type": "Integer",
-            "naam": "huisnummer"
-          }
-        },
-        "postcode": {
-          "type": "string",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Lengte": "6-7",
-            "Mogelijk geen waarde": "Nee",
-            "type": "CharacterString",
-            "naam": "postcode"
-          }
-        },
-        "straatnaam": {
-          "type": "string",
-          "description": "Mogelijk de naam van de openbare ruimte (BRP 11.15), aangezien straatnaam (BRP 11.10) wellicht afgekort is. Dus afgeleid van naam openbare ruimte.",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Lengte": "1-80",
-            "Mogelijk geen waarde": "Nee",
-            "Toelichting": "Mogelijk de naam van de openbare ruimte (BRP 11.15), aangezien straatnaam (BRP 11.10) wellicht afgekort is. Dus afgeleid van naam openbare ruimte.",
-            "type": "CharacterString",
-            "naam": "straatnaam"
-          }
-        },
-        "woonplaatsnaam": {
-          "type": "string",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Lengte": "1-80",
-            "Mogelijk geen waarde": "Nee",
-            "type": "CharacterString",
-            "naam": "woonplaatsnaam"
+            "Definitie": "Een code, opgenomen in Tabel 34 Landentabel, die een land buiten Nederland aangeeft waar het adres gevonden kan worden.",
+            "mimType": "Attribuutsoort",
+            "umlType": "Land",
+            "naam": "Land",
+            "cardinality": "[0..1]",
+            "isId": false
           }
         }
       },
-      "required": ["huisnummer", "postcode", "straatnaam", "woonplaatsnaam"]
-    },
-    "agendaAfspraak": {
-      "type": "object",
-      "title": "AGENDA AFSPRAAK",
-      "x-mim-metadata": {
-        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
-        "id": "EAID_541B0C7B_99D4_4330_B55C_AD112218B702",
-        "stereotype": "Objecttype"
-      },
-      "properties": {
-        "aanmeldkenmerkAlfanumeriek": {
-          "type": "string",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Mogelijk geen waarde": "Nee",
-            "type": "CharacterString",
-            "naam": "Aanmeldkenmerk alfanumeriek"
-          }
-        },
-        "aanmeldkenmerkMobiel": {
-          "type": "string",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Mogelijk geen waarde": "Nee",
-            "type": "URI",
-            "naam": "Aanmeldkenmerk mobiel"
-          },
-          "format": "uri"
-        },
-        "aanmeldkenmerkQrCode": {
-          "type": "string",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Mogelijk geen waarde": "Nee",
-            "type": "URI",
-            "naam": "Aanmeldkenmerk QR-code"
-          },
-          "format": "uri"
-        },
-        "geplandAanvangsmoment": {
-          "type": "string",
-          "description": "Niet de voorbereidingstijd van de ambtenaar.",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Mogelijk geen waarde": "Nee",
-            "Toelichting": "Niet de voorbereidingstijd van de ambtenaar.",
-            "type": "DateTime",
-            "naam": "Gepland aanvangsmoment"
-          },
-          "format": "date-time"
-        },
-        "geplandEindmoment": {
-          "type": "string",
-          "description": "Niet de afrondtijd van de ambtenaar.",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Mogelijk geen waarde": "Nee",
-            "Toelichting": "Niet de afrondtijd van de ambtenaar.",
-            "type": "DateTime",
-            "naam": "Gepland eindmoment"
-          },
-          "format": "date-time"
-        },
-        "onderwerp": {
-          "type": "string",
-          "description": "Bijv. paspoort aanvragen.",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Lengte": "?",
-            "Mogelijk geen waarde": "Nee",
-            "Toelichting": "Bijv. paspoort aanvragen.",
-            "type": "CharacterString",
-            "naam": "Onderwerp"
-          }
-        },
-        "referentie": {
-          "type": "string",
-          "description": "Kan hetzelfde zijn als aanmeldkenmerk.",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Lengte": "?",
-            "Mogelijk geen waarde": "Nee",
-            "Toelichting": "Kan hetzelfde zijn als aanmeldkenmerk.",
-            "type": "CharacterString",
-            "naam": "Referentie"
-          }
-        },
-        "samengesteldeTitel": {
-          "type": "string",
-          "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
-            "Indicatie formele historie": "Nee",
-            "Indicatie in onderzoek": "Nee",
-            "Indicatie materiële historie": "Nee",
-            "Is afgeleid": "Zie package",
-            "Mogelijk geen waarde": "Nee",
-            "type": "CharacterString",
-            "naam": "Samengestelde titel"
-          }
-        }
-      },
-      "required": [
-        "geplandAanvangsmoment",
-        "geplandEindmoment",
-        "onderwerp",
-        "referentie",
-        "samengesteldeTitel"
-      ]
-    },
-    "fysiekeAgendaAfspraak": {
-      "type": "object",
-      "title": "FYSIEKE AGENDA AFSPRAAK",
-      "x-mim-metadata": {
-        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
-        "id": "EAID_75A90C07_929A_4206_B727_ADF3859D7C4F",
-        "stereotype": "Objecttype"
-      },
-      "properties": {
-        "telefonischeAgendaAfspraak": {
-          "$ref": "#/$defs/agendaAfspraak",
-          "description": "Relatie: TELEFONISCHE AGENDA AFSPRAAK"
-        }
-      }
+      "required": []
     },
     "onlineAgendaAfspraak": {
       "type": "object",
-      "title": "ONLINE AGENDA AFSPRAAK",
+      "title": "ONLINE AGENDA-AFSPRAAK",
+      "description": "Een agenda-afspraak die online plaatsvindt.",
       "x-mim-metadata": {
-        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "Authentiek": "Overig",
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Mogelijk geen waarde": "Nee",
+        "Toelichting": "De URL naar bijv. een Teams-meeting.",
+        "Definitie": "Een agenda-afspraak die online plaatsvindt.",
+        "mimType": "Objecttype",
         "id": "EAID_2D04F7A5_E5D5_4ee7_9487_17F5142516DD",
-        "stereotype": "Objecttype"
+        "stereotype": "Objecttype",
+        "packageName": "Objecttype",
+        "isExternal": false,
+        "supertype": "agendaAfspraak",
+        "position": {
+          "x": 824,
+          "y": 818
+        },
+        "notes": [],
+        "associations": []
       },
       "properties": {
         "onlineAdres": {
           "type": "string",
-          "description": "De URL naar bijv. een Teams-meeting.",
+          "format": "uri",
+          "description": "Het online adres waarop de agenda-afspraak plaatsvindt.",
           "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
             "Indicatie formele historie": "Nee",
             "Indicatie in onderzoek": "Nee",
             "Indicatie materiële historie": "Nee",
             "Is afgeleid": "Zie package",
             "Mogelijk geen waarde": "Nee",
             "Toelichting": "De URL naar bijv. een Teams-meeting.",
-            "type": "URI",
-            "naam": "online adres"
-          },
-          "format": "uri"
-        },
-        "adres": {
-          "$ref": "#/$defs/agendaAfspraak",
-          "description": "Relatie: ADRES"
+            "Definitie": "Het online adres waarop de agenda-afspraak plaatsvindt.",
+            "mimType": "Attribuutsoort",
+            "umlType": "URI",
+            "naam": "Online adres",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
         }
       },
-      "required": ["onlineAdres"]
+      "required": [
+        "onlineAdres"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/$defs/agendaAfspraak"
+        }
+      ]
+    },
+    "activiteitsoort": {
+      "type": "object",
+      "title": "ACTIVITEITSOORT",
+      "description": "De soort activiteit waar de klant een afspraak voor kan maken bij de gemeente (waar iemand voor komt), bijv. het verlengen van het rijbewijs.\nActiviteitsoort toegevoegd omdat er niet 1 op 1 een relatie te leggen is met het product/ de product catalogus.\nToelichting waarom we ervoor gekozen hebben om activiteitsoort op te nemen: het kan zo zijn dat er 2 afspraken nodig zijn voor de inwoner om het product paspoort te verkrijgen. Namelijk paspoort aanvragen en paspoort afhalen. Deze beide afspraken leiden samen tot het product paspoort.\nOok kan het product specifiek zijn (bijvoorbeeld zakelijk paspoort) terwijl er in de afspraak 'Paspoort aanvragen' geen onderscheid wordt gemaakt voor welk product het dan is.\nVoorbeelden hieronder.\n<b>Uitgesplitst naar verschillende activiteitsoorten:</b>\nTwee activiteitsoorten:\n1. Paspoort verlengen\n2. Rijbewijs aanvragen\nPaspoort verlengen\n<ul>\n\t<li>Naam: Paspoort verlengen</li>\n\t<li>Aanduiding wat mee te nemen: legitimatiebewijs en pasfoto</li>\n</ul>\nRijbewijs aanvragen\n<ul>\n\t<li>Naam: Rijbewijs aanvragen</li>\n\t<li>Aanduiding wat mee te nemen: legitimatiebewijs en pasfot</li>\n</ul>\n<b>Een samengestelde activiteitsoort vanuit verschillende activiteitsoorten:</b>\n<ol>\n\t<li>Paspoort verlengen en rijbewijs aanvragen</li>\n</ol>\n<ul>\n\t<li>Naam: Paspoort verlengen en rijbewijs aanvragen</li>\n\t<li>Aanduiding wat mee te nemen: legitimatiebewijs en pasfoto</li>\n</ul>",
+      "x-mim-metadata": {
+        "Authentiek": "Overig",
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Lengte": "1-1.000.000",
+        "Mogelijk geen waarde": "Nee",
+        "Definitie": "De soort activiteit waar de klant een afspraak voor kan maken bij de gemeente (waar iemand voor komt), bijv. het verlengen van het rijbewijs.\nActiviteitsoort toegevoegd omdat er niet 1 op 1 een relatie te leggen is met het product/ de product catalogus.\nToelichting waarom we ervoor gekozen hebben om activiteitsoort op te nemen: het kan zo zijn dat er 2 afspraken nodig zijn voor de inwoner om het product paspoort te verkrijgen. Namelijk paspoort aanvragen en paspoort afhalen. Deze beide afspraken leiden samen tot het product paspoort.\nOok kan het product specifiek zijn (bijvoorbeeld zakelijk paspoort) terwijl er in de afspraak 'Paspoort aanvragen' geen onderscheid wordt gemaakt voor welk product het dan is.\nVoorbeelden hieronder.\n<b>Uitgesplitst naar verschillende activiteitsoorten:</b>\nTwee activiteitsoorten:\n1. Paspoort verlengen\n2. Rijbewijs aanvragen\nPaspoort verlengen\n<ul>\n\t<li>Naam: Paspoort verlengen</li>\n\t<li>Aanduiding wat mee te nemen: legitimatiebewijs en pasfoto</li>\n</ul>\nRijbewijs aanvragen\n<ul>\n\t<li>Naam: Rijbewijs aanvragen</li>\n\t<li>Aanduiding wat mee te nemen: legitimatiebewijs en pasfot</li>\n</ul>\n<b>Een samengestelde activiteitsoort vanuit verschillende activiteitsoorten:</b>\n<ol>\n\t<li>Paspoort verlengen en rijbewijs aanvragen</li>\n</ol>\n<ul>\n\t<li>Naam: Paspoort verlengen en rijbewijs aanvragen</li>\n\t<li>Aanduiding wat mee te nemen: legitimatiebewijs en pasfoto</li>\n</ul>",
+        "mimType": "Objecttype",
+        "id": "EAID_53575186_FAEC_4da9_8AAE_E1E7AEFEE078",
+        "stereotype": "Objecttype",
+        "packageName": "Objecttype",
+        "isExternal": false,
+        "position": {
+          "x": 500,
+          "y": 114
+        },
+        "notes": [],
+        "associations": [
+          {
+            "target": "agendaAfspraak",
+            "name": "betreft",
+            "sourceCard": "0..*",
+            "targetCard": "0..*",
+            "stereotype": "Relatiesoort"
+          }
+        ]
+      },
+      "properties": {
+        "aanduidingWatMeeTeNemen": {
+          "type": "string",
+          "description": "De omschrijving van wat de klant mee moet nemen naar een agenda-afspraak van deze activiteitsoort. Bijv. recente pasfoto en het oude paspoort.\nN.B.: Er mag markdown gebruikt worden.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "1-1.000.000",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "De omschrijving van wat de klant mee moet nemen naar een agenda-afspraak van deze activiteitsoort. Bijv. recente pasfoto en het oude paspoort.\nN.B.: Er mag markdown gebruikt worden.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Aanduiding wat mee te nemen",
+            "cardinality": "[0..1]",
+            "isId": true
+          }
+        },
+        "naamActiviteitsoort": {
+          "type": "string",
+          "description": "De naam van de activiteitsoort.\nBijv. als het aantal activiteitsoorten aangeduid kan worden in de relatieklasse ACTIVITEITSOORT OP AFSPRAAK:\n<ul>\n\t<li>Verlengen paspoort</li>\n\t<li>Aanvragen ID-kaart</li>\n</ul>\nBijv. als het aantal activiteitsoorten aangeduid niet kan worden in de relatieklasse ACTIVITEITSOORT OP AFSPRAAK:\n<ul>\n\t<li>Verlengen paspoort 2x</li>\n\t<li>Aanvragen ID-kaart 1x</li>\n</ul>\nBijv. als de activiteitsoort niet netjes uitgesplist kan worden:\n<ul>\n\t<li>Verlengen paspoort (2x), aanvragen ID-kaart (1x)</li>\n</ul>",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Definitie": "De naam van de activiteitsoort.\nBijv. als het aantal activiteitsoorten aangeduid kan worden in de relatieklasse ACTIVITEITSOORT OP AFSPRAAK:\n<ul>\n\t<li>Verlengen paspoort</li>\n\t<li>Aanvragen ID-kaart</li>\n</ul>\nBijv. als het aantal activiteitsoorten aangeduid niet kan worden in de relatieklasse ACTIVITEITSOORT OP AFSPRAAK:\n<ul>\n\t<li>Verlengen paspoort 2x</li>\n\t<li>Aanvragen ID-kaart 1x</li>\n</ul>\nBijv. als de activiteitsoort niet netjes uitgesplist kan worden:\n<ul>\n\t<li>Verlengen paspoort (2x), aanvragen ID-kaart (1x)</li>\n</ul>",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Naam activiteitsoort",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "betreft": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/agendaAfspraak",
+            "description": "Relatie 'betreft' naar AGENDA-AFSPRAAK.",
+            "x-mim-metadata": {
+              "mimType": "Relatiesoort",
+              "name": "betreft",
+              "source": "activiteitsoort",
+              "target": "agendaAfspraak",
+              "sourceCard": "0..*",
+              "targetCard": "0..*",
+              "stereotype": "Relatiesoort"
+            }
+          }
+        }
+      },
+      "required": [
+        "naamActiviteitsoort"
+      ]
+    },
+    "agendaAfspraak": {
+      "type": "object",
+      "title": "AGENDA-AFSPRAAK",
+      "description": "Een gepland contactmoment waarop er een gesproken interactie plaatsvindt tussen een burger, bedrijf of instelling en een overheidsorganisatie.",
+      "x-mim-metadata": {
+        "Authentiek": "Overig",
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Mogelijk geen waarde": "Ja",
+        "Toelichting": "Kan hetzelfde zijn als aanmeldkenmerk.",
+        "Lengte": "?",
+        "Definitie": "Een gepland contactmoment waarop er een gesproken interactie plaatsvindt tussen een burger, bedrijf of instelling en een overheidsorganisatie.",
+        "mimType": "Objecttype",
+        "id": "EAID_541B0C7B_99D4_4330_B55C_AD112218B702",
+        "stereotype": "Objecttype",
+        "packageName": "Objecttype",
+        "isExternal": false,
+        "position": {
+          "x": 500,
+          "y": 454
+        },
+        "notes": [],
+        "associations": [
+          {
+            "target": "partij",
+            "name": "heeft",
+            "sourceCard": "0..*",
+            "targetCard": "1",
+            "stereotype": "Relatiesoort"
+          }
+        ]
+      },
+      "properties": {
+        "aanmeldkenmerkAlfanumeriek": {
+          "type": "string",
+          "description": "Het alfanumerieke kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "Het alfanumerieke kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Aanmeldkenmerk alfanumeriek",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "aanmeldkenmerkMobiel": {
+          "type": "string",
+          "format": "uri",
+          "description": "Het kenmerk op de mobiele telefoon waarmee een klant zich kan aanmelden voor een agenda-afspraak.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "Het kenmerk op de mobiele telefoon waarmee een klant zich kan aanmelden voor een agenda-afspraak.",
+            "mimType": "Attribuutsoort",
+            "umlType": "URI",
+            "naam": "Aanmeldkenmerk mobiel",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "aanmeldkenmerkQrCode": {
+          "type": "string",
+          "format": "uri",
+          "description": "De QR-code als kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "De QR-code als kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.",
+            "mimType": "Attribuutsoort",
+            "umlType": "URI",
+            "naam": "Aanmeldkenmerk QR-code",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "geplandAanvangsmoment": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Gepland aanvangsmoment van de afspraak tussen klant en gemeente.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Niet de voorbereidingstijd van de ambtenaar.",
+            "Definitie": "Gepland aanvangsmoment van de afspraak tussen klant en gemeente.",
+            "mimType": "Attribuutsoort",
+            "umlType": "DateTime",
+            "naam": "Gepland aanvangsmoment",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "geplandEindmoment": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Geplande eindtijd van de afspraak tussen klant en gemeente.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Toelichting": "Niet de afrondtijd van de ambtenaar.",
+            "Definitie": "Geplande eindtijd van de afspraak tussen klant en gemeente.",
+            "mimType": "Attribuutsoort",
+            "umlType": "DateTime",
+            "naam": "Gepland eindmoment",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "identificatie": {
+          "type": "string",
+          "description": "Unieke identificatie van de agenda-afspraak.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Definitie": "Unieke identificatie van de agenda-afspraak.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Identificatie",
+            "cardinality": "[1..1]",
+            "isId": true
+          }
+        },
+        "onderwerp": {
+          "type": "string",
+          "description": "Datgene waar de agenda-afspraak over gaat.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "?",
+            "Mogelijk geen waarde": "Ja",
+            "Toelichting": "Bijv. paspoort aanvragen.",
+            "Definitie": "Datgene waar de agenda-afspraak over gaat.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Onderwerp",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "referentie": {
+          "type": "string",
+          "description": "Een referentie voor de klant of KCC-medewerker om de afspraak in bijv. e-mail terug te vinden.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Lengte": "?",
+            "Mogelijk geen waarde": "Ja",
+            "Toelichting": "Kan hetzelfde zijn als aanmeldkenmerk.",
+            "Definitie": "Een referentie voor de klant of KCC-medewerker om de afspraak in bijv. e-mail terug te vinden.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Referentie",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "heeft": {
+          "$ref": "#/$defs/partij",
+          "description": "Relatie 'heeft' naar Partij.",
+          "x-mim-metadata": {
+            "mimType": "Relatiesoort",
+            "name": "heeft",
+            "source": "agendaAfspraak",
+            "target": "partij",
+            "sourceCard": "0..*",
+            "targetCard": "1",
+            "stereotype": "Relatiesoort"
+          }
+        }
+      },
+      "required": [
+        "geplandAanvangsmoment",
+        "geplandEindmoment",
+        "identificatie",
+        "heeft"
+      ]
+    },
+    "fysiekeAgendaAfspraak": {
+      "type": "object",
+      "title": "FYSIEKE AGENDA-AFSPRAAK",
+      "description": "Een agenda-afspraak die fysiek plaatsvindt.",
+      "x-mim-metadata": {
+        "Definitie": "Een agenda-afspraak die fysiek plaatsvindt.",
+        "mimType": "Objecttype",
+        "id": "EAID_5F5B415D_692D_4692_8D87_224203C71278",
+        "stereotype": "Objecttype",
+        "packageName": "Objecttype",
+        "isExternal": false,
+        "supertype": "agendaAfspraak",
+        "position": {
+          "x": 494,
+          "y": 818
+        },
+        "notes": [],
+        "associations": [
+          {
+            "target": "locatie",
+            "name": "vindt plaats op",
+            "sourceCard": "0..*",
+            "targetCard": "0..1",
+            "stereotype": "Relatiesoort"
+          }
+        ]
+      },
+      "properties": {
+        "vindtPlaatsOp": {
+          "$ref": "#/$defs/locatie",
+          "description": "Relatie 'vindt plaats op' naar LOCATIE.",
+          "x-mim-metadata": {
+            "mimType": "Relatiesoort",
+            "name": "vindt plaats op",
+            "source": "fysiekeAgendaAfspraak",
+            "target": "locatie",
+            "sourceCard": "0..*",
+            "targetCard": "0..1",
+            "stereotype": "Relatiesoort"
+          }
+        }
+      },
+      "required": [],
+      "allOf": [
+        {
+          "$ref": "#/$defs/agendaAfspraak"
+        }
+      ]
+    },
+    "contactinformatie": {
+      "type": "object",
+      "title": "CONTACTINFORMATIE",
+      "description": "Informatie om contact op te nemen.",
+      "x-mim-metadata": {
+        "Authentiek": "Overig",
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Mogelijk geen waarde": "Ja",
+        "Definitie": "Informatie om contact op te nemen.",
+        "mimType": "Objecttype",
+        "id": "EAID_75A90C07_929A_4206_B727_ADF3859D7C4F",
+        "stereotype": "Objecttype",
+        "packageName": "Objecttype",
+        "isExternal": false,
+        "position": {
+          "x": 158,
+          "y": 1004
+        },
+        "notes": [],
+        "associations": [
+          {
+            "target": "agendaAfspraak",
+            "name": "is t.b.v. managen",
+            "sourceCard": "0..1",
+            "targetCard": "0..*",
+            "stereotype": "Relatiesoort"
+          }
+        ]
+      },
+      "properties": {
+        "adres": {
+          "$ref": "#/$defs/adresGestructureerdNietConformBag",
+          "description": "Het fysieke adres van de contactinformatie.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "Het fysieke adres van de contactinformatie.",
+            "mimType": "Attribuutsoort",
+            "umlType": "Adres gestructureerd niet conform BAG",
+            "naam": "Adres",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "eMailadres": {
+          "type": "string",
+          "description": "Het e-mailadres van de contactinformatie.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "Het e-mailadres van de contactinformatie.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "E-mailadres",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "naam": {
+          "type": "string",
+          "description": "De naam van de contactinformatie.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Definitie": "De naam van de contactinformatie.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Naam",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "telefoonnummer": {
+          "type": "string",
+          "description": "Het telefoonnummer van de contactinformatie.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "Het telefoonnummer van de contactinformatie.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Telefoonnummer",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "isTBVManagen": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/agendaAfspraak",
+            "description": "Relatie 'is t.b.v. managen' naar AGENDA-AFSPRAAK.",
+            "x-mim-metadata": {
+              "mimType": "Relatiesoort",
+              "name": "is t.b.v. managen",
+              "source": "contactinformatie",
+              "target": "agendaAfspraak",
+              "sourceCard": "0..1",
+              "targetCard": "0..*",
+              "stereotype": "Relatiesoort"
+            }
+          }
+        }
+      },
+      "required": [
+        "naam"
+      ]
     },
     "telefonischeAgendaAfspraak": {
       "type": "object",
-      "title": "TELEFONISCHE AGENDA AFSPRAAK",
+      "title": "TELEFONISCHE AGENDA-AFSPRAAK",
+      "description": "Een agenda-afspraak die telefonisch plaatsvindt.",
       "x-mim-metadata": {
-        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
+        "Authentiek": "Overig",
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Lengte": "15",
+        "Mogelijk geen waarde": "Nee",
+        "Toelichting": "De gemeente belt de klant, en niet andersom. Voor het maken van een telefonische afspraak is dit gegeven noodzakelijk om in te voeren. Het is niet (altijd) nodig om dit gegeven te tonen in de mijn-omgeving.",
+        "Definitie": "Een agenda-afspraak die telefonisch plaatsvindt.",
+        "mimType": "Objecttype",
         "id": "EAID_A71E34E7_C58F_4da6_9EE0_20DA365B0F18",
-        "stereotype": "Objecttype"
+        "stereotype": "Objecttype",
+        "packageName": "Objecttype",
+        "isExternal": false,
+        "supertype": "agendaAfspraak",
+        "position": {
+          "x": 1126,
+          "y": 818
+        },
+        "notes": [],
+        "associations": []
       },
       "properties": {
         "telefoonnummerAgendaAfspraak": {
           "type": "string",
-          "description": "De gemeente belt de klant, en niet andersom. Voor het maken van een telefonische afspraak is dit gegeven noodzakelijk om in te voeren. Het is niet (altijd) nodig om dit gegeven te tonen in de mijn-omgeving.",
+          "description": "Het telefoonnummer waar de klant op gebeld gaat worden m.b.t. de telefonische afspraak. Bij voorkeur het intenationale formaat. Dit is niet per se het telefoonnummer dat bekend is bij het profiel van de klant; het is het telefoonnummer dat bij de agenda-afspraak is geregistreerd.",
           "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
-            "Authentiek": "Authentiek",
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
             "Indicatie formele historie": "Nee",
             "Indicatie in onderzoek": "Nee",
             "Indicatie materiële historie": "Nee",
@@ -354,38 +679,358 @@
             "Lengte": "15",
             "Mogelijk geen waarde": "Nee",
             "Toelichting": "De gemeente belt de klant, en niet andersom. Voor het maken van een telefonische afspraak is dit gegeven noodzakelijk om in te voeren. Het is niet (altijd) nodig om dit gegeven te tonen in de mijn-omgeving.",
-            "type": "CharacterString",
-            "naam": "telefoonnummer agenda-afspraak"
+            "Definitie": "Het telefoonnummer waar de klant op gebeld gaat worden m.b.t. de telefonische afspraak. Bij voorkeur het intenationale formaat. Dit is niet per se het telefoonnummer dat bekend is bij het profiel van de klant; het is het telefoonnummer dat bij de agenda-afspraak is geregistreerd.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Telefoonnummer agenda-afspraak",
+            "cardinality": "[0..1]",
+            "isId": false
           }
         }
       },
-      "required": ["telefoonnummerAgendaAfspraak"]
+      "required": [],
+      "allOf": [
+        {
+          "$ref": "#/$defs/agendaAfspraak"
+        }
+      ]
     },
-    "activiteitsoortOpAgendaAfspraak": {
+    "locatie": {
       "type": "object",
-      "title": "ACTIVITEITSOORT OP AGENDA AFSPRAAK",
+      "title": "LOCATIE",
+      "description": "Een fysieke locatie in de openbare ruimte.",
       "x-mim-metadata": {
-        "Is afgeleid": "Zie package\nValues: Nee,Ja,Zie package\nDefault: Zie package\nDeze constructie is al dan niet afgeleid van een \"supplier model\". Wanneer je niks opgeeft wordt afleiding vastgesteld op basis van het package waarin het voorkomt.",
-        "id": "EAID_8C7472B4_ACED_4eb2_BCB3_DDAACD86AB0F",
-        "stereotype": "Relatieklasse"
+        "Authentiek": "Authentiek",
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Mogelijk geen waarde": "Nee",
+        "Definitie": "Een fysieke locatie in de openbare ruimte.",
+        "mimType": "Objecttype",
+        "id": "EAID_BA7C987C_08FC_4217_B1C7_6F37A4755FED",
+        "stereotype": "Objecttype",
+        "packageName": "Objecttype",
+        "isExternal": false,
+        "position": {
+          "x": 505,
+          "y": 1004
+        },
+        "notes": [],
+        "associations": []
       },
       "properties": {
-        "aantal": {
-          "type": "integer",
+        "adres": {
+          "$ref": "#/$defs/adresGestructureerdNietConformBag",
+          "description": "Het adres van de locatie.",
           "x-mim-metadata": {
-            "Aanduiding strijdigheid/nietigheid": "De aanduiding of te bevragen is dat de attribuutwaarde strijdig met de openbare orde dan wel nietig is.",
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Ja",
+            "Definitie": "Het adres van de locatie.",
+            "mimType": "Attribuutsoort",
+            "umlType": "Adres gestructureerd niet conform BAG",
+            "naam": "Adres",
+            "cardinality": "[0..1]",
+            "isId": false
+          }
+        },
+        "naam": {
+          "type": "string",
+          "description": "De naam van de locatie.",
+          "x-mim-metadata": {
             "Authentiek": "Authentiek",
             "Indicatie formele historie": "Nee",
             "Indicatie in onderzoek": "Nee",
             "Indicatie materiële historie": "Nee",
             "Is afgeleid": "Zie package",
             "Mogelijk geen waarde": "Nee",
-            "type": "Integer",
-            "naam": "Aantal"
+            "Definitie": "De naam van de locatie.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Naam",
+            "cardinality": "[1..1]",
+            "isId": false
           }
         }
       },
-      "required": ["aantal"]
+      "required": [
+        "naam"
+      ]
+    },
+    "activiteitsoortOpAgendaAfspraak": {
+      "type": "object",
+      "title": "ACTIVITEITSOORT OP AGENDA-AFSPRAAK",
+      "description": "De activiteitsoorten op een agenda-afspraak.\nBijv. een agenda-afspraak voor:\n<ul>\n\t<li>1x het initieel aanvragen van een ID-kaart, en</li>\n\t<li>2x verlengen van paspoort.</li>\n</ul>\nAls de activiteitsoort is uitgesplitst, kan hier het daadwerkelijke aantal worden aangeduid.",
+      "x-mim-metadata": {
+        "Authentiek": "Authentiek",
+        "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Mogelijk geen waarde": "Nee",
+        "Definitie": "De activiteitsoorten op een agenda-afspraak.\nBijv. een agenda-afspraak voor:\n<ul>\n\t<li>1x het initieel aanvragen van een ID-kaart, en</li>\n\t<li>2x verlengen van paspoort.</li>\n</ul>\nAls de activiteitsoort is uitgesplitst, kan hier het daadwerkelijke aantal worden aangeduid.",
+        "mimType": "Relatieklasse",
+        "id": "EAID_8C7472B4_ACED_4eb2_BCB3_DDAACD86AB0F",
+        "stereotype": "Relatieklasse",
+        "packageName": "Relatieklasse",
+        "isExternal": false,
+        "position": {
+          "x": 720,
+          "y": 293
+        },
+        "notes": [],
+        "associations": []
+      },
+      "properties": {
+        "aantal": {
+          "type": "integer",
+          "description": "Per activiteitsoort het aantal daarvan op de agenda-afspraak.\nVoorbeelden:\n<ul>\n\t<li>Als de activiteitsoort is uitgesplitst, dan per activiteitsoort het aantal (bijv. 2 paspoorten aanvragen)</li>\n\t<li>Als de activiteitsoort is samengesteld, dan aantal op 1 houden.</li>\n</ul>",
+          "x-mim-metadata": {
+            "Authentiek": "Authentiek",
+            "Herkomst definitie": "Dienstverlening - MijnServices - MijnAgenda",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Definitie": "Per activiteitsoort het aantal daarvan op de agenda-afspraak.\nVoorbeelden:\n<ul>\n\t<li>Als de activiteitsoort is uitgesplitst, dan per activiteitsoort het aantal (bijv. 2 paspoorten aanvragen)</li>\n\t<li>Als de activiteitsoort is samengesteld, dan aantal op 1 houden.</li>\n</ul>",
+            "mimType": "Attribuutsoort",
+            "umlType": "Integer",
+            "naam": "Aantal",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        }
+      },
+      "required": [
+        "aantal"
+      ]
+    },
+    "actor": {
+      "type": "object",
+      "title": "Actor",
+      "description": "Iets dat of iemand die voor de gemeente werkzaamheden uitvoert.",
+      "x-mim-metadata": {
+        "Authentiek": "Overig",
+        "Herkomst definitie": "Klantinteracties",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Mogelijk geen waarde": "Nee",
+        "Definitie": "Iets dat of iemand die voor de gemeente werkzaamheden uitvoert.",
+        "mimType": "Objecttype",
+        "id": "EAID_808D7E9C_C8E4_941D_A828_76D9D8552B91",
+        "stereotype": "Objecttype",
+        "packageName": "Klantinteracties Objecttype",
+        "isExternal": true,
+        "position": {
+          "x": 1013,
+          "y": 454
+        },
+        "notes": [],
+        "associations": [
+          {
+            "target": "agendaAfspraak",
+            "name": "heeft",
+            "sourceCard": "0..1",
+            "targetCard": "0..*",
+            "stereotype": "Relatiesoort"
+          }
+        ]
+      },
+      "properties": {
+        "naam": {
+          "type": "string",
+          "description": "De naam van de actor.",
+          "x-mim-metadata": {
+            "Authentiek": "Overig",
+            "Herkomst definitie": "Klantinteracties",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Definitie": "De naam van de actor.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Naam",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "heeft": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/agendaAfspraak",
+            "description": "Relatie 'heeft' naar AGENDA-AFSPRAAK.",
+            "x-mim-metadata": {
+              "mimType": "Relatiesoort",
+              "name": "heeft",
+              "source": "actor",
+              "target": "agendaAfspraak",
+              "sourceCard": "0..1",
+              "targetCard": "0..*",
+              "stereotype": "Relatiesoort"
+            }
+          }
+        }
+      },
+      "required": [
+        "naam"
+      ]
+    },
+    "partij": {
+      "type": "object",
+      "title": "Partij",
+      "description": "Persoon of organisatie waarmee de gemeente een relatie heeft.",
+      "x-mim-metadata": {
+        "Authentiek": "Authentiek",
+        "Herkomst": "MijnOverheid",
+        "Indicatie formele historie": "Nee",
+        "Indicatie in onderzoek": "Nee",
+        "Indicatie materiële historie": "Nee",
+        "Is afgeleid": "Zie package",
+        "Mogelijk geen waarde": "Nee",
+        "Definitie": "Persoon of organisatie waarmee de gemeente een relatie heeft.",
+        "mimType": "Objecttype",
+        "id": "EAID_80E82D6B_63A3_1CE9_877F_54CEB80651E6",
+        "stereotype": "Objecttype",
+        "packageName": "Klantinteracties Objecttype",
+        "isExternal": true,
+        "position": {
+          "x": 134,
+          "y": 454
+        },
+        "notes": [],
+        "associations": []
+      },
+      "properties": {
+        "geverifieerdEMailadres": {
+          "type": "string",
+          "description": "Het geverifieerde e-mailadres van de partij. Het e-mailadres is hier een afgeleid gegeven vanuit het klantinteractiemodel (digitaal adres). Echter, dat het gaat om een geverifieerd e-mailadres is nog geen bekend gegeven in het klantinteractiemodel.",
+          "x-mim-metadata": {
+            "Authentiek": "Authentiek",
+            "Herkomst": "MijnOverheid",
+            "Indicatie formele historie": "Nee",
+            "Indicatie in onderzoek": "Nee",
+            "Indicatie materiële historie": "Nee",
+            "Is afgeleid": "Zie package",
+            "Mogelijk geen waarde": "Nee",
+            "Definitie": "Het geverifieerde e-mailadres van de partij. Het e-mailadres is hier een afgeleid gegeven vanuit het klantinteractiemodel (digitaal adres). Echter, dat het gaat om een geverifieerd e-mailadres is nog geen bekend gegeven in het klantinteractiemodel.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Geverifieerd e-mailadres",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        }
+      },
+      "required": [
+        "geverifieerdEMailadres"
+      ]
+    },
+    "land": {
+      "type": "object",
+      "title": "Land",
+      "description": "Lijst van alle huidige en voormalige landen met hun codes, namen en geldigheidsinformatie.",
+      "x-mim-metadata": {
+        "Patroon": "<memo>",
+        "Toelichting": "<memo>",
+        "Datum opname": "1 november 2008",
+        "Lengte": "40",
+        "Definitie": "Lijst van alle huidige en voormalige landen met hun codes, namen en geldigheidsinformatie.",
+        "mimType": "Referentielijst",
+        "id": "EAID_BCB3B056_E1B6_9CBE_8BE8_4611A8A52EAE",
+        "stereotype": "Referentielijst",
+        "packageName": "Klantinteracties Referentielijsten",
+        "isExternal": true,
+        "position": {
+          "x": 852,
+          "y": 1228
+        },
+        "notes": [],
+        "associations": []
+      },
+      "properties": {
+        "einddatumLand": {
+          "type": "string",
+          "format": "date",
+          "description": "De datum waarop het land/gebied is opgeheven.",
+          "x-mim-metadata": {
+            "Patroon": "<memo>",
+            "Toelichting": "<memo>",
+            "Datum opname": "1 november 2008",
+            "Definitie": "De datum waarop het land/gebied is opgeheven.",
+            "mimType": "Attribuutsoort",
+            "umlType": "Date",
+            "naam": "Einddatum land",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "ingangsdatumLand": {
+          "type": "string",
+          "format": "date",
+          "description": "De datum waarop het land/gebied is ontstaan.",
+          "x-mim-metadata": {
+            "Patroon": "<memo>",
+            "Toelichting": "<memo>",
+            "Datum opname": "1 november 2008",
+            "Definitie": "De datum waarop het land/gebied is ontstaan.",
+            "mimType": "Attribuutsoort",
+            "umlType": "Date",
+            "naam": "Ingangsdatum land",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "landcode": {
+          "type": "string",
+          "description": "De code, behorende bij de landnaam, opgenomen in de Landentabel van de BRP.",
+          "x-mim-metadata": {
+            "Patroon": "<memo>",
+            "Toelichting": "<memo>",
+            "Datum opname": "1 november 2008",
+            "Lengte": "4",
+            "Definitie": "De code, behorende bij de landnaam, opgenomen in de Landentabel van de BRP.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Landcode",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        },
+        "landnaam": {
+          "type": "string",
+          "description": "De naam van het land, zoals opgenomen in de Landentabel van de BRP.",
+          "x-mim-metadata": {
+            "Patroon": "<memo>",
+            "Toelichting": "<memo>",
+            "Datum opname": "1 november 2008",
+            "Lengte": "40",
+            "Definitie": "De naam van het land, zoals opgenomen in de Landentabel van de BRP.",
+            "mimType": "Attribuutsoort",
+            "umlType": "CharacterString",
+            "naam": "Landnaam",
+            "cardinality": "[1..1]",
+            "isId": false
+          }
+        }
+      },
+      "required": [
+        "einddatumLand",
+        "ingangsdatumLand",
+        "landcode",
+        "landnaam"
+      ]
     }
   },
   "$ref": "#/$defs/agendaAfspraak"
