@@ -56,8 +56,22 @@ function watchApiFiles() {
   };
 }
 
+function serveYamlAsUtf8() {
+  return {
+    name: "serve-yaml-as-utf8",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.match(/\.(ya?ml)(\?|$)/)) {
+          res.setHeader("Content-Type", "text/yaml; charset=utf-8");
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), logServerUrl(), watchApiFiles()],
+  plugins: [react(), logServerUrl(), watchApiFiles(), serveYamlAsUtf8()],
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
     "process.env": JSON.stringify({}),
@@ -68,6 +82,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    allowedHosts: ["host.docker.internal"],
     fs: {
       strict: false,
       allow: ["."],

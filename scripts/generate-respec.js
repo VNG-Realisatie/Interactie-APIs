@@ -6,7 +6,11 @@ const widdershins = require("widdershins");
 const puppeteer = require("puppeteer");
 const crypto = require("crypto");
 const { marked } = require("marked");
-const CACHE_VERSION = "2026-04-03-respec-html-v3";
+const { toCamelCase } = require("./mim-utils");
+const http = require("http");
+const { createServer } = require("vite");
+
+const CACHE_VERSION = "2026-04-20-respec-final-v9";
 
 const options = {
   codeSamples: false,
@@ -26,202 +30,290 @@ const options = {
   respec: true,
 };
 
-marked.setOptions({
-  gfm: true,
-});
-
-function computeHash(content) {
-  return crypto
-    .createHash("sha256")
-    .update(`${CACHE_VERSION}\n${content}`, "utf8")
-    .digest("hex")
-    .substring(0, 16);
+function resolveSchema(ref, baseDir) {
+  if (!ref || !ref.includes(".json")) return null;
+  try {
+    const [filePath, fragment] = ref.split("#");
+    const absolutePath = path.resolve(baseDir, filePath);
+    const content = JSON.parse(fs.readFileSync(absolutePath, "utf8"));
+    if (!fragment) return content;
+    const parts = fragment.split("/").filter((p) => p && p !== "#");
+    let target = content;
+    for (const part of parts) {
+      target = target[part];
+    }
+    return target;
+  } catch (e) {
+    return null;
+  }
 }
 
-function loadCache(cachePath) {
-  if (fs.existsSync(cachePath)) {
-    try {
-      return JSON.parse(fs.readFileSync(cachePath, "utf8"));
-    } catch (e) {
-      return {};
+function escapeHtml(unsafe) {
+  if (!unsafe) return "";
+  return unsafe
+    .toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function generateImvertorTables(schemaName, schema) {
+  const meta = schema["x-mim-metadata"] || {};
+  const description = escapeHtml(schema.description || meta.Definitie || "");
+
+  let html = `
+    <section class="mim-object-section" id="global_class_${schemaName}">
+      <h3>${escapeHtml(meta.naam || schemaName)}</h3>
+      <table class="imvertor-main-table">
+        <tbody>
+          <tr><th>Naam</th><td>${escapeHtml(meta.naam || schemaName)}</td></tr>
+          <tr><th>Herkomst</th><td>${escapeHtml(meta.Herkomst || "")}</td></tr>
+          <tr><th>Definitie</th><td>${description}</td></tr>
+          <tr><th>Herkomst definitie</th><td>${escapeHtml(meta["Herkomst definitie"] || "")}</td></tr>
+          <tr><th>Toelichting</th><td>${escapeHtml(meta.Toelichting || "")}</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Overzicht attributen</h4>
+      <table class="imvertor-attr-table">
+        <thead>
+          <tr><th>Attribuutnaam</th><th>Definitie</th><th>Formaat</th><th>Card</th></tr>
+        </thead>
+        <tbody>
+  `;
+
+  const props = schema.properties || {};
+  const required = new Set(schema.required || []);
+
+  for (const [propName, propDef] of Object.entries(props)) {
+    const pMeta = propDef["x-mim-metadata"] || {};
+    const card = required.has(propName) ? "1" : "0..1";
+    const typeLabel = escapeHtml(pMeta.type || propDef.format || propDef.type || "string");
+    const propDesc = escapeHtml(propDef.description || pMeta.Definitie || "");
+
+    html += `
+      <tr>
+        <td><strong>${escapeHtml(pMeta.naam || propName)}</strong><br/><small style="color:#666">(${escapeHtml(propName)})</small></td>
+        <td>${propDesc}</td>
+        <td><code>${typeLabel}</code></td>
+        <td>${card}</td>
+      </tr>
+    `;
+  }
+
+  html += `</tbody></table></section>`;
+  return html;
+}
+
+function generateGegevensdefinitie(spec, baseDir, diagramFile) {
+  const schemas = spec.components?.schemas || {};
+  let html = `
+    <section id="gegevensdefinitie">
+      <h2>Gegevensdefinitie</h2>
+      <p><b>Deze tekst is normatief.</b></p>
+
+      <div class="imageinfo overview">
+        <figure class="uml-diagram">
+          ${
+            diagramFile
+              ? `<img src="images/${diagramFile}" alt="UML Diagram" style="max-width: 100%; border: 1px solid #e2e8f0; border-radius: 8px;">`
+              : `<div style="padding: 40px; background: #f8fafc; border: 2px dashed #cbd5e1; text-align: center; border-radius: 12px;">
+               <p style="color: #64748b; font-weight: 600;">[UML Conceptueel Informatiemodel]</p>
+               <p style="color: #94a3b8; font-size: 0.8em;">Diagram kon niet worden geladen vanuit de portal.</p>
+             </div>`
+          }
+          <figcaption> ‒ Diagram: Conceptueel Informatiemodel</figcaption>
+        </figure>
+      </div>
+  `;
+
+  for (const [name, schema] of Object.entries(schemas)) {
+    let fullSchema = schema;
+    if (schema.$ref) {
+      fullSchema = resolveSchema(schema.$ref, baseDir) || schema;
+    }
+    if (fullSchema["x-mim-metadata"] || fullSchema.properties) {
+      html += generateImvertorTables(name, fullSchema);
     }
   }
-  return {};
+
+  html += "</section>";
+  return html;
 }
 
-function saveCache(cachePath, cache) {
-  fs.writeFileSync(cachePath, JSON.stringify(cache, null, 2));
-}
-
-function isCacheValid(filePath, content, cache) {
-  if (!cache[filePath]) return false;
-  const currentHash = computeHash(content);
-  return cache[filePath].hash === currentHash;
-}
-
-function updateCache(filePath, content, cache) {
-  cache[filePath] = {
-    hash: computeHash(content),
-    timestamp: new Date().toISOString(),
-  };
-}
-
-function stripFrontMatter(markdown) {
-  return markdown.replace(/^---\n[\s\S]*?\n---\n+/, "");
-}
-
-function stripWiddershinsBoilerplate(markdown) {
-  return markdown
-    .replace(/<!-- Generator: Widdershins[\s\S]*?-->\n*/i, "")
-    .replace(/^> Scroll down for code samples, example requests and responses\.[^\n]*\n+/m, "");
-}
-
-function sanitizeMarkdown(markdown) {
-  return markdown.replace(/<(?=[^a-zA-Z/!])/g, "&lt;");
-}
-
-function sanitizeHtml(html) {
-  return html
-    .replace(/<a id="([^"]+)"><\/a>/g, '<span id="$1"></span>')
-    .replace(/<p>\s*License:\s*([^<]+)<\/p>/g, "<p>License: <code>$1</code></p>");
-}
-
-function enrichWithMimMetadata(html, spec) {
-  // Simple injector: find property headers and add a metadata table
-  return html.replace(/<h3 id="[^"]+">([^<]+)<\/h3>/g, (match, title) => {
-    const schemaName = title.trim();
-    const schema = spec.components?.schemas?.[schemaName];
-
-    if (schema && schema["x-mim-metadata"]) {
-      const meta = schema["x-mim-metadata"];
-      let table = `<div class="mim-metadata"><h4>MIM Informatie</h4><table border="1" style="width:100%; border-collapse: collapse; margin-bottom: 20px;">`;
-      for (const [key, value] of Object.entries(meta)) {
-        if (key !== "id" && key !== "stereotype") {
-          table += `<tr><td style="padding: 8px; background: #f3f4f6; width: 30%;"><strong>${key}</strong></td><td style="padding: 8px;">${value}</td></tr>`;
-        }
-      }
-      table += `</table></div>`;
-      return match + table;
-    }
-    return match;
+function checkServerReady(url) {
+  return new Promise((resolve) => {
+    const req = http.get(url, (res) => {
+      resolve(res.statusCode === 200 || res.statusCode === 404); // 404 is fine, means server is up
+    });
+    req.on("error", () => resolve(false));
+    req.end();
   });
 }
 
+async function startViteServer() {
+  console.log("🌐 Start tijdelijke Vite server voor screenshots...");
+  const vite = await createServer({
+    server: { port: 3001 },
+    configFile: path.resolve(__dirname, "../vite.config.js"),
+  });
+  await vite.listen();
+  console.log("✅ Tijdelijke Vite server draait op poort 3001");
+  return { vite, port: 3001 };
+}
+
 async function generateRespec() {
-  console.log("🚀 Start genereren van ReSpec bestanden...");
+  console.log("🚀 Start genereren van ReSpec bestanden (OAS -> Imvertor Style)...");
 
   const apisDir = path.join(__dirname, "../apis");
   const outputDir = path.join(__dirname, "../docs/respec");
-  const cachePath = path.join(__dirname, "../docs/.respec-cache.json");
-  const cache = loadCache(cachePath);
-
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+  const imagesDir = path.join(outputDir, "images");
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+  if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
 
   const yamlFiles = await fg("**/*.{yaml,yml}", { cwd: apisDir });
-  const filesToProcess = [];
-  let unchangedCount = 0;
+
+  let browser = null;
+  let viteServer = null;
+  let targetPort = 3000;
+
+  try {
+    const isServerRunning = await checkServerReady("http://localhost:3000");
+    if (!isServerRunning) {
+      const serverInfo = await startViteServer();
+      viteServer = serverInfo.vite;
+      targetPort = serverInfo.port;
+    } else {
+      console.log("🌐 Bestaande dev server gevonden op poort 3000.");
+    }
+
+    browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox"] });
+  } catch (e) {
+    console.error("❌ Kan infrastructuur niet opzetten:", e.message);
+  }
 
   for (const file of yamlFiles) {
     const filePath = path.join(apisDir, file);
-    try {
-      const content = fs.readFileSync(filePath, "utf8");
-      if (isCacheValid(filePath, content, cache)) {
-        console.log(`✅ Ongewijzigd (overslaan): ${file}`);
-        unchangedCount++;
-      } else {
-        console.log(`📝 Gewijzigd (verwerken): ${file}`);
-        filesToProcess.push({ file, filePath, content });
-      }
-    } catch (e) {
-      console.error(`❌ Fout bij lezen ${file}: ${e.message}`);
-    }
-  }
+    const apiDir = path.dirname(filePath);
+    const content = fs.readFileSync(filePath, "utf8");
 
-  if (filesToProcess.length === 0) {
-    console.log(`ℹ️ Alle ${unchangedCount} bestanden zijn ongewijzigd.`);
-    return;
-  }
-
-  let browser = null;
-  let pdfEnabled = true;
-
-  try {
-    browser = await puppeteer.launch({ headless: "new" });
-  } catch (e) {
-    pdfEnabled = false;
-    console.warn(`⚠️ PDF generatie overgeslagen: ${e.message}`);
-  }
-
-  for (const { file, filePath, content } of filesToProcess) {
     try {
       const apiSpec = yaml.load(content);
-      const title = apiSpec.info?.title || path.basename(file, path.extname(file));
-      const version = apiSpec.info?.version || "0.0.1";
+      const title = apiSpec.info?.title || "API";
       const outputFileName = `${file.replace(/\//g, "_").replace(/\.ya?ml$/, "")}.html`;
-      const documentUrl = `http://localhost:3000/docs/respec/${outputFileName}`;
+      const diagramFileName = `${outputFileName.replace(".html", "")}_diagram.png`;
 
-      console.log(`📄 Verwerken: ${title} (${version}) [${file}]`);
+      // 1. Capture diagram via Portal
+      if (browser) {
+        try {
+          const rawContent = fs.readFileSync(filePath, "utf8");
+          const schemaRefMatch = rawContent.match(/schemas\/[^"'\s]+\.json/);
+
+          if (schemaRefMatch) {
+            const matchedPath = schemaRefMatch[0];
+            const schemaFileRel = matchedPath.substring(matchedPath.indexOf("schemas/"));
+            const portalUrl = `http://localhost:${targetPort}/?file=${schemaFileRel}`;
+
+            const page = await browser.newPage();
+            console.log(`📸 Proberen diagram te capturen voor ${title}...`);
+            console.log(`   URL: ${portalUrl}`);
+            await page.setViewport({ width: 1600, height: 1200 });
+
+            try {
+              await page.goto(portalUrl, { waitUntil: "networkidle2", timeout: 20000 });
+              await new Promise((r) => setTimeout(r, 6000)); // Ruime tijd voor React Flow rendering
+
+              const element = await page.$(".diagram-container");
+              if (element) {
+                await element.screenshot({ path: path.join(imagesDir, diagramFileName) });
+                console.log(`✅ Diagram succesvol opgeslagen.`);
+              } else {
+                console.warn(`⚠️ Kon .diagram-container niet vinden op de pagina.`);
+              }
+            } catch (err) {
+              console.warn(`⚠️ Time-out of error bij laden portal: ${err.message}`);
+            }
+            await page.close();
+          } else {
+            console.log(`ℹ️ Geen schema referentie gevonden in ${file}, diagram overgeslagen.`);
+          }
+        } catch (e) {
+          console.warn(`⚠️ Fout bij screenshot proces: ${e.message}`);
+        }
+      }
 
       let markdown = await widdershins.convert(apiSpec, options);
-      markdown = sanitizeMarkdown(stripWiddershinsBoilerplate(stripFrontMatter(markdown)));
-      let renderedHtml = sanitizeHtml(marked.parse(markdown));
+      markdown = markdown.replace(/^---\n[\s\S]*?\n---\n+/, "");
+      let technicalHtml = sanitizeHtml(marked.parse(markdown));
 
-      // Verrijken met MIM metadata
-      renderedHtml = enrichWithMimMetadata(renderedHtml, apiSpec);
+      const diagramExists = fs.existsSync(path.join(imagesDir, diagramFileName));
+      const gegevensdefinitieHtml = generateGegevensdefinitie(
+        apiSpec,
+        apiDir,
+        diagramExists ? diagramFileName : null,
+      );
 
       const html = `<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
   <title>${title} | ReSpec</title>
-  <script src="https://gitdocumentatie.logius.nl/publicatie/respec/builds/respec-nlgov.js" class="remove" async></script>
   <script class="remove">
     var respecConfig = {
-      specStatus: "WV",
-      specType: "HR",
-      pubDomain: "dk",
+      specStatus: "WV", specType: "HR", pubDomain: "dk",
       shortName: "${title.toLowerCase().replace(/\s+/g, "-")}",
-      format: "markdown",
       publishDate: "${new Date().toISOString().split("T")[0]}",
-      publishVersion: "${version}",
+      publishVersion: "${apiSpec.info?.version || "0.0.1"}",
+      previousPublishDate: "2026-04-01",
+      previousMaturity: "WV",
       nl_organisationName: "VNG Realisatie",
+      license: "cc-by",
+      licenses: { "cc-by": { name: "CC-BY", url: "https://creativecommons.org/licenses/by/4.0/", short: "CC-BY" } },
+      specStatusText: { nl: { wv: "Werkversie" } },
+      specTypeText: { nl: { hr: "Handreiking" } },
+      sotdText: { nl: { sotd: "Status", wv: "Dit is een automatisch gegenereerd document." } },
+      thisVersion: "https://vng-realisatie.github.io/Interactie-APIs/docs/respec/${outputFileName}",
+      latestVersion: "https://vng-realisatie.github.io/Interactie-APIs/docs/respec/${outputFileName}",
+      edDraftURI: "https://github.com/VNG-Realisatie/Interactie-APIs",
       editors: [{ name: "VNG Realisatie" }],
-      github: "https://github.com/vng-realisatie/interactie-apis",
+      github: "https://github.com/VNG-Realisatie/Interactie-APIs",
     };
   </script>
+  <script src="https://gitdocumentatie.logius.nl/publicatie/respec/builds/respec-nlgov.js" class="remove"></script>
   <style>
-    .mim-metadata table { font-size: 0.9em; border: 1px solid #ddd; }
-    .mim-metadata h4 { margin-top: 20px; color: #1a56db; }
+    .imvertor-main-table, .imvertor-attr-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.95em; }
+    .imvertor-main-table th { background: #f3f4f6; text-align: left; padding: 10px; border: 1px solid #ddd; width: 30%; }
+    .imvertor-main-table td { padding: 10px; border: 1px solid #ddd; }
+    .imvertor-attr-table th { background: #1a56db; color: white; padding: 10px; text-align: left; border: 1px solid #1a56db; }
+    .imvertor-attr-table td { padding: 10px; border: 1px solid #ddd; }
+    .imvertor-attr-table tr:nth-child(even) { background: #f9fafb; }
+    .mim-object-section { margin-top: 50px; }
+    .mim-object-section h3 { border-bottom: 2px solid #1a56db; padding-bottom: 8px; color: #1a3a5f; margin-top: 40px; }
   </style>
 </head>
 <body>
-  <section id="abstract"><p>Technische specificatie voor de ${title} API.</p></section>
-  <section id="sotd"><p>Dit document is automatisch afgeleid van de OpenAPI-specificatie.</p></section>
-  ${renderedHtml}
+  <section id="abstract"><p>Formele specificatie voor ${title}.</p></section>
+  ${gegevensdefinitieHtml}
+  <section id="api-referentie"><h2>API Referentie</h2>${technicalHtml}</section>
 </body>
 </html>`;
 
       const outputPath = path.join(outputDir, outputFileName);
       fs.writeFileSync(outputPath, html);
-
-      if (pdfEnabled) {
-        const page = await browser.newPage();
-        await page.goto(`file://${outputPath}`, { waitUntil: "networkidle2" });
-        const pdfPath = outputPath.replace(".html", ".pdf");
-        await page.pdf({ path: pdfPath, format: "A4", printBackground: true });
-        await page.close();
-      }
-      updateCache(filePath, content, cache);
+      console.log(`✅ ${outputFileName}`);
     } catch (e) {
-      console.error(`❌ Fout bij verwerken ${file}:`, e.message);
+      console.error(`❌ ${file}:`, e);
     }
   }
 
   if (browser) await browser.close();
-  saveCache(cachePath, cache);
-  console.log("🎉 ReSpec generatie voltooid!");
+  if (viteServer) {
+    await viteServer.close();
+    console.log("🛑 Tijdelijke Vite server afgesloten.");
+  }
+  console.log("🎉 Klaar met ReSpec!");
 }
 
 generateRespec().catch(console.error);

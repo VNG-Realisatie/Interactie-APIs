@@ -4,6 +4,124 @@
   "description": "Formele beschrijving van het Metamodel Informatie Modellering (MIM), inclusief UML structuur-elementen.",
   "type": "object",
   "$defs": {
+    "GeneratedMetadata": {
+      "type": "object",
+      "title": "Gegenereerde MIM/UML metadata",
+      "description": "Metadata die door de XMI naar JSON Schema generator wordt toegevoegd om MIM en UML-informatie traceerbaar te houden.",
+      "properties": {
+        "mimType": {
+          "type": "string",
+          "description": "Het MIM-type van het construct, zoals Objecttype, Relatieklasse, Relatiesoort of Attribuutsoort."
+        },
+        "id": {
+          "type": "string",
+          "description": "De originele Enterprise Architect/XMI identifier."
+        },
+        "naam": {
+          "type": "string",
+          "description": "De originele naam van het MIM-attribuut of de MIM-relatie."
+        },
+        "stereotype": {
+          "type": "string",
+          "description": "Het UML/MIM stereotype zoals opgenomen in het XMI-bestand."
+        },
+        "packageName": {
+          "type": "string",
+          "description": "De naam van het UML package waar dit construct in zit."
+        },
+        "umlType": {
+          "type": "string",
+          "description": "Het originele datatype of de originele classifiernaam uit Enterprise Architect."
+        },
+        "cardinality": {
+          "type": "string",
+          "description": "De kardinaliteit in UML-notatie, bijvoorbeeld [0..1] of [0..*]."
+        },
+        "isId": {
+          "type": "boolean",
+          "description": "Geeft aan of het attribuut identificerend is."
+        },
+        "visibility": {
+          "type": "string",
+          "description": "De UML-zichtbaarheid van het attribuut."
+        },
+        "isExternal": {
+          "type": "boolean",
+          "description": "Geeft aan of het construct als extern of referentieobject is behandeld."
+        },
+        "supertype": {
+          "type": "string",
+          "description": "De technische naam van de JSON Schema definitie waarvan dit construct overerft."
+        },
+        "position": {
+          "type": ["object", "null"],
+          "description": "De positie van het element in het Enterprise Architect diagram.",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "y": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        },
+        "notes": {
+          "type": "array",
+          "description": "UML-notities die aan dit construct gekoppeld zijn.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "position": {
+                "type": ["object", "null"],
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "y": {
+                    "type": "integer"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "associations": {
+          "type": "array",
+          "description": "Uitgaande UML-associaties van dit construct.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "sourceCard": {
+                "type": "string"
+              },
+              "targetCard": {
+                "type": "string"
+              },
+              "stereotype": {
+                "type": ["string", "null"]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": true
+    },
     "Enumeratiewaarde": {
       "type": "object",
       "title": "Enumeratiewaarde",
@@ -797,7 +915,10 @@
   },
   "properties": {
     "x-mim-metadata": {
-      "oneOf": [
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GeneratedMetadata"
+        },
         {
           "$ref": "#/$defs/Enumeratiewaarde"
         },

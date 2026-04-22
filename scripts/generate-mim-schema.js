@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const XML_PATH = path.join(__dirname, "../MijnAgenda.xml");
+const XML_PATH = path.join(__dirname, "../schemas/afspraken/v0.8.1.xmi");
 const OUTPUT_FILE = path.join(__dirname, "../schemas/mim/v1.0.0.json");
 
 const MIM_DESCRIPTIONS = {
@@ -49,7 +49,7 @@ const MIM_CONCEPT_DEFINITIONS = {
     "De typering van de relatie tussen twee objecttypen. Het geeft aan dat er een betekenisvolle verbinding bestaat tussen objecten (bijv. Persoon 'woont op' Adres).",
   Relatieklasse:
     "Een relatiesoort die zelf ook kenmerken (attribuutsoorten) heeft. Deze kenmerken horen bij de relatie zelf, en niet bij één van de twee gekoppelde objecten.",
-  Enumeratie: "Een lijst van vaste mogelijke waarden (enumeratiewaarden) for een attribuut.",
+  Enumeratie: "Een lijst van vaste mogelijke waarden (enumeratiewaarden) voor een attribuut.",
   Enumeratiewaarde: "Een specifiek toegestane waarde binnen een enumeratie.",
   "Gestructureerd datatype":
     "Een samengesteld datatype dat bestaat uit meerdere elementen of andere datatypen.",
@@ -57,21 +57,9 @@ const MIM_CONCEPT_DEFINITIONS = {
     "Een enkelvoudig, niet verder op te splitsen datatype (zoals String, Integer, Boolean).",
   Gegevensgroeptype:
     "Een verzameling van attribuutsoorten die als één geheel bij een objecttype horen.",
+  Referentielijst:
+    "Een lijst met gestandaardiseerde waarden die door een externe partij wordt beheerd (zoals een landentabel).",
 };
-
-function cleanText(text) {
-  if (!text) return "";
-  return text
-    .replace(/Description:\s*/g, "")
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#xA;/g, "\n")
-    .replace(/#NOTES#/g, "\n")
-    .replace(/\n\s*\n/g, "\n")
-    .trim();
-}
 
 function parseMimSchema() {
   console.log(`📖 Analyseren van MIM definities in ${XML_PATH}...`);
@@ -81,7 +69,7 @@ function parseMimSchema() {
     $schema: "https://json-schema.org/draft/2020-12/schema",
     title: "MIM Meta-Schema",
     description:
-      "Formele beschrijving van het Metamodel Informatie Modellering (MIM), inclusief alle metaklassen conform de Geonovum-standaard.",
+      "Formele beschrijving van het Metamodel Informatie Modellering (MIM), inclusief UML structuur-elementen.",
     type: "object",
     $defs: {},
   };
@@ -108,6 +96,75 @@ function parseMimSchema() {
       };
     }
 
+    // --- TOEVOEGING: UML / Visuele Structuur Velden ---
+    if (
+      [
+        "Objecttype",
+        "Relatieklasse",
+        "Referentielijst",
+        "Gestructureerd datatype",
+        "Enumeratie",
+      ].includes(stName)
+    ) {
+      properties["umlPackage"] = {
+        type: "string",
+        description: "De naam van het UML package waar dit object in zit.",
+      };
+      properties["isExternal"] = {
+        type: "boolean",
+        description: "Geeft aan of dit een extern/referentie object is (vaak geel in EA).",
+      };
+      properties["supertype"] = {
+        type: "string",
+        description: "De parent klasse waarvan dit object overerft (Generalisatie).",
+      };
+      properties["notes"] = {
+        type: "array",
+        items: { type: "string" },
+        description: "UML Notities die aan deze klasse gekoppeld zijn.",
+      };
+      properties["associations"] = {
+        type: "array",
+        description: "Lijst van uitgaande relaties (UML Connectors).",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            target: { type: "string" },
+            sourceCard: {
+              type: "string",
+              description: "Kardinaliteit aan de start van de pijl (bijv. 0..*)",
+            },
+            targetCard: {
+              type: "string",
+              description: "Kardinaliteit aan het einde van de pijl (bijv. 1)",
+            },
+            direction: { type: "string", description: "Leesrichting" },
+          },
+        },
+      };
+    }
+
+    if (
+      ["Attribuutsoort", "Data element", "Referentie element"].includes(stName) ||
+      stName.includes("datatype")
+    ) {
+      properties["umlType"] = {
+        type: "string",
+        description:
+          "Het exacte originele datatype in Enterprise Architect (bijv. CharacterString).",
+      };
+      properties["kardinaliteit"] = {
+        type: "string",
+        description: "De UML kardinaliteit van het veld (bijv. [0..1]).",
+      };
+      properties["isId"] = {
+        type: "boolean",
+        description: "Geeft aan of dit veld de identifier is.",
+      };
+    }
+    // ---------------------------------------------------
+
     metaSchema.$defs[stName] = {
       type: "object",
       title: stName,
@@ -124,7 +181,7 @@ function parseMimSchema() {
   };
 
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(metaSchema, null, 2));
-  console.log(`\n🎉 Volledig compliant MIM Meta-Schema gegenereerd: ${OUTPUT_FILE}`);
+  console.log(`\n🎉 Meta-schema uitgebreid met UML attributen: ${OUTPUT_FILE}`);
 }
 
 parseMimSchema();
