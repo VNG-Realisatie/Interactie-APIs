@@ -181,7 +181,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 400
                 code: "ONGELDIGE_AANVRAAG"
@@ -193,7 +193,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 401
                 code: "NIET_GEAUTHENTICEERD"
@@ -205,7 +205,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 403
                 code: "NIET_GEAUTORISEERD"
@@ -222,7 +222,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 429
                 code: "TE_VEEL_VERZOEKEN"
@@ -234,7 +234,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 500
                 code: "INTERNE_FOUT"
@@ -246,7 +246,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 503
                 code: "SERVICE_NIET_BESCHIKBAAR"
@@ -326,7 +326,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 400
                 code: "ONGELDIGE_IDENTIFICATIE"
@@ -338,19 +338,19 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
         "403":
           description: Onvoldoende autorisatie voor het opvragen van deze specifieke afspraak.
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
         "404":
           description: Agenda-afspraak niet gevonden voor de opgegeven identificatie.
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
               example:
                 status: 404
                 code: "AFSPRAAK_NIET_GEVONDEN"
@@ -362,13 +362,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
         "503":
           description: Service tijdelijk niet beschikbaar.
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/ProblemDetails"
+                $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
 
 components:
   schemas:
@@ -736,41 +736,6 @@ components:
             Optioneel [0..1].
           allOf:
             - $ref: "#/components/schemas/Adres"
-    ProblemDetails:
-      type: object
-      required:
-        - code
-        - title
-      description: |
-        Uniforme foutstructuur conform RFC 7807 (Problem Details for HTTP APIs),
-        aangevuld met een machineleesbaar `code`-veld in lijn met de NLGov API Design Rules.
-
-        Content-type voor foutresponses: `application/problem+json`.
-      properties:
-        status:
-          type: integer
-          description: HTTP-statuscode van de foutresponse.
-          example: 400
-        code:
-          type: string
-          description: Machineleesbare, stabiele foutcode voor gebruik door consumers.
-          example: "ONGELDIGE_AANVRAAG"
-        title:
-          type: string
-          description: Korte, voor mensen leesbare omschrijving van de fout. Stabiel per fouttype.
-          example: "Ongeldige aanvraag"
-        detail:
-          type: string
-          description: |
-            Aanvullende, voor mensen leesbare uitleg van deze specifieke fout.
-            Kan per instantie variëren.
-          example: "Het veld 'identificaties' is verplicht en moet minimaal één element bevatten."
-        instance:
-          type: string
-          description: |
-            Relatieve URI die verwijst naar de resource of het pad waarop de fout is opgetreden.
-          example: "/afspraken/opvragen"
-
   securitySchemes:
     oauth2ClientCredentials:
       type: oauth2

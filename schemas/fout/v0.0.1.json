@@ -3,77 +3,43 @@
   "$defs": {
     "Fout": {
       "type": "object",
-      "description": "Formaat van HTTP 4xx en 5xx fouten.",
+      "description": "Problem Details-object voor HTTP 4xx- en 5xx-fouten conform RFC 7807. De standaardleden zijn optioneel volgens de RFC; aanvullende leden, zoals code, kunnen worden gebruikt voor API-specifieke machineleesbare informatie.",
       "properties": {
         "type": {
           "type": "string",
-          "description": "URI referentie naar het type fout, bedoeld voor developers",
+          "format": "uri-reference",
+          "description": "URI-referentie die het type fout identificeert. Als dit veld ontbreekt, geldt volgens RFC 7807 impliciet about:blank.",
           "title": "type"
         },
         "code": {
           "type": "string",
-          "description": "Systeemcode die het type fout aangeeft",
+          "description": "API-specifieke, machineleesbare foutcode voor consumers.",
           "title": "code"
         },
         "title": {
           "type": "string",
-          "description": "Generieke titel voor het type fout",
+          "description": "Korte, voor mensen leesbare samenvatting van het fouttype. Deze hoort stabiel te blijven per fouttype, behalve bij lokalisatie.",
           "title": "title"
         },
         "status": {
           "type": "integer",
-          "description": "De HTTP status code",
+          "minimum": 100,
+          "maximum": 599,
+          "description": "HTTP-statuscode voor deze fout. Als dit veld aanwezig is, moet deze overeenkomen met de statuscode van de HTTP-response.",
           "title": "status"
         },
         "detail": {
           "type": "string",
-          "description": "Extra informatie bij de fout, indien beschikbaar",
+          "description": "Voor mensen leesbare uitleg specifiek voor dit foutgeval. Consumers horen dit veld niet te parsen voor machineleesbare informatie.",
           "title": "detail"
         },
         "instance": {
           "type": "string",
-          "description": "URI met referentie naar dit specifiek voorkomen van de fout. Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.",
+          "format": "uri-reference",
+          "description": "URI-referentie die dit specifieke foutgeval identificeert. De URI kan relatief zijn en hoeft niet dereferenceable te zijn.",
           "title": "instance"
         }
-      },
-      "required": ["code", "detail", "instance", "status", "title"]
-    },
-    "ValidatieFout": {
-      "type": "object",
-      "description": "Formaat van HTTP 4xx en 5xx fouten.",
-      "properties": {
-        "type": {
-          "type": "string",
-          "description": "URI referentie naar het type fout, bedoeld voor developers",
-          "title": "type"
-        },
-        "code": {
-          "type": "string",
-          "description": "Systeemcode die het type fout aangeeft",
-          "title": "code"
-        },
-        "title": {
-          "type": "string",
-          "description": "Generieke titel voor het type fout",
-          "title": "title"
-        },
-        "status": {
-          "type": "integer",
-          "description": "De HTTP status code",
-          "title": "status"
-        },
-        "detail": {
-          "type": "string",
-          "description": "Extra informatie bij de fout, indien beschikbaar",
-          "title": "detail"
-        },
-        "instance": {
-          "type": "string",
-          "description": "URI met referentie naar dit specifiek voorkomen van de fout. Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.",
-          "title": "instance"
-        }
-      },
-      "required": ["code", "detail", "instance", "status", "title"]
+      }
     }
   }
 }

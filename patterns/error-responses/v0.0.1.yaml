@@ -13,7 +13,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: "../../schemas/fout/v0.0.1.json#/$defs/ValidatieFout"
+            $ref: "../../schemas/fout/v0.0.1.json#/$defs/Fout"
     Error:
       content:
         application/problem+json:
