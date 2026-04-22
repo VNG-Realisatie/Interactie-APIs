@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "MIM Meta-Schema",
-  "description": "Formele beschrijving van het Metamodel Informatie Modellering (MIM), inclusief alle metaklassen conform de Geonovum-standaard.",
+  "description": "Formele beschrijving van het Metamodel Informatie Modellering (MIM), inclusief UML structuur-elementen.",
   "type": "object",
   "$defs": {
     "Enumeratiewaarde": {
@@ -52,6 +52,52 @@
         "Is afgeleid": {
           "type": "string",
           "description": "MIM eigenschap: Is afgeleid"
+        },
+        "umlPackage": {
+          "type": "string",
+          "description": "De naam van het UML package waar dit object in zit."
+        },
+        "isExternal": {
+          "type": "boolean",
+          "description": "Geeft aan of dit een extern/referentie object is (vaak geel in EA)."
+        },
+        "supertype": {
+          "type": "string",
+          "description": "De parent klasse waarvan dit object overerft (Generalisatie)."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "UML Notities die aan deze klasse gekoppeld zijn."
+        },
+        "associations": {
+          "type": "array",
+          "description": "Lijst van uitgaande relaties (UML Connectors).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "sourceCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan de start van de pijl (bijv. 0..*)"
+              },
+              "targetCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan het einde van de pijl (bijv. 1)"
+              },
+              "direction": {
+                "type": "string",
+                "description": "Leesrichting"
+              }
+            }
+          }
         }
       },
       "additionalProperties": true
@@ -184,6 +230,52 @@
         "Populatie": {
           "type": "string",
           "description": "De verzameling van alle objecten van een bepaald type die op een bepaald moment aanwezig zijn."
+        },
+        "umlPackage": {
+          "type": "string",
+          "description": "De naam van het UML package waar dit object in zit."
+        },
+        "isExternal": {
+          "type": "boolean",
+          "description": "Geeft aan of dit een extern/referentie object is (vaak geel in EA)."
+        },
+        "supertype": {
+          "type": "string",
+          "description": "De parent klasse waarvan dit object overerft (Generalisatie)."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "UML Notities die aan deze klasse gekoppeld zijn."
+        },
+        "associations": {
+          "type": "array",
+          "description": "Lijst van uitgaande relaties (UML Connectors).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "sourceCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan de start van de pijl (bijv. 0..*)"
+              },
+              "targetCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan het einde van de pijl (bijv. 1)"
+              },
+              "direction": {
+                "type": "string",
+                "description": "Leesrichting"
+              }
+            }
+          }
         }
       },
       "additionalProperties": true
@@ -296,6 +388,64 @@
         "Is afgeleid": {
           "type": "string",
           "description": "MIM eigenschap: Is afgeleid"
+        },
+        "umlPackage": {
+          "type": "string",
+          "description": "De naam van het UML package waar dit object in zit."
+        },
+        "isExternal": {
+          "type": "boolean",
+          "description": "Geeft aan of dit een extern/referentie object is (vaak geel in EA)."
+        },
+        "supertype": {
+          "type": "string",
+          "description": "De parent klasse waarvan dit object overerft (Generalisatie)."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "UML Notities die aan deze klasse gekoppeld zijn."
+        },
+        "associations": {
+          "type": "array",
+          "description": "Lijst van uitgaande relaties (UML Connectors).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "sourceCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan de start van de pijl (bijv. 0..*)"
+              },
+              "targetCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan het einde van de pijl (bijv. 1)"
+              },
+              "direction": {
+                "type": "string",
+                "description": "Leesrichting"
+              }
+            }
+          }
+        },
+        "umlType": {
+          "type": "string",
+          "description": "Het exacte originele datatype in Enterprise Architect (bijv. CharacterString)."
+        },
+        "kardinaliteit": {
+          "type": "string",
+          "description": "De UML kardinaliteit van het veld (bijv. [0..1])."
+        },
+        "isId": {
+          "type": "boolean",
+          "description": "Geeft aan of dit veld de identifier is."
         }
       },
       "additionalProperties": true
@@ -348,6 +498,18 @@
         "Minimum lengte": {
           "type": "string",
           "description": "MIM eigenschap: Minimum lengte"
+        },
+        "umlType": {
+          "type": "string",
+          "description": "Het exacte originele datatype in Enterprise Architect (bijv. CharacterString)."
+        },
+        "kardinaliteit": {
+          "type": "string",
+          "description": "De UML kardinaliteit van het veld (bijv. [0..1])."
+        },
+        "isId": {
+          "type": "boolean",
+          "description": "Geeft aan of dit veld de identifier is."
         }
       },
       "additionalProperties": true
@@ -448,6 +610,18 @@
         "Is afgeleid": {
           "type": "string",
           "description": "MIM eigenschap: Is afgeleid"
+        },
+        "umlType": {
+          "type": "string",
+          "description": "Het exacte originele datatype in Enterprise Architect (bijv. CharacterString)."
+        },
+        "kardinaliteit": {
+          "type": "string",
+          "description": "De UML kardinaliteit van het veld (bijv. [0..1])."
+        },
+        "isId": {
+          "type": "boolean",
+          "description": "Geeft aan of dit veld de identifier is."
         }
       },
       "additionalProperties": true
@@ -455,7 +629,7 @@
     "Enumeratie": {
       "type": "object",
       "title": "Enumeratie",
-      "description": "Een lijst van vaste mogelijke waarden (enumeratiewaarden) for een attribuut.",
+      "description": "Een lijst van vaste mogelijke waarden (enumeratiewaarden) voor een attribuut.",
       "properties": {
         "Alternatieve naam": {
           "type": "string",
@@ -476,6 +650,146 @@
         "Is afgeleid": {
           "type": "string",
           "description": "MIM eigenschap: Is afgeleid"
+        },
+        "umlPackage": {
+          "type": "string",
+          "description": "De naam van het UML package waar dit object in zit."
+        },
+        "isExternal": {
+          "type": "boolean",
+          "description": "Geeft aan of dit een extern/referentie object is (vaak geel in EA)."
+        },
+        "supertype": {
+          "type": "string",
+          "description": "De parent klasse waarvan dit object overerft (Generalisatie)."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "UML Notities die aan deze klasse gekoppeld zijn."
+        },
+        "associations": {
+          "type": "array",
+          "description": "Lijst van uitgaande relaties (UML Connectors).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "sourceCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan de start van de pijl (bijv. 0..*)"
+              },
+              "targetCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan het einde van de pijl (bijv. 1)"
+              },
+              "direction": {
+                "type": "string",
+                "description": "Leesrichting"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "Referentielijst": {
+      "type": "object",
+      "title": "Referentielijst",
+      "description": "Een lijst met gestandaardiseerde waarden die door een externe partij wordt beheerd (zoals een landentabel).",
+      "properties": {
+        "Alternatieve naam": {
+          "type": "string",
+          "description": "De naam in natuurlijke of formele taal; een alias voor het element."
+        },
+        "Positie": {
+          "type": "string",
+          "description": "De positie van de construct binnen de opeenvolging van elementen in een product."
+        },
+        "Herkomst definitie": {
+          "type": "string",
+          "description": "MIM eigenschap: Herkomst definitie"
+        },
+        "Herkomst": {
+          "type": "string",
+          "description": "De basisregistratie in wiens catalogus het objecttype is gespecificeerd (oftewel de basisregistratie waar het objecttype deel van uitmaakt)."
+        },
+        "Definitie": {
+          "type": "string",
+          "description": "De beschrijving van de betekenis van de construct zoals gespecificeerd in de catalogus van de desbetreffende (basis)registratie of informatiemodel."
+        },
+        "Locatie": {
+          "type": "string",
+          "description": "De verwijzing naar de plek waar de waarden beschikbaar worden gesteld (bijv. een URI naar een waardenlijst)."
+        },
+        "Begrip": {
+          "type": "string",
+          "description": "Een referentie naar een begrip in een begrippenlijst of kennismodel middels een URI of naam."
+        },
+        "Datum opname": {
+          "type": "string",
+          "description": "MIM eigenschap: Datum opname"
+        },
+        "Toelichting": {
+          "type": "string",
+          "description": "Een inhoudelijke toelichting op de definitie, ter verheldering of nadere duiding."
+        },
+        "Is afgeleid": {
+          "type": "string",
+          "description": "MIM eigenschap: Is afgeleid"
+        },
+        "umlPackage": {
+          "type": "string",
+          "description": "De naam van het UML package waar dit object in zit."
+        },
+        "isExternal": {
+          "type": "boolean",
+          "description": "Geeft aan of dit een extern/referentie object is (vaak geel in EA)."
+        },
+        "supertype": {
+          "type": "string",
+          "description": "De parent klasse waarvan dit object overerft (Generalisatie)."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "UML Notities die aan deze klasse gekoppeld zijn."
+        },
+        "associations": {
+          "type": "array",
+          "description": "Lijst van uitgaande relaties (UML Connectors).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "sourceCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan de start van de pijl (bijv. 0..*)"
+              },
+              "targetCard": {
+                "type": "string",
+                "description": "Kardinaliteit aan het einde van de pijl (bijv. 1)"
+              },
+              "direction": {
+                "type": "string",
+                "description": "Leesrichting"
+              }
+            }
+          }
         }
       },
       "additionalProperties": true
@@ -510,6 +824,9 @@
         },
         {
           "$ref": "#/$defs/Enumeratie"
+        },
+        {
+          "$ref": "#/$defs/Referentielijst"
         }
       ]
     }
