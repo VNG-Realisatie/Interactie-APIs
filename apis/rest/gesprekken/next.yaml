@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  title: Gesprekken
+  title: MijnGesprekken
   description: |
     API voor het registreren en raadplegen van gesprekken tussen klanten en de gemeente.
 
