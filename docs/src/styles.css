@@ -323,6 +323,106 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
+.api-topbar {
+  padding: 10px 20px;
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.api-topbar-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.api-test-button,
+.api-copy-button {
+  border: 1px solid var(--border-color);
+  background: var(--bg-white);
+  color: var(--vng-dark-blue);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 0.86em;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.api-test-button:hover,
+.api-copy-button:hover {
+  background: var(--vng-light-blue);
+  color: var(--vng-blue);
+}
+
+.api-test-button span {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--vng-light-blue);
+  color: var(--vng-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7em;
+  font-weight: 700;
+}
+
+.api-test-panel {
+  margin: 16px 20px 0;
+  padding: 18px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.api-test-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.api-test-panel h2 {
+  margin-top: 0;
+}
+
+.api-test-panel p {
+  color: var(--text-muted);
+  font-size: 0.92em;
+}
+
+.api-command-block {
+  margin: 14px 0;
+  padding: 16px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: #111827;
+  color: #d1d5db;
+  font-size: 0.86em;
+  line-height: 1.55;
+}
+
+.api-test-note code {
+  color: var(--text-color);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-white: #111827;

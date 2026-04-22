@@ -1,7 +1,117 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import yaml from "js-yaml";
+
+function getSchemaUrl(url) {
+  if (/^https?:\/\//.test(url)) return url;
+  const origin = new URL(window.location.origin);
+  if (origin.hostname === "localhost" || origin.hostname === "127.0.0.1") {
+    origin.hostname = "host.docker.internal";
+  }
+  return `${origin.toString().replace(/\/$/, "")}${url}`;
+}
+
+function getPathParameterNames(pathTemplate, operation = {}) {
+  const names = new Set();
+  for (const match of pathTemplate.matchAll(/\{([^}]+)\}/g)) {
+    names.add(match[1]);
+  }
+
+  for (const parameter of operation.parameters || []) {
+    if (parameter?.in === "path" && parameter.name) {
+      names.add(parameter.name);
+    }
+  }
+
+  return [...names];
+}
+
+function getFirstPathExample(spec) {
+  if (!spec?.paths) return null;
+
+  for (const [pathTemplate, pathItem] of Object.entries(spec.paths)) {
+    if (!pathItem || typeof pathItem !== "object") continue;
+
+    const pathLevelNames = getPathParameterNames(pathTemplate, pathItem);
+    if (pathLevelNames.length > 0) {
+      return { pathTemplate, parameterNames: pathLevelNames };
+    }
+
+    for (const method of ["get", "post", "put", "patch", "delete"]) {
+      const operation = pathItem[method];
+      if (!operation || typeof operation !== "object") continue;
+
+      const parameterNames = getPathParameterNames(pathTemplate, operation);
+      if (parameterNames.length > 0) {
+        return { pathTemplate, parameterNames };
+      }
+    }
+  }
+
+  return null;
+}
+
+function needsAuthorizationHeader(spec) {
+  const schemes = Object.values(spec?.components?.securitySchemes || {});
+  return schemes.some((scheme) => {
+    if (!scheme || typeof scheme !== "object") return false;
+    return (
+      scheme.type === "oauth2" ||
+      scheme.type === "openIdConnect" ||
+      (scheme.type === "http" && ["bearer", "basic"].includes(scheme.scheme)) ||
+      (scheme.type === "apiKey" && scheme.in === "header")
+    );
+  });
+}
+
+function addMockBearerAuth(spec) {
+  if (!spec || !needsAuthorizationHeader(spec)) return spec;
+
+  const mockSpec = structuredClone(spec);
+  mockSpec.components = mockSpec.components || {};
+  mockSpec.components.securitySchemes = {
+    ...mockSpec.components.securitySchemes,
+    mockBearer: {
+      type: "http",
+      scheme: "bearer",
+      bearerFormat: "mock-token",
+      description:
+        "Alleen voor de lokale Prism mock. Gebruik een willekeurige bearer token, bijvoorbeeld `test-token`.",
+    },
+  };
+  mockSpec.security = [{ mockBearer: [] }, ...(Array.isArray(mockSpec.security) ? mockSpec.security : [])];
+
+  return mockSpec;
+}
+
+function buildDockerCommand(schemaUrl, pathExample, includeAuthHeader) {
+  const lines = [
+    "docker run --rm schemathesis/schemathesis:stable run \\",
+    `  ${schemaUrl} \\`,
+    "  --url https://jouw-api.example.nl \\",
+  ];
+
+  if (includeAuthHeader) {
+    lines.push('  --header "Authorization: Bearer JOUW_TOKEN" \\');
+  }
+
+  if (pathExample) {
+    lines.push(`  --include-path "${pathExample.pathTemplate}" \\`);
+  }
+
+  lines.push("  --mode positive \\");
+  lines.push("  --max-examples 5 \\");
+  lines.push("  --generation-deterministic \\");
+  lines.push("  --phases examples,fuzzing");
+
+  return lines.join("\n");
+}
 
 export default function ScalarView({ url }) {
   const containerRef = useRef(null);
+  const [spec, setSpec] = useState(null);
+  const [scalarContent, setScalarContent] = useState(null);
+  const [showTests, setShowTests] = useState(false);
+  const [copyLabel, setCopyLabel] = useState("Kopieren");
 
   const fileName = url
     .split("/")
@@ -9,8 +119,32 @@ export default function ScalarView({ url }) {
     .replace(/\.(json|yaml|yml)$/, "");
   const respecHtml = `/docs/respec/${fileName}.html`;
   const respecPdf = `/docs/respec/${fileName}.pdf`;
+  const schemaUrl = getSchemaUrl(url);
+  const pathExample = useMemo(() => getFirstPathExample(spec), [spec]);
+  const includeAuthHeader = useMemo(() => needsAuthorizationHeader(spec), [spec]);
+  const dockerCommand = useMemo(
+    () => buildDockerCommand(schemaUrl, pathExample, includeAuthHeader),
+    [schemaUrl, pathExample, includeAuthHeader],
+  );
 
   useEffect(() => {
+    setSpec(null);
+    setScalarContent(null);
+    fetch(url)
+      .then((response) => response.text())
+      .then((text) => {
+        const parsed = url.endsWith(".json") ? JSON.parse(text) : yaml.load(text);
+        setSpec(parsed);
+        setScalarContent(yaml.dump(addMockBearerAuth(parsed), { lineWidth: -1 }));
+      })
+      .catch((error) => {
+        console.error("Fout bij laden OpenAPI spec voor testinstructies:", error);
+      });
+  }, [url]);
+
+  useEffect(() => {
+    if (!scalarContent) return undefined;
+
     const script = document.createElement("script");
     script.src = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
     script.onload = () => {
@@ -33,12 +167,20 @@ export default function ScalarView({ url }) {
         const mockServerUrl = `http://127.0.0.1:4010${mockPath}`;
 
         window.Scalar.createApiReference(containerRef.current, {
-          url,
+          content: scalarContent,
           theme: "purple",
           showSidebar: true,
           defaultOpenAllTags: true,
           defaultModelsExpandDepth: 10,
           expandAllModelSections: true,
+          authentication: {
+            preferredSecurityScheme: needsAuthorizationHeader(spec) ? "mockBearer" : undefined,
+            securitySchemes: {
+              mockBearer: {
+                token: "test-token",
+              },
+            },
+          },
           servers: [
             {
               url: mockServerUrl,
@@ -55,26 +197,84 @@ export default function ScalarView({ url }) {
         containerRef.current.innerHTML = "";
       }
     };
-  }, [url]);
+  }, [url, spec, scalarContent]);
+
+  const copyDockerCommand = () => {
+    if (!navigator.clipboard) return;
+    navigator.clipboard
+      .writeText(dockerCommand)
+      .then(() => {
+        setCopyLabel("Gekopieerd");
+        window.setTimeout(() => setCopyLabel("Kopieren"), 1500);
+      })
+      .catch(() => {});
+  };
 
   return (
-    <div className="view-container">
-      <div
-        style={{
-          padding: "10px 20px",
-          background: "#f8f9fa",
-          borderBottom: "1px solid #eee",
-        }}
-      >
-        <strong>ReSpec Documentatie: </strong>
-        <a href={respecHtml} target="_blank" rel="noopener noreferrer">
-          HTML
-        </a>
-        {" | "}
-        <a href={respecPdf} target="_blank" rel="noopener noreferrer">
-          PDF
-        </a>
+    <div>
+      <div className="api-topbar">
+        <div className="api-topbar-links">
+          <strong>ReSpec Documentatie: </strong>
+          <a href={respecHtml} target="_blank" rel="noopener noreferrer">
+            HTML
+          </a>
+          <span aria-hidden="true">|</span>
+          <a href={respecPdf} target="_blank" rel="noopener noreferrer">
+            PDF
+          </a>
+        </div>
+        <button
+          type="button"
+          className="api-test-button"
+          onClick={() => setShowTests((value) => !value)}
+          title="Toon Schemathesis contracttest commando"
+        >
+          <span aria-hidden="true">ST</span>
+          Contract testen
+        </button>
       </div>
+      {showTests && (
+        <section className="api-test-panel">
+          <div className="api-test-panel-header">
+            <div>
+              <h2>Automatisch testen</h2>
+              <p>
+                Gebruik deze Schemathesis one-liner als startpunt voor contracttests tegen je
+                implementatie. Schemathesis genereert geldige path-waarden uit de OpenAPI schemas.
+              </p>
+            </div>
+            <button type="button" className="api-copy-button" onClick={copyDockerCommand}>
+              {copyLabel}
+            </button>
+          </div>
+          <pre className="api-command-block">
+            <code>{dockerCommand}</code>
+          </pre>
+          {pathExample ? (
+            <p className="api-test-note">
+              Vervang <code>https://jouw-api.example.nl</code>
+              {includeAuthHeader ? (
+                <>
+                  {" "}
+                  en <code>JOUW_TOKEN</code>
+                </>
+              ) : null}
+              . Deze opdracht beperkt de test tot <code>{pathExample.pathTemplate}</code>.
+            </p>
+          ) : (
+            <p className="api-test-note">
+              Vervang <code>https://jouw-api.example.nl</code>
+              {includeAuthHeader ? (
+                <>
+                  {" "}
+                  en <code>JOUW_TOKEN</code>
+                </>
+              ) : null}{" "}
+              door waarden uit je testomgeving.
+            </p>
+          )}
+        </section>
+      )}
       <div ref={containerRef} className="scalar-container">
         Laden...
       </div>
