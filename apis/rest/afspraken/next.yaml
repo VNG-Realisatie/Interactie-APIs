@@ -492,7 +492,6 @@ components:
           example: "afspr-2026-001-xyz"
         onderwerp:
           type: string
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
             Het onderwerp van de afspraak, bedoeld voor weergave in een lijstoverzicht.
@@ -500,7 +499,6 @@ components:
         geplandAanvangsmoment:
           type: string
           format: date-time
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
             Het geplande aanvangsmoment van de afspraak als ISO 8601 datetime in UTC.
@@ -509,7 +507,6 @@ components:
         geplandEindmoment:
           type: string
           format: date-time
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
             Het geplande eindmoment van de afspraak als ISO 8601 datetime in UTC.
@@ -545,7 +542,6 @@ components:
           example: "afspr-2026-001-xyz"
         afspraakSoort:
           type: string
-          x-provisional: true
           description: |
             **Voorlopig veld** — soort agenda-afspraak conform het informatiemodel.
             Een agenda-afspraak is in deze versie ofwel fysiek ofwel online.
@@ -556,7 +552,6 @@ components:
           example: fysiek
         onderwerp:
           type: string
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Het onderwerp van de afspraak.
@@ -564,7 +559,6 @@ components:
         geplandAanvangsmoment:
           type: string
           format: date-time
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Het geplande aanvangsmoment van de afspraak als ISO 8601 datetime in UTC.
@@ -573,14 +567,12 @@ components:
         geplandEindmoment:
           type: string
           format: date-time
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Het geplande eindmoment van de afspraak als ISO 8601 datetime in UTC.
           example: "2026-03-15T09:00:00Z"
         aanmeldkenmerkAlfanumeriek:
           type: string
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Het alfanumerieke kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
@@ -588,7 +580,6 @@ components:
         aanmeldkenmerkMobiel:
           type: string
           format: uri
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Het kenmerk op de mobiele telefoon waarmee een klant zich kan aanmelden voor een agenda-afspraak.
@@ -596,14 +587,12 @@ components:
         aanmeldkenmerkQrCode:
           type: string
           format: uri
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             De QR-code als kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
           example: "https://example.nl/qr/afspr-2026-001-xyz"
         activiteiten:
           type: array
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             De activiteitsoorten die op deze agenda-afspraak van toepassing zijn.
@@ -612,7 +601,6 @@ components:
             $ref: "#/components/schemas/ActiviteitOpAfspraak"
           minItems: 1
         contactInformatie:
-          x-provisional: true
           description: |
             **Voorlopig veld** — nog niet definitief vastgesteld.
             Contactinformatie van de organisatie of afdeling waarop de afspraak betrekking heeft,
@@ -656,7 +644,6 @@ components:
               example: "https://teams.example.nl/meet/afspr-2026-002-abc"
     AfspraakLocatie:
       type: object
-      x-provisional: true
       description: |
         **Voorlopig schema** — fysieke locatie van een agenda-afspraak.
 
@@ -667,7 +654,6 @@ components:
           description: Naam van de locatie.
           example: "Stadskantoor Rotterdam, ingang Coolsingel"
         bezoekadres:
-          x-provisional: true
           description: |
             **Voorlopig** — bezoekadres waar de fysieke afspraak plaatsvindt.
           allOf:
@@ -677,7 +663,6 @@ components:
       required:
         - naamActiviteitsoort
         - aantal
-      x-provisional: true
       description: |
         **Voorlopig schema** — activiteitsoort op een agenda-afspraak.
       properties:
@@ -698,7 +683,6 @@ components:
           example: "Neem een geldig identiteitsbewijs en een recente pasfoto mee."
     Adres:
       type: object
-      x-provisional: true
       description: |
         **Voorlopig schema** — adresmodel conform het informatiemodel.
 
@@ -720,7 +704,6 @@ components:
           example: "Gebouw C, kamer 204"
     ContactInformatie:
       type: object
-      x-provisional: true
       required:
         - naam
       description: |
@@ -748,7 +731,6 @@ components:
             Optioneel [0..1].
           example: "+31101234567"
         adres:
-          x-provisional: true
           description: |
             Adres voor contactdoeleinden, indien beschikbaar.
             Optioneel [0..1].
