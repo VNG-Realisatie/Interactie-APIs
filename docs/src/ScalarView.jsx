@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import yaml from "js-yaml";
+import ResourceTopBar from "./ResourceTopBar";
 
 function getSchemaUrl(url) {
   if (/^https?:\/\//.test(url)) return url;
@@ -106,20 +107,38 @@ function buildDockerCommand(schemaUrl, pathExample, includeAuthHeader) {
   return lines.join("\n");
 }
 
-export default function ScalarView({ url }) {
+function getRespecBaseName(url, version) {
+  const sourcePath = version?.sourceUrl || url.replace("/docs/bundled/", "/").replace(/_/g, "/");
+  return sourcePath
+    .replace(/^\/?apis\//, "")
+    .replace(/^\/+/, "")
+    .replace(/\.(json|yaml|yml)$/, "")
+    .replace(/\//g, "_");
+}
+
+export default function ScalarView({ url, portalData, navigate }) {
   const containerRef = useRef(null);
   const [spec, setSpec] = useState(null);
   const [scalarContent, setScalarContent] = useState(null);
-  const [showTests, setShowTests] = useState(false);
+  const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
   const [copyLabel, setCopyLabel] = useState("Kopieren");
 
-  const fileName = url
-    .split("/")
-    .pop()
-    .replace(/\.(json|yaml|yml)$/, "");
-  const respecHtml = `/docs/respec/${fileName}.html`;
-  const respecPdf = `/docs/respec/${fileName}.pdf`;
   const schemaUrl = getSchemaUrl(url);
+  const apiEntry = useMemo(
+    () => portalData?.apis?.find((api) => api.versions.some((version) => version.url === url)),
+    [portalData, url],
+  );
+  const currentVersion = apiEntry?.versions.find((version) => version.url === url);
+  const respecBaseName = getRespecBaseName(url, currentVersion);
+  const respecHtml = `/docs/respec/${respecBaseName}.html`;
+  const respecPdf = `/docs/respec/${respecBaseName}.pdf`;
+  const fallbackTitle = respecBaseName || url.split("/").pop()?.replace(/\.(json|yaml|yml)$/, "");
+  const apiTitle = spec?.info?.title || apiEntry?.title || fallbackTitle;
+  const versionLabel = currentVersion?.version || spec?.info?.version || "current";
+  const apiVersions = (apiEntry?.versions || [{ version: versionLabel, url }]).map((version) => ({
+    label: version.version,
+    value: version.url,
+  }));
   const pathExample = useMemo(() => getFirstPathExample(spec), [spec]);
   const includeAuthHeader = useMemo(() => needsAuthorizationHeader(spec), [spec]);
   const dockerCommand = useMemo(
@@ -199,6 +218,19 @@ export default function ScalarView({ url }) {
     };
   }, [url, spec, scalarContent]);
 
+  useEffect(() => {
+    if (!isTestDialogOpen) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsTestDialogOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isTestDialogOpen]);
+
   const copyDockerCommand = () => {
     if (!navigator.clipboard) return;
     navigator.clipboard
@@ -211,69 +243,101 @@ export default function ScalarView({ url }) {
   };
 
   return (
-    <div>
-      <div className="api-topbar">
-        <div className="api-topbar-links">
-          <strong>ReSpec Documentatie: </strong>
-          <a href={respecHtml} target="_blank" rel="noopener noreferrer">
+    <div className="api-view">
+      <ResourceTopBar
+        kind="API"
+        title={apiTitle}
+        versionLabel={versionLabel}
+        versions={apiVersions}
+        currentValue={url}
+        onVersionChange={(value) => navigate(`url=${value}`)}
+        actions={
+          <>
+          <a className="api-doc-link" href={respecHtml} target="_blank" rel="noopener noreferrer">
             HTML
           </a>
-          <span aria-hidden="true">|</span>
-          <a href={respecPdf} target="_blank" rel="noopener noreferrer">
+          <a className="api-doc-link" href={respecPdf} target="_blank" rel="noopener noreferrer">
             PDF
           </a>
-        </div>
-        <button
-          type="button"
-          className="api-test-button"
-          onClick={() => setShowTests((value) => !value)}
-          title="Toon Schemathesis contracttest commando"
-        >
-          <span aria-hidden="true">ST</span>
-          Contract testen
-        </button>
-      </div>
-      {showTests && (
-        <section className="api-test-panel">
-          <div className="api-test-panel-header">
-            <div>
-              <h2>Automatisch testen</h2>
-              <p>
-                Gebruik deze Schemathesis one-liner als startpunt voor contracttests tegen je
-                implementatie. Schemathesis genereert geldige path-waarden uit de OpenAPI schemas.
-              </p>
+          <button
+            type="button"
+            className="api-test-button"
+            onClick={() => setIsTestDialogOpen(true)}
+            title="Toon Schemathesis contracttest commando"
+          >
+            <span aria-hidden="true">ST</span>
+            Contract testen
+          </button>
+          </>
+        }
+      />
+      {isTestDialogOpen && (
+        <div className="api-dialog-backdrop" onMouseDown={() => setIsTestDialogOpen(false)}>
+          <section
+            className="api-test-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="api-test-dialog-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="api-test-dialog-header">
+              <div>
+                <h2 id="api-test-dialog-title">Automatisch testen</h2>
+                <p>
+                  Gebruik deze Schemathesis one-liner als startpunt voor contracttests tegen je
+                  implementatie. Schemathesis genereert geldige path-waarden uit de OpenAPI schemas.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="api-dialog-close"
+                onClick={() => setIsTestDialogOpen(false)}
+                aria-label="Sluit testinstructies"
+                title="Sluiten"
+              >
+                x
+              </button>
             </div>
-            <button type="button" className="api-copy-button" onClick={copyDockerCommand}>
-              {copyLabel}
-            </button>
-          </div>
-          <pre className="api-command-block">
-            <code>{dockerCommand}</code>
-          </pre>
-          {pathExample ? (
-            <p className="api-test-note">
-              Vervang <code>https://jouw-api.example.nl</code>
-              {includeAuthHeader ? (
-                <>
-                  {" "}
-                  en <code>JOUW_TOKEN</code>
-                </>
-              ) : null}
-              . Deze opdracht beperkt de test tot <code>{pathExample.pathTemplate}</code>.
-            </p>
-          ) : (
-            <p className="api-test-note">
-              Vervang <code>https://jouw-api.example.nl</code>
-              {includeAuthHeader ? (
-                <>
-                  {" "}
-                  en <code>JOUW_TOKEN</code>
-                </>
-              ) : null}{" "}
-              door waarden uit je testomgeving.
-            </p>
-          )}
-        </section>
+            <pre className="api-command-block">
+              <code>{dockerCommand}</code>
+            </pre>
+            {pathExample ? (
+              <p className="api-test-note">
+                Vervang <code>https://jouw-api.example.nl</code>
+                {includeAuthHeader ? (
+                  <>
+                    {" "}
+                    en <code>JOUW_TOKEN</code>
+                  </>
+                ) : null}
+                . Deze opdracht beperkt de test tot <code>{pathExample.pathTemplate}</code>.
+              </p>
+            ) : (
+              <p className="api-test-note">
+                Vervang <code>https://jouw-api.example.nl</code>
+                {includeAuthHeader ? (
+                  <>
+                    {" "}
+                    en <code>JOUW_TOKEN</code>
+                  </>
+                ) : null}{" "}
+                door waarden uit je testomgeving.
+              </p>
+            )}
+            <div className="api-dialog-actions">
+              <button type="button" className="api-copy-button" onClick={copyDockerCommand}>
+                {copyLabel}
+              </button>
+              <button
+                type="button"
+                className="api-secondary-button"
+                onClick={() => setIsTestDialogOpen(false)}
+              >
+                Sluiten
+              </button>
+            </div>
+          </section>
+        </div>
       )}
       <div ref={containerRef} className="scalar-container">
         Laden...

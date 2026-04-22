@@ -74,17 +74,6 @@ export default function Sidebar({ data, params, navigate }) {
                     <a href={"/?url=" + latestUrl} onClick={(e) => go(e, "url=" + latestUrl)}>
                       {api.title}
                     </a>
-                    <select
-                      className="version-select"
-                      value={params.url || latestUrl}
-                      onChange={(e) => navigate("url=" + e.target.value)}
-                    >
-                      {api.versions.map((v, j) => (
-                        <option key={j} value={v.url}>
-                          {v.version}
-                        </option>
-                      ))}
-                    </select>
                   </li>
                 );
               })}
@@ -109,17 +98,6 @@ export default function Sidebar({ data, params, navigate }) {
                     <a href={"/?file=" + latestPath} onClick={(e) => go(e, "file=" + latestPath)}>
                       {s.name}
                     </a>
-                    <select
-                      className="version-select"
-                      value={params.file || latestPath}
-                      onChange={(e) => navigate("file=" + e.target.value)}
-                    >
-                      {s.versions.map((v, j) => (
-                        <option key={j} value={v.path}>
-                          {v.version}
-                        </option>
-                      ))}
-                    </select>
                   </li>
                 );
               })}
@@ -144,17 +122,6 @@ export default function Sidebar({ data, params, navigate }) {
                     <a href={"/?file=" + latestPath} onClick={(e) => go(e, "file=" + latestPath)}>
                       {p.name}
                     </a>
-                    <select
-                      className="version-select"
-                      value={params.file || latestPath}
-                      onChange={(e) => navigate("file=" + e.target.value)}
-                    >
-                      {p.versions.map((v, j) => (
-                        <option key={j} value={v.path}>
-                          {v.version}
-                        </option>
-                      ))}
-                    </select>
                   </li>
                 );
               })}

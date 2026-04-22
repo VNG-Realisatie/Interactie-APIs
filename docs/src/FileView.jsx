@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { marked } from "marked";
 import yaml from "js-yaml";
 import UmlDiagram from "./UmlDiagram";
+import ResourceTopBar from "./ResourceTopBar";
 
 function resolveRefLink(currentPath, refPath) {
   if (!refPath) return "#";
@@ -84,7 +85,23 @@ function MimMetadataView({ schema }) {
   );
 }
 
-export default function FileView({ path, navigate }) {
+function findResourceEntry(portalData, path) {
+  const collections = [
+    { kind: "Schema", items: portalData?.schemas || [] },
+    { kind: "Patroon", items: portalData?.patterns || [] },
+  ];
+
+  for (const collection of collections) {
+    const entry = collection.items.find((item) =>
+      item.versions.some((version) => version.path === path),
+    );
+    if (entry) return { ...collection, entry };
+  }
+
+  return null;
+}
+
+export default function FileView({ path, portalData, navigate }) {
   const [content, setContent] = useState("Laden...");
   const [schema, setSchema] = useState(null);
 
@@ -119,77 +136,95 @@ export default function FileView({ path, navigate }) {
 
   const isSchema = path.startsWith("schemas/");
   const isPattern = path.startsWith("patterns/");
+  const resourceEntry = findResourceEntry(portalData, path);
+  const currentVersion = resourceEntry?.entry.versions.find((version) => version.path === path);
+  const resourceVersions = (
+    resourceEntry?.entry.versions || [{ version: schema?.version || "current", path }]
+  ).map((version) => ({
+    label: version.version,
+    value: version.path,
+  }));
+  const versionLabel = currentVersion?.version || resourceVersions[0]?.label || "current";
+  const resourceKind = resourceEntry?.kind || (isSchema ? "Schema" : isPattern ? "Patroon" : "Bestand");
 
   const breadcrumbText = isSchema ? "Schema's" : isPattern ? "Patronen" : null;
   const breadcrumbDoc = isSchema ? "docs/schemas.md" : isPattern ? "docs/patterns.md" : null;
 
   return (
-    <div className="view-container">
-      {breadcrumbText && (
-        <div className="breadcrumb">
-          <a
-            href={`/?doc=${breadcrumbDoc}`}
-            onClick={(e) => {
-              e.preventDefault();
-              if (navigate) navigate(`doc=${breadcrumbDoc}`);
-            }}
-            className="breadcrumb-link"
-          >
-            {breadcrumbText}
-          </a>
-          <span className="breadcrumb-separator">/</span>
-          <span>{title}</span>
-        </div>
-      )}
-
-      <h2>{title}</h2>
-
-      {schema && schema.description && (
-        <div
-          className="schema-description"
-          dangerouslySetInnerHTML={{ __html: marked.parse(schema.description) }}
-        />
-      )}
-
-      {schema && (
-        <>
-          <div className="schema-url-box" style={{ marginBottom: "20px" }}>
-            <span>
-              Ophalen via URL: <code>{url}</code>
-            </span>
-            <a
-              href={url}
-              download={fileName}
-              className="version-tag"
-              style={{ textDecoration: "none" }}
-            >
+    <div className="api-view">
+      {(isSchema || isPattern) && (
+        <ResourceTopBar
+          kind={resourceKind}
+          title={title}
+          versionLabel={versionLabel}
+          versions={resourceVersions}
+          currentValue={path}
+          onVersionChange={(value) => navigate(`file=${value}`)}
+          actions={
+            <a className="api-doc-link" href={`/${path}`} download={fileName}>
               Downloaden
             </a>
+          }
+        />
+      )}
+      <div className="view-container">
+        {breadcrumbText && (
+          <div className="breadcrumb">
+            <a
+              href={`/?doc=${breadcrumbDoc}`}
+              onClick={(e) => {
+                e.preventDefault();
+                if (navigate) navigate(`doc=${breadcrumbDoc}`);
+              }}
+              className="breadcrumb-link"
+            >
+              {breadcrumbText}
+            </a>
+            <span className="breadcrumb-separator">/</span>
+            <span>{title}</span>
           </div>
+        )}
 
-          {/* Parameters for Patterns */}
-          {isPattern && schema.parameters && (
-            <div className="pattern-section">
-              <h3>Parameters</h3>
-              <ul className="pattern-list">
-                {Object.entries(schema.parameters).map(([key, param]) => (
-                  <li key={key} className="pattern-card">
-                    <strong style={{ fontSize: "1.1em" }}>{param.name || key}</strong>
-                    <span className="pattern-meta">({param.in})</span>
-                    {param.schema && param.schema.type && (
-                      <span className="pattern-type-chip">{param.schema.type}</span>
-                    )}
-                    {param.description && (
-                      <div
-                        className="pattern-body-text"
-                        dangerouslySetInnerHTML={{ __html: marked.parseInline(param.description) }}
-                      />
-                    )}
-                  </li>
-                ))}
-              </ul>
+        {!isSchema && !isPattern && <h2>{title}</h2>}
+
+        {schema && schema.description && (
+          <div
+            className="schema-description"
+            dangerouslySetInnerHTML={{ __html: marked.parse(schema.description) }}
+          />
+        )}
+
+        {schema && (
+          <>
+            <div className="schema-url-box" style={{ marginBottom: "20px" }}>
+              <span>
+                Ophalen via URL: <code>{url}</code>
+              </span>
             </div>
-          )}
+
+            {/* Parameters for Patterns */}
+            {isPattern && schema.parameters && (
+              <div className="pattern-section">
+                <h3>Parameters</h3>
+                <ul className="pattern-list">
+                  {Object.entries(schema.parameters).map(([key, param]) => (
+                    <li key={key} className="pattern-card">
+                      <strong style={{ fontSize: "1.1em" }}>{param.name || key}</strong>
+                      <span className="pattern-meta">({param.in})</span>
+                      {param.schema && param.schema.type && (
+                        <span className="pattern-type-chip">{param.schema.type}</span>
+                      )}
+                      {param.description && (
+                        <div
+                          className="pattern-body-text"
+                          dangerouslySetInnerHTML={{ __html: marked.parseInline(param.description) }}
+                        />
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
           {/* RequestBodies for Patterns */}
           {isPattern && schema.requestBodies && (
@@ -262,6 +297,7 @@ export default function FileView({ path, navigate }) {
 
       <h3>Ruwe Inhoud</h3>
       <pre className="raw-content">{content}</pre>
+      </div>
     </div>
   );
 }

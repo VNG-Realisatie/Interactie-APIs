@@ -36,7 +36,7 @@ export default function App() {
 
   let view;
   if (params.url) {
-    view = <ScalarView url={params.url} />;
+    view = <ScalarView url={params.url} portalData={portalData} navigate={navigate} />;
   } else if (params.doc) {
     view = <MarkdownView path={params.doc} portalData={portalData} />;
   } else if (params.file) {
