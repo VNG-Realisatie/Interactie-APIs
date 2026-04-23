@@ -3,9 +3,32 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const fg = require("fast-glob");
 const { spawn } = require("child_process");
 const path = require("path");
+const net = require("net");
 
 const yaml = require("js-yaml");
 const fs = require("fs");
+
+function waitForPort(port, host = "127.0.0.1", timeoutMs = 60000) {
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    const tryConnect = () => {
+      const socket = net.connect(port, host);
+      socket.once("connect", () => {
+        socket.end();
+        resolve();
+      });
+      socket.once("error", () => {
+        socket.destroy();
+        if (Date.now() - start > timeoutMs) {
+          reject(new Error(`Timeout waiting for ${host}:${port}`));
+        } else {
+          setTimeout(tryConnect, 250);
+        }
+      });
+    };
+    tryConnect();
+  });
+}
 
 async function startMocks() {
   const app = express();
@@ -38,8 +61,11 @@ async function startMocks() {
 
   console.log(`\n🔍 Gevonden API specificaties: ${specFiles.length}`);
 
+  const prismPorts = [];
+
   specFiles.forEach((spec, index) => {
     const prismPort = 5000 + index;
+    prismPorts.push(prismPort);
 
     // Forceer het base path gebaseerd op het bestandspad (bijv. /apis/rest/resources/v0.0.1)
     // Dit zorgt voor consistentie met de UI die dit pad ook dynamisch berekent.
@@ -49,18 +75,25 @@ async function startMocks() {
       `🚀 Start Prism voor ${spec} op localhost:${prismPort} (gateway path: ${apiPath})`,
     );
 
-    // Start Prism in de achtergrond
+    // Start Prism in de achtergrond. Direct binair pad i.p.v. `npx` zodat het in
+    // minimalistische containers (alpine) zonder shell-resolution werkt.
+    // Stderr wordt doorgezet zodat eventuele Prism-fouten in de logs belanden.
     const prism = spawn(
-      "npx",
-      ["prism", "mock", spec, "-p", prismPort.toString(), "-h", "127.0.0.1"],
+      "./node_modules/.bin/prism",
+      ["mock", spec, "-p", prismPort.toString(), "-h", "127.0.0.1"],
       {
-        stdio: "ignore", // Muteer output om terminal schoon te houden
-        shell: true,
+        stdio: ["ignore", "ignore", "inherit"],
       },
     );
 
     prism.on("error", (err) => {
       console.error(`❌ Fout bij starten Prism voor ${spec}:`, err);
+    });
+
+    prism.on("exit", (code, signal) => {
+      if (code !== 0 && signal !== "SIGTERM") {
+        console.error(`❌ Prism voor ${spec} gestopt (code=${code}, signal=${signal})`);
+      }
     });
 
     // Configureer de proxy van Gateway -> Prism
@@ -76,8 +109,14 @@ async function startMocks() {
     );
   });
 
-  // Start de gateway
-  app.listen(mainPort, "127.0.0.1", () => {
+  // Wacht tot alle Prism processen luisteren voordat we de gateway openstellen.
+  // Zonder deze gate krijg je "proxy error" responses tijdens de cold-start op Fly.io.
+  console.log("⏳ Wachten tot alle Prism mocks luisteren...");
+  await Promise.all(prismPorts.map((p) => waitForPort(p)));
+  console.log("✅ Alle Prism mocks zijn klaar.");
+
+  // Start de gateway (0.0.0.0 zodat het ook werkt in containers/Fly)
+  app.listen(mainPort, "0.0.0.0", () => {
     console.log("");
     console.log("  ╔═══════════════════════════════════════════════╗");
     console.log("  ║  🎭 Mock Gateway draait op:                 ║");

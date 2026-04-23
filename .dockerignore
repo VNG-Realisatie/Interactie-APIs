@@ -1,0 +1,40 @@
+# flyctl launch added from .gitignore
+# cache
+**/node_modules
+
+
+# Local Netlify folder
+**/.netlify
+
+# local dev folders
+**/scratchpad
+**/.zed
+
+# Build artifacts
+**/dist
+**/docs/bundled
+**/docs/portal-data.json
+**/docs/respec
+**/docs/.portal-cache.json
+**/docs/.respec-cache.json
+
+**/.DS_Store
+
+# flyctl launch added from .ruff_cache/.gitignore
+.ruff_cache/**/*
+
+# flyctl launch added from node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/.gitignore
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/.idea/*
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/.nyc_output
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/build
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/node_modules
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/test
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/src/**.js
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/coverage
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/*.log
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/package-lock.json
+
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/dist
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/report
+node_modules/.pnpm/node-sarif-builder@2.0.3/node_modules/node-sarif-builder/**/megalinter-reports
+fly.toml

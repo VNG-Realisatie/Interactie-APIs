@@ -79,3 +79,23 @@ Om de API-specificaties lokaal te bekijken of te testen:
    ```
 
 De officiële API-specificaties zijn te bekijken via onze [Interactie APIs Portal](https://vng-realisatie.github.io/Interactie-APIs/).
+
+## Hosting
+
+- **Portal (statische site)**: [vng-interactie-apis.netlify.app](https://vng-interactie-apis.netlify.app) via Netlify (automatische deploys vanaf `main`).
+- **Mock Servers**: [vng-interactie-mocks.fly.dev](https://vng-interactie-mocks.fly.dev) via Fly.io. De Scalar "Try it"-knoppen in het portal wijzen naar deze publieke mocks; lokaal wordt `http://127.0.0.1:4010` gebruikt.
+
+### Mocks deployen naar Fly.io
+
+De mock-gateway (`scripts/mock-all.js`) draait in een container op basis van de `Dockerfile` en `fly.toml` in deze repo.
+
+```bash
+# eenmalig
+brew install flyctl
+fly auth login
+
+# deployen
+fly deploy
+```
+
+De machine gebruikt `auto_stop_machines`; na inactiviteit stopt hij en start weer bij de eerste request (enkele seconden cold start).

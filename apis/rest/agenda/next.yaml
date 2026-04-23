@@ -500,7 +500,6 @@ components:
           type: string
           format: date-time
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
             Het geplande aanvangsmoment van de afspraak als ISO 8601 datetime in UTC.
             Voorbeelden: `2026-03-15T08:00:00Z`, `2026-07-15T12:30:00Z`.
           example: "2026-03-15T08:00:00Z"
@@ -508,7 +507,6 @@ components:
           type: string
           format: date-time
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld in het datamodel.
             Het geplande eindmoment van de afspraak als ISO 8601 datetime in UTC.
           example: "2026-03-15T09:00:00Z"
     AfspraakDetails:
@@ -543,7 +541,6 @@ components:
         afspraakSoort:
           type: string
           description: |
-            **Voorlopig veld** — soort agenda-afspraak conform het informatiemodel.
             Een agenda-afspraak is in deze versie ofwel fysiek ofwel online.
             Telefonische agenda-afspraken vallen buiten scope.
           enum:
@@ -553,14 +550,12 @@ components:
         onderwerp:
           type: string
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             Het onderwerp van de afspraak.
           example: "Gesprek re-integratie"
         geplandAanvangsmoment:
           type: string
           format: date-time
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             Het geplande aanvangsmoment van de afspraak als ISO 8601 datetime in UTC.
             Voorbeeld: `2026-03-15T08:00:00Z`.
           example: "2026-03-15T08:00:00Z"
@@ -568,33 +563,28 @@ components:
           type: string
           format: date-time
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             Het geplande eindmoment van de afspraak als ISO 8601 datetime in UTC.
           example: "2026-03-15T09:00:00Z"
         aanmeldkenmerkAlfanumeriek:
           type: string
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             Het alfanumerieke kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
           example: "BALIE-204-A"
         aanmeldkenmerkMobiel:
           type: string
           format: uri
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             Het kenmerk op de mobiele telefoon waarmee een klant zich kan aanmelden voor een agenda-afspraak.
           example: "wallet://afspraken/afspr-2026-001-xyz"
         aanmeldkenmerkQrCode:
           type: string
           format: uri
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             De QR-code als kenmerk waarmee een klant zich kan aanmelden voor een agenda-afspraak.
           example: "https://example.nl/qr/afspr-2026-001-xyz"
         activiteiten:
           type: array
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             De activiteitsoorten die op deze agenda-afspraak van toepassing zijn.
             Per activiteit kan worden aangegeven wat de klant moet meenemen.
           items:
@@ -602,7 +592,6 @@ components:
           minItems: 1
         contactInformatie:
           description: |
-            **Voorlopig veld** — nog niet definitief vastgesteld.
             Contactinformatie van de organisatie of afdeling waarop de afspraak betrekking heeft,
             conform het informatiemodel. Een afspraak heeft nul of één contactinformatieobject.
           allOf:
@@ -645,7 +634,7 @@ components:
     AfspraakLocatie:
       type: object
       description: |
-        **Voorlopig schema** — fysieke locatie van een agenda-afspraak.
+        Fysieke locatie van een agenda-afspraak.
 
         Dit object wordt alleen gebruikt bij fysieke agenda-afspraken.
       properties:
@@ -655,7 +644,7 @@ components:
           example: "Stadskantoor Rotterdam, ingang Coolsingel"
         bezoekadres:
           description: |
-            **Voorlopig** — bezoekadres waar de fysieke afspraak plaatsvindt.
+            Bezoekadres waar de fysieke afspraak plaatsvindt.
           allOf:
             - $ref: "#/components/schemas/Adres"
     ActiviteitOpAfspraak:
@@ -664,7 +653,7 @@ components:
         - naamActiviteitsoort
         - aantal
       description: |
-        **Voorlopig schema** — activiteitsoort op een agenda-afspraak.
+        Activiteitsoort op een agenda-afspraak.
       properties:
         naamActiviteitsoort:
           type: string
@@ -684,7 +673,7 @@ components:
     Adres:
       type: object
       description: |
-        **Voorlopig schema** — adresmodel conform het informatiemodel.
+        Adresmodel conform het informatiemodel.
 
         Adres gestructureerd niet conform BAG, opgebouwd uit één tot drie adresregels.
         Dit model wordt hergebruikt voor bezoekadressen (in `AfspraakLocatie`)
@@ -707,7 +696,7 @@ components:
       required:
         - naam
       description: |
-        **Voorlopig schema** — contactinformatie van een organisatie of afdeling.
+        Contactinformatie van een organisatie of afdeling.
 
         Conform het informatiemodel. Een afspraak is gerelateerd aan nul of één
         contactinformatieobject.

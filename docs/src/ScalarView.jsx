@@ -183,7 +183,10 @@ export default function ScalarView({ url, portalData, navigate }) {
           mockPath = "/apis" + mockPath;
         }
 
-        const mockServerUrl = `http://127.0.0.1:4010${mockPath}`;
+        const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+        const mockServerUrl = isLocal
+          ? `http://127.0.0.1:4010${mockPath}`
+          : `https://vng-interactie-mocks.fly.dev${mockPath}`;
 
         window.Scalar.createApiReference(containerRef.current, {
           content: scalarContent,
