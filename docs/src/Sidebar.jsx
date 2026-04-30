@@ -30,7 +30,7 @@ export default function Sidebar({ data, params, navigate }) {
             height="50"
             style={{ height: "32px", width: "auto" }}
           />
-          Interactie APIs
+          API lab
         </a>
       </h2>
       <nav>

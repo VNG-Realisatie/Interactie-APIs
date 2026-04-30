@@ -1,12 +1,12 @@
-# VNG Interactie APIs
+# VNG API lab
 
 | Eigenaar | Ingevuld door |
 | --- | --- |
 | Project Omnichannel - MijnServices / Team Dienstverlening | Joep Meindertsma |
 
-Deze repository bevat de API-standaarden, gedeelde schemas en patronen voor de VNG Interactie API's.
+Deze repository bevat de API-standaarden, gedeelde schemas en patronen van het VNG API lab.
 
-Bekijk op [vng-interactie-apis.netlify.app](https://vng-interactie-apis.netlify.app).
+Bekijk op [vng-api-lab.netlify.app](https://vng-api-lab.netlify.app).
 Issues / suggesties / verbeteringen op [Github Issues](https://github.com/VNG-Realisatie/Interactie-APIs/issues).
 
 ## Status: Pre-alfa
@@ -60,7 +60,7 @@ Om de API-specificaties lokaal te bekijken of te testen:
    ```
 
     Dit start automatisch:
-    - Het **Interactie APIs Portal** op [http://localhost:3000/](http://localhost:3000/)
+    - Het **API lab portaal** op [http://localhost:3000/](http://localhost:3000/)
     - De **Mock Servers (Gateway)** op [http://127.0.0.1:4010](http://127.0.0.1:4010)
     - De **ReSpec Generatie** (HTML en PDF bestanden landen in `docs/respec/`)
 
@@ -78,16 +78,20 @@ Om de API-specificaties lokaal te bekijken of te testen:
    pnpm run lint
    ```
 
-De officiële API-specificaties zijn te bekijken via onze [Interactie APIs Portal](https://vng-realisatie.github.io/Interactie-APIs/).
+De officiële API-specificaties zijn te bekijken via het [VNG API lab portaal](https://vng-realisatie.github.io/Interactie-APIs/).
 
 ## Hosting
 
-- **Portal (statische site)**: [vng-interactie-apis.netlify.app](https://vng-interactie-apis.netlify.app) via Netlify (automatische deploys vanaf `main`).
+- **Portal (statische site)**: [vng-api-lab.netlify.app](https://vng-api-lab.netlify.app) via Netlify (automatische deploys vanaf `main`).
 - **Mock Servers**: [vng-interactie-mocks.fly.dev](https://vng-interactie-mocks.fly.dev) via Fly.io. De Scalar "Try it"-knoppen in het portal wijzen naar deze publieke mocks; lokaal wordt `http://127.0.0.1:4010` gebruikt.
 
 ### Mocks deployen naar Fly.io
 
 De mock-gateway (`scripts/mock-all.js`) draait in een container op basis van de `Dockerfile` en `fly.toml` in deze repo.
+
+Deploys zijn geautomatiseerd via GitHub Actions: elke push naar `main` triggert `.github/workflows/fly-deploy.yml` (vereist het secret `FLY_API_TOKEN`).
+
+Handmatig deployen kan ook:
 
 ```bash
 # eenmalig
@@ -98,4 +102,4 @@ fly auth login
 fly deploy
 ```
 
-De machine gebruikt `auto_stop_machines`; na inactiviteit stopt hij en start weer bij de eerste request (enkele seconden cold start).
+De Fly-machine draait permanent (`min_machines_running = 1`, ~$5/mo) zodat Scalar's "Try it" zonder cold-start werkt. Met auto-stop wordt Fly's proxy-timeout (~8s) korter dan de Prism cold-start (~10s+).

@@ -1,4 +1,4 @@
-# Interactie APIs Design Principes
+# VNG API lab Design Principes
 
 Dit document beschrijft de architecturale principes voor deze APIs en hoe ze worden onderhouden. Het doel is een consistent, herbruikbaar en testbaar ecosysteem van APIs en data-modellen.
 

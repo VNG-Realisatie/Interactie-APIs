@@ -8,7 +8,7 @@ export default function HomeView({ data, navigate }) {
 
   return (
     <div className="view-container">
-      <h1>VNG Interactie APIs</h1>
+      <h1>VNG API lab</h1>
 
       <p
         style={{
