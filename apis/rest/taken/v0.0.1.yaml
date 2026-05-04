@@ -1,56 +1,498 @@
 openapi: 3.1.0
 info:
-  title: MijnTaken
-  version: 0.0.1
-  description: Een algemene API voor het ophalen van resources op basis van een identifier.
+  title: MijnTaken API
+  description: |
+    De **MijnTaken API** standaardiseert hoe portalen klantgerelateerde gegevens tonen en acties uitvoeren namens hun gebruikers. Het doel: een eindgebruiker kan informatie en taken raadplegen op elk aangesloten portaal, ongeacht welke organisatie de gegevens beheert — vergelijkbaar met hoe je met je telefoon in het buitenland belt via een ander netwerk, zonder dat je iets hoeft in te stellen.
+
+    De API is opgezet als een **kern met uitbreidingssets**: het `/context/zoek`-endpoint retourneert een samengesteld object waarvan de inhoud via de `include`-parameter wordt gestuurd. Initieel worden taken ondersteund; andere resource-typen (bijv. contactmomenten, zaakstatus) kunnen worden toegevoegd zonder bestaande implementaties te breken.
+
+    Identificatie en authenticatie van eindgebruikers vallen buiten de scope van dit contract; die worden afgehandeld door een externe identity provider (zoals DigiD of eHerkenning).
+
+    ## Principes
+
+    ### 1. Uniform contract
+
+    Alle providers implementeren dezelfde interface: dezelfde endpoints, dezelfde responsestructuur, hetzelfde gedrag. Het maakt voor een portaal niet uit hoe de provider intern is georganiseerd of waar de data vandaan komt.
+
+    ### 2. Forward en backward compatibility
+
+    Portalen en providers moeten onafhankelijk van elkaar kunnen evolueren. Het contract is daarom uitbreidbaar zonder bestaande implementaties te breken:
+
+    - **Backward compatible** — een ouder portaal werkt correct met een nieuwere provider die extra velden toevoegt.
+    - **Forward compatible** — een nieuwer portaal kan nieuwe velden benutten als ze aanwezig zijn, zonder dat ze verplicht zijn.
+
+    Dit volgt het [Robustness principle](https://en.wikipedia.org/wiki/Robustness_principle): wees conservatief in wat je stuurt, liberaal in wat je accepteert.
+
+    ### 3. Uitvoering bij de provider
+
+    Een taak wordt altijd uitgevoerd bij de provider. Portalen tonen de taak, maar slaan geen uitvoeringsdata op. Dit borgt dataminimalisatie: uitvoeringsdata verlaat de provider niet structureel.
+  version: 0.1.0
   contact:
     name: VNG Realisatie
-    url: https://github.com/VNG-Realisatie/Interactie-APIs
+    url: https://github.com/vng-realisatie/mijn-taken-api
+    email: standaarden.ondersteuning@vng.nl
+  license:
+    name: EUPL 1.2
+    url: https://opensource.org/licenses/EUPL-1.2
 
 servers:
-  - url: http://127.0.0.1:4010/apis/rest/resources/v1
-    description: Lokale Mock Server (Gateway)
+  - url: https://api.example.nl/v1
+    description: Productie
 
 tags:
-  - name: Resources
-    description: Resource retrieval
+  - name: Context
+    description: Raadpleeg samengestelde klantgerelateerde gegevens
+  - name: Taken
+    description: Raadpleeg en beheer taken
 
 paths:
-  /resources/{identifier}:
-    get:
-      summary: Haal een resource op
-      operationId: getResource
+  /context/zoek:
+    post:
+      operationId: zoekContext
+      summary: Zoek context
+      description: |
+        Retourneert een samengesteld object met klantgerelateerde gegevens voor
+        de opgegeven klant en optionele context. Via de `include`-parameter
+        bepaalt de aanroeper welke resource-typen worden meegeleverd.
+
+        Dit endpoint is bedoeld om verschillende overzichts- en contextschermen
+        te bedienen vanuit één call. Voorbeelden:
+
+        | Scherm | `contextId` | `include` |
+        |---|---|---|
+        | MijnTaken | — | `["taken"]` |
+        | Overzicht per domein | — | `["taken", "contactmomenten"]` |
+        | Zaak-contextscherm | `urn:nl:gemeenten:zaak:2026-00042` | `["taken", "contactmomenten"]` |
+
+        Initieel wordt alleen `taken` ondersteund. Nieuwe resource-typen
+        kunnen worden toegevoegd zonder bestaande implementaties te breken:
+        clients negeren typen die ze niet kennen.
+
+        **Ontwerpkeuze — POST als query:**
+        Deze operatie gebruikt `POST` omdat de filtercriteria in de request body
+        worden meegegeven. Qua semantiek gedraagt de operatie zich als de
+        [HTTP QUERY method (IETF-draft)](https://www.ietf.org/archive/id/draft-ietf-httpbis-safe-method-w-body-05.txt):
+        zij is **safe** (geen neveneffecten) en **idempotent** (herhaalde aanroep
+        met dezelfde body geeft hetzelfde resultaat). Portalen mogen de aanroep
+        dan ook als zodanig behandelen — cachen, herhalen bij netwerkstoringen, etc.
+        Zodra HTTP QUERY breed ondersteund wordt door clients en gateways, kan
+        dit endpoint zonder gedragswijziging worden gemigreerd.
       tags:
-        - Resources
-      description: Haal de volledige representatie van een resource op aan de hand van zijn unieke identifier (bijv. een UUID of URI).
-      parameters:
-        - name: identifier
-          in: path
-          required: true
-          description: De unieke identifier van de resource.
-          schema:
-            type: string
-            format: uri
-            example: "https://api.vng.nl/resources/123e4567-e89b-12d3-a456-426614174000"
+        - Context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContextQuery"
       responses:
         "200":
-          description: Resource succesvol opgehaald.
+          description: Succesvol
+          headers:
+            API-Version:
+              $ref: "#/components/headers/API-Version"
           content:
             application/json:
               schema:
-                type: object
-                description: De representatie van de resource.
-                additionalProperties: true
-              example:
-                identifier: "https://api.vng.nl/resources/123e4567-e89b-12d3-a456-426614174000"
-                naam: "Example Resource"
-                beschrijving: "Dit is een voorbeeld resource"
-                createdAt: "2024-01-01T00:00:00Z"
-        "404":
-          description: Resource niet gevonden.
+                $ref: "#/components/schemas/ContextResultaat"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
-          description: Niet geautoriseerd.
-        "403":
-          description: Verboden (geen rechten).
-        "500":
-          description: Interne serverfout.
+          $ref: "#/components/responses/Unauthorized"
+
+  /taken/{uuid}:
+    parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 550e8400-e29b-41d4-a716-446655440000
+
+    get:
+      operationId: retrieveTaak
+      summary: Haal één taak op
+      description: |
+        Geeft de volledige representatie van één taak terug, inclusief
+        type-specifieke uitvoeringsvelden (bijv. uploadconfiguratie of
+        formulierdefinitie). Gebruik dit endpoint vlak vóór de uitvoering.
+      tags:
+        - Taken
+      responses:
+        "200":
+          description: Succesvol
+          headers:
+            API-Version:
+              $ref: "#/components/headers/API-Version"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Taak"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  schemas:
+    ContextQuery:
+      type: object
+      description: Zoekcriteria voor het opvragen van een samengestelde contextrespons.
+      required:
+        - klantId
+      properties:
+        klantId:
+          type: string
+          description: Identifier van de klant (bijv. sub-claim uit het ID-token).
+          example: "a8f3c1d2-7e44-4b1a-9c0f-123456789abc"
+        contextId:
+          type: string
+          format: uri
+          pattern: "^urn:"
+          description: |
+            URN-identifier van de context waarbinnen gezocht wordt
+            (bijv. een zaak, product of dossier). Het URN-formaat maakt
+            de identifier namespace-safe en onafhankelijk van het type context.
+          example: "urn:nl:gemeenten:zaak:2026-00042"
+        include:
+          type: array
+          description: |
+            Resource-typen waarvan een **samenvatting** wordt meegeleverd in de respons.
+            Als afwezig of leeg, worden alle door de provider ondersteunde typen
+            teruggegeven. Clients negeren typen die ze niet kennen.
+
+            Let op: de respons bevat altijd samenvattingen. Voor resource-typen
+            waarvoor een detail-endpoint bestaat (bijv. `GET /taken/{uuid}` voor
+            afhandeling) kan aanvullende informatie worden opgevraagd.
+
+            Open lijst — nieuwe waarden kunnen worden toegevoegd zonder
+            bestaande implementaties te breken.
+          items:
+            type: string
+            x-extensible-enum:
+              - taken
+          example: ["taken"]
+
+    ContextResultaat:
+      type: object
+      description: |
+        Samengesteld object met klantgerelateerde gegevens.
+        Bevat per resource-type een lijst van **samenvattingen**. Voor resource-typen
+        waarvoor een detail-endpoint bestaat (bijv. `GET /taken/{uuid}` voor afhandeling)
+        kan aanvullende informatie worden opgevraagd.
+        Bevat alleen de resource-typen die via `include` zijn opgevraagd
+        én door de provider worden ondersteund. Afwezige sleutels betekenen
+        dat het type niet is opgevraagd of niet ondersteund wordt.
+      properties:
+        taken:
+          type: array
+          description: |
+            Taken die voldoen aan de opgegeven filtercriteria. Aanwezig als
+            `taken` in `include` staat (of `include` afwezig is).
+
+            Bevat `TaakSamenvatting`-objecten: alle velden die nodig zijn voor
+            een takenlijst of taakkaart. Type-specifieke uitvoeringsvelden
+            worden niet meegeleverd; die zijn beschikbaar via `GET /taken/{uuid}`.
+          items:
+            $ref: "#/components/schemas/TaakSamenvatting"
+
+    TaakContext:
+      type: object
+      description: |
+        De context waaraan de taak is gekoppeld (bijv. een zaak of product).
+
+        De context wordt aangeduid met een **URN** (portaal-agnostische identifier)
+        en optioneel een **canonicalUrl** (door de dienstverlener aangeleverd).
+
+        `canonicalUrl` is afwezig als de dienstverlener geen eigen portaal heeft
+        — bijvoorbeeld gemeenten die volledig via MijnOverheid werken.
+
+        Portalen met contextondersteuning kunnen een interne URL opbouwen via de
+        URN; het type context is af te leiden uit de URN-structuur zelf.
+
+        | Kan URN omzetten | `canonicalUrl` aanwezig | Actie |
+        |---|---|---|
+        | ja | ja/nee | Bouw interne URL via URN; `canonicalUrl` irrelevant |
+        | nee | ja | Gebruik `canonicalUrl` als directe link |
+        | nee | nee | _(nader te bepalen)_ |
+      required:
+        - urn
+      properties:
+        urn:
+          type: string
+          description: Portaal-agnostische identifier van de context, in URN-formaat.
+          example: "urn:nl:gemeenten:zaak:2026-00042"
+        canonicalUrl:
+          type: string
+          format: uri
+          description: |
+            Optionele URL naar de context in de omgeving van de dienstverlener.
+            Afwezig als de dienstverlener geen eigen portaal heeft. Als aanwezig,
+            bruikbaar als directe link voor portalen die de URN niet zelf omzetten.
+            Portalen met eigen contextondersteuning kunnen deze URL negeren en een
+            interne URL opbouwen via de URN.
+          example: "https://portaal.gemeente.nl/zaken/2026-00042"
+
+    UitvoeringBeknopt:
+      type: object
+      description: |
+        Uitvoeringsinformatie voor een taak.
+
+        `canonicalUrl` is altijd aanwezig als fallback — bruikbaar als het
+        portaal niet lokaal kan renderen.
+
+        `type` geeft het type van de definitie aan. Het portaal leidt
+        hier het CTA-label uit af (bijv. `betaling` → „Betalen”,
+        `upload` → „Document uploaden”). Onbekend of afwezig → generiek
+        label „Uitvoeren” + `canonicalUrl` als fallback.
+
+        `definitie` bevat de declaratieve definitie voor lokale uitvoering.
+        Alleen aanwezig in de detailrespons (`GET /taken/{uuid}`), en alleen
+        als de provider deze meelevert. Betaling heeft geen `definitie` —
+        betaaltaken leiden altijd tot een redirect via `canonicalUrl`.
+        Portalen die het type niet herkennen negeren `definitie` en gebruiken
+        `canonicalUrl` als fallback.
+
+        | `type` herkend | `definitie` aanwezig | Actie                                                                 |
+        |---|---|---|
+        | nee            | n.v.t.               | `canonicalUrl` → redirect; portaal voegt `returnUrl` toe              |
+        | ja             | nee                  | Type-specifieke CTA-knop; klik → `canonicalUrl` + `returnUrl`         |
+        | ja             | ja                   | Lokale uitvoering renderen; submit → `definitie.endpoint`             |
+      required:
+        - canonicalUrl
+      properties:
+        canonicalUrl:
+          type: string
+          format: uri
+          description: |
+            Canonieke URL voor de uitvoering van de taak. Altijd aanwezig.
+            Bruikbaar als fallback als het portaal `type` niet kent of
+            `definitie` niet lokaal kan renderen.
+
+            De betekenis verschilt per type:
+
+            | `type`      | Betekenis van `canonicalUrl`                                    |
+            |---|---|
+            | `betaling`  | Redirect naar betaalprovider (bedrag en kenmerk ingebakken)     |
+            | `upload`    | Fallback als portaal `definitie` niet kan renderen              |
+            | `formulier` | Fallback als portaal `definitie` niet kan renderen              |
+            | onbekend    | Redirect; portaal toont label „Uitvoeren"                       |
+
+            In alle redirect-scenario's voegt het portaal een `returnUrl` toe
+            vóór de redirect, zodat de externe partij de gebruiker na afloop
+            terug kan sturen naar `SCR-TAKEN-IN-CONTEXT`. De precieze
+            parameternaam is afhankelijk van de ontvangende partij.
+          examples:
+            - "https://portaal.gemeente.nl/taken/550e8400/uitvoeren?returnUrl=https%3A%2F%2Fmijnoverheid.nl%2Ftaken%2Fcontext%2Fzaak-2026-00042"
+            - "https://betalen.gemeente.nl/pay?kenmerk=REF-2026-00042&bedrag=6550&returnUrl=https%3A%2F%2Fmijnoverheid.nl%2Ftaken%2Fcontext%2Fzaak-2026-00042"
+        type:
+          type: string
+          x-extensible-enum:
+            - betaling
+            - upload
+            - formulier
+          description: |
+            Type van de definitie, afkomstig uit de taakdefinitie.
+            Het portaal leidt hier het CTA-label uit af. Onbekend of afwezig
+            type → generiek label „Uitvoeren” + `canonicalUrl` als fallback.
+
+            Open string — nieuwe waarden kunnen worden toegevoegd zonder
+            bestaande clients te breken.
+          example: upload
+
+    UitvoeringDefinitie:
+      type: object
+      description: |
+        Declaratieve definitie voor lokale uitvoering van een taak. Alleen
+        aanwezig in de detailrespons (`GET /taken/{uuid}`).
+
+        Betaling heeft geen `definitie` — betaaltaken leiden altijd
+        tot een redirect via `uitvoering.canonicalUrl`.
+
+        Welke velden aanwezig zijn volgt uit `uitvoering.type`. Clients die
+        een onbekend type tegenkomen negeren `definitie` en gebruiken
+        `canonicalUrl` als fallback.
+      required:
+        - endpoint
+      properties:
+        endpoint:
+          type: string
+          format: uri
+          description: |
+            Endpoint voor de uitvoering (upload of formulier indienen).
+            Aanwezig voor alle bekende typen.
+          example: "https://api.gemeente.nl/documenten/upload"
+        maxBestanden:
+          type: integer
+          description: "(upload) Maximum aantal bestanden dat geüpload mag worden."
+          example: 5
+        toegestaneFormaten:
+          type: array
+          items:
+            type: string
+          description: "(upload) Toegestane bestandsextensies."
+          example: [pdf, jpg, png]
+        maxBestandsgrootte:
+          type: integer
+          description: "(upload) Maximale bestandsgrootte in bytes."
+          example: 10485760
+        schema:
+          type: object
+          description: "(formulier) Formulierdefinitie (JSON Schema of vergelijkbaar). Structuur nog nader te bepalen."
+          additionalProperties: true
+
+    TaakSamenvatting:
+      type: object
+      description: |
+        Beknopte taakrepresentatie zoals teruggegeven door `POST /taken/zoek`.
+        Bevat alle velden die nodig zijn voor een takenlijst of taakkaart,
+        inclusief context en uitvoeringstype. Type-specifieke uitvoeringsvelden
+        worden niet meegeleverd.
+      required:
+        - uuid
+        - titel
+        - status
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          example: 550e8400-e29b-41d4-a716-446655440000
+        titel:
+          type: object
+          description: |
+            Taaknaam in één of meer talen (BCP 47 taalcodes als sleutels).
+            Nederlands (`nl`) is verplicht; andere talen zijn optioneel.
+            Portalen tonen de taal die overeenkomt met de voorkeur van de
+            gebruiker, of vallen terug op `nl`.
+          required:
+            - nl
+          properties:
+            nl:
+              type: string
+              description: Nederlandse taaknaam (verplicht).
+          additionalProperties:
+            type: string
+          example:
+            nl: Kentekenbewijs uploaden
+            en: Upload driving licence
+        toelichting:
+          type: object
+          description: |
+            Optionele korte toelichting op de taak, in één of meer talen
+            (BCP 47 taalcodes als sleutels). Alleen aanwezig als de titel
+            niet voldoende zelfbeschrijvend is. Als `toelichting` aanwezig is,
+            moet ten minste de Nederlandse variant (`nl`) gevuld zijn.
+          required:
+            - nl
+          properties:
+            nl:
+              type: string
+              description: Nederlandse toelichting (verplicht als `toelichting` aanwezig is).
+          additionalProperties:
+            type: string
+          example:
+            nl: Upload een kopie van uw kentekenbewijs voor uw parkeervergunningsaanvraag.
+            en: Upload a copy of your driving licence for your parking permit application.
+        status:
+          type: string
+          x-extensible-enum:
+            - open
+            - afgerond
+            - geannuleerd
+          example: open
+        deadline:
+          type: string
+          format: date-time
+          description: |
+            **Laatste moment waarop de taak nog op tijd is** (RFC 3339 / ISO 8601, inclusief
+            tijdzone-offset). Dit is een **inclusieve** bovengrens: zolang
+            `nu <= deadline` is de taak op tijd; vanaf het eerstvolgende moment is hij te laat.
+
+            De referentietijdzone is `Europe/Amsterdam` (Nederlandse lokale tijd:
+            `+01:00` in de winter, `+02:00` in de zomer).
+
+            **Codering — als een exact tijdstip bekend is:** gebruik dat tijdstip
+            rechtstreeks. Voorbeeld: deadline "uiterlijk 12 december 12:00" →
+            `2026-12-12T12:00:00+01:00`.
+
+            **Codering — als alleen een kalenderdag bekend is:** gebruik conventioneel
+            het einde van die dag in lokale tijd: `23:59:59`. Voorbeeld: deadline
+            "uiterlijk 12 december" → `2026-12-12T23:59:59+01:00`. Zo blijft de
+            getoonde datum gelijk aan wat de gebruiker leest, en is de hele dag
+            nog geldig. Deze conventie wordt in de praktijk breed toegepast
+            (denk aan belastingdiensten, vergunningstermijnen, formulierdeadlines)
+            en sluit daarmee aan bij wat gebruikers gewend zijn.
+          example: "2026-12-12T23:59:59+01:00"
+        context:
+          $ref: "#/components/schemas/TaakContext"
+        uitvoering:
+          $ref: "#/components/schemas/UitvoeringBeknopt"
+
+    Taak:
+      description: |
+        Volledige taakrepresentatie zoals teruggegeven door `GET /taken/{uuid}`.
+        Breidt `TaakSamenvatting` uit met type-specifieke uitvoeringsvelden.
+      allOf:
+        - $ref: "#/components/schemas/TaakSamenvatting"
+        - type: object
+          properties:
+            uitvoering:
+              allOf:
+                - $ref: "#/components/schemas/UitvoeringBeknopt"
+                - type: object
+                  properties:
+                    definitie:
+                      $ref: "#/components/schemas/UitvoeringDefinitie"
+
+    Fout:
+      type: object
+      required:
+        - code
+        - titel
+      properties:
+        code:
+          type: string
+          example: invalid
+        titel:
+          type: string
+          example: Ongeldige invoer
+        detail:
+          type: string
+
+  headers:
+    API-Version:
+      description: Versie van de API die de respons heeft gegenereerd.
+      schema:
+        type: string
+        example: 0.1.0
+
+  responses:
+    BadRequest:
+      description: Ongeldige aanvraag
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Fout"
+    Unauthorized:
+      description: Authenticatie vereist
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Fout"
+    NotFound:
+      description: Taak niet gevonden
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Fout"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
