@@ -323,6 +323,60 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
+.bpmn-embed {
+  margin: 16px 0 22px;
+  margin-left: calc(-50vw + 50% + 130px);
+  margin-right: calc(-50vw + 50% + 130px);
+  max-width: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.bpmn-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 700;
+  font-size: 0.95em;
+  color: var(--vng-dark-blue);
+  background: var(--bg-surface);
+}
+
+.bpmn-canvas {
+  height: 700px;
+}
+
+.bpmn-clickable,
+.bpmn-clickable .djs-visual,
+.bpmn-clickable .djs-visual > *,
+.bpmn-clickable .djs-hit {
+  cursor: pointer !important;
+}
+
+.bpmn-clickable .djs-visual > rect,
+.bpmn-clickable .djs-visual > circle,
+.bpmn-clickable .djs-visual > path,
+.bpmn-clickable .djs-visual > polygon,
+.bpmn-clickable .djs-visual > polyline {
+  transition: filter 0.15s ease;
+  filter: drop-shadow(0 0 3px rgba(26, 86, 219, 0.55));
+}
+
+.bpmn-clickable:hover .djs-visual > rect,
+.bpmn-clickable:hover .djs-visual > circle,
+.bpmn-clickable:hover .djs-visual > path,
+.bpmn-clickable:hover .djs-visual > polygon,
+.bpmn-clickable:hover .djs-visual > polyline {
+  filter: drop-shadow(0 0 8px rgba(26, 86, 219, 0.95));
+}
+
+.bpmn-clickable .djs-label,
+.bpmn-clickable text {
+  fill: var(--vng-blue) !important;
+}
+
 .api-view {
   min-height: 100%;
   display: flex;

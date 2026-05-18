@@ -9,6 +9,16 @@ const { marked } = require("marked");
 const { toCamelCase } = require("./mim-utils");
 const http = require("http");
 const { createServer } = require("vite");
+const sanitizeHtml = require("sanitize-html");
+
+// Load local dev env vars for Node scripts (pnpm dev runs this before Vite starts)
+try {
+  const dotenv = require("dotenv");
+  const envPath = path.resolve(__dirname, "../.env.development");
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+  }
+} catch (_) {}
 
 const CACHE_VERSION = "2026-04-20-respec-final-v9";
 
@@ -180,13 +190,16 @@ async function generateRespec() {
   let targetPort = 3000;
 
   try {
-    const isServerRunning = await checkServerReady("http://localhost:3000");
+    const devPort = Number.parseInt(process.env.VITE_PORT || "3000", 10);
+    const baseUrl = `http://localhost:${Number.isFinite(devPort) ? devPort : 3000}`;
+    const isServerRunning = await checkServerReady(baseUrl);
     if (!isServerRunning) {
       const serverInfo = await startViteServer();
       viteServer = serverInfo.vite;
       targetPort = serverInfo.port;
     } else {
-      console.log("🌐 Bestaande dev server gevonden op poort 3000.");
+      targetPort = Number.isFinite(devPort) ? devPort : 3000;
+      console.log(`🌐 Bestaande dev server gevonden op poort ${targetPort}.`);
     }
 
     browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox"] });

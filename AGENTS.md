@@ -23,7 +23,7 @@ VNG API lab: OpenAPI specs (`apis/`), shared JSON schemas (`schemas/`), reusable
 ```
 
 `docs/src/ScalarView.jsx` picks the mock URL based on `window.location.hostname`:
-- localhost → `http://127.0.0.1:4010`
+- localhost → `http://127.0.0.1:${VITE_MOCK_GATEWAY_PORT}` (default: 41837; configured via `.env.development`)
 - anything else → `https://vng-interactie-mocks.fly.dev`
 
 ## Mock server (Fly.io)
@@ -38,7 +38,7 @@ VNG API lab: OpenAPI specs (`apis/`), shared JSON schemas (`schemas/`), reusable
 
 ```bash
 pnpm install
-pnpm dev   # runs portal (3000) + mocks (4010) + ReSpec generation
+pnpm dev   # runs portal (VITE_PORT) + mocks (MOCK_GATEWAY_PORT) + ReSpec generation
 ```
 
 ## When you change things
@@ -52,4 +52,4 @@ pnpm dev   # runs portal (3000) + mocks (4010) + ReSpec generation
 
 - Prism's `npx`-based spawn fails silently on alpine; we invoke `./node_modules/.bin/prism` directly.
 - `stdio: "ignore"` hid Prism resolver errors; stderr is now `inherit`ed so failures show up in `fly logs`.
-- Three legacy specs still hardcode `http://127.0.0.1:4010/...` in their `servers:` block (`apis/rest/{taken,resources,zaakchat}/v0.0.1.yaml`). Scalar overrides this at runtime, but raw consumers see a dead URL.
+- Three legacy specs still hardcode `http://127.0.0.1:4010/...` in their `servers:` block (`apis/rest/{taken,resources,zaakchat}/v0.0.1.yaml`). Scalar overrides this at runtime via `VITE_MOCK_GATEWAY_PORT`, but raw consumers see a dead URL.

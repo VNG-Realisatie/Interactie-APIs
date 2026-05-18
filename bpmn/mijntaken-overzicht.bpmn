@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_MijnTaken_Overzicht"
+  targetNamespace="https://github.com/vng-realisatie/api-lab/bpmn">
+
+  <bpmn:collaboration id="Collaboration_MijnTaken_Overzicht">
+    <bpmn:participant id="Participant_Gebruiker" name="Gebruiker" processRef="Process_Gebruiker_Overzicht" />
+    <bpmn:participant id="Participant_Portal" name="MijnOmgeving (portaal)" processRef="Process_Portal_Overzicht" />
+    <bpmn:participant id="Participant_Provider" name="MijnTaken provider" processRef="Process_Provider_Overzicht" />
+
+    <bpmn:messageFlow id="MF_Gebruiker_Navigeer" name="Open 'MijnTaken'" sourceRef="Task_Gebruiker_Open" targetRef="Task_Portal_LaadTaken" />
+    <bpmn:messageFlow id="MF_Portal_ContextZoek" name="POST /context/zoek (include: taken)" sourceRef="Task_Portal_LaadTaken" targetRef="Task_Provider_ContextZoek" />
+    <bpmn:messageFlow id="MF_Provider_ContextResult" name="200 ContextResultaat (taken[])" sourceRef="Task_Provider_ContextZoek" targetRef="Task_Portal_ToonTakenlijst" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_Gebruiker_Overzicht" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_Gebruiker" name="Gebruiker wil taken zien" />
+    <bpmn:task id="Task_Gebruiker_Open" name="Open takenoverzicht" />
+    <bpmn:endEvent id="EndEvent_Gebruiker" name="Takenlijst zichtbaar" />
+
+    <bpmn:sequenceFlow id="Flow_G1" sourceRef="StartEvent_Gebruiker" targetRef="Task_Gebruiker_Open" />
+    <bpmn:sequenceFlow id="Flow_G2" sourceRef="Task_Gebruiker_Open" targetRef="EndEvent_Gebruiker" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_Portal_Overzicht" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_Portal" name="Navigatie naar MijnTaken" />
+    <bpmn:task id="Task_Portal_LaadTaken" name="Vraag context op (taken)" />
+    <bpmn:exclusiveGateway id="Gateway_Portal_Empty" name="Taken gevonden?" />
+    <bpmn:task id="Task_Portal_ToonTakenlijst" name="Toon takenlijst" />
+    <bpmn:task id="Task_Portal_ToonLeeg" name="Toon lege staat (geen taken)" />
+    <bpmn:endEvent id="EndEvent_Portal" name="Scherm gereed" />
+
+    <bpmn:sequenceFlow id="Flow_P1" sourceRef="StartEvent_Portal" targetRef="Task_Portal_LaadTaken" />
+    <bpmn:sequenceFlow id="Flow_P2" sourceRef="Task_Portal_LaadTaken" targetRef="Gateway_Portal_Empty" />
+    <bpmn:sequenceFlow id="Flow_P3" sourceRef="Gateway_Portal_Empty" targetRef="Task_Portal_ToonTakenlijst">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[taken.length > 0]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_P4" sourceRef="Gateway_Portal_Empty" targetRef="Task_Portal_ToonLeeg">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[taken.length == 0]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_P5" sourceRef="Task_Portal_ToonTakenlijst" targetRef="EndEvent_Portal" />
+    <bpmn:sequenceFlow id="Flow_P6" sourceRef="Task_Portal_ToonLeeg" targetRef="EndEvent_Portal" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_Provider_Overzicht" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_Provider" name="Ontvang context-zoekvraag" />
+    <bpmn:task id="Task_Provider_ContextZoek" name="Verzamel context + taken (samenvattingen)" />
+    <bpmn:endEvent id="EndEvent_Provider" name="Retourneer contextresultaat" />
+
+    <bpmn:sequenceFlow id="Flow_S1" sourceRef="StartEvent_Provider" targetRef="Task_Provider_ContextZoek" />
+    <bpmn:sequenceFlow id="Flow_S2" sourceRef="Task_Provider_ContextZoek" targetRef="EndEvent_Provider" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_MijnTaken_Overzicht">
+    <bpmndi:BPMNPlane id="BPMNPlane_MijnTaken_Overzicht" bpmnElement="Collaboration_MijnTaken_Overzicht">
+      <!-- Participants -->
+      <bpmndi:BPMNShape id="Shape_Participant_Gebruiker" bpmnElement="Participant_Gebruiker" isHorizontal="true">
+        <dc:Bounds x="80" y="80" width="1200" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Participant_Portal" bpmnElement="Participant_Portal" isHorizontal="true">
+        <dc:Bounds x="80" y="260" width="1200" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Participant_Provider" bpmnElement="Participant_Provider" isHorizontal="true">
+        <dc:Bounds x="80" y="500" width="1200" height="160" />
+      </bpmndi:BPMNShape>
+
+      <!-- Gebruiker lane elements -->
+      <bpmndi:BPMNShape id="Shape_StartEvent_Gebruiker" bpmnElement="StartEvent_Gebruiker">
+        <dc:Bounds x="140" y="140" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Gebruiker_Open" bpmnElement="Task_Gebruiker_Open">
+        <dc:Bounds x="220" y="120" width="160" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EndEvent_Gebruiker" bpmnElement="EndEvent_Gebruiker">
+        <dc:Bounds x="420" y="140" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Portal lane elements -->
+      <bpmndi:BPMNShape id="Shape_StartEvent_Portal" bpmnElement="StartEvent_Portal">
+        <dc:Bounds x="140" y="330" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Portal_LaadTaken" bpmnElement="Task_Portal_LaadTaken">
+        <dc:Bounds x="220" y="310" width="200" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Gateway_Portal_Empty" bpmnElement="Gateway_Portal_Empty" isMarkerVisible="true">
+        <dc:Bounds x="470" y="325" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Portal_ToonTakenlijst" bpmnElement="Task_Portal_ToonTakenlijst">
+        <dc:Bounds x="570" y="290" width="190" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Portal_ToonLeeg" bpmnElement="Task_Portal_ToonLeeg">
+        <dc:Bounds x="570" y="390" width="230" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EndEvent_Portal" bpmnElement="EndEvent_Portal">
+        <dc:Bounds x="840" y="335" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Provider lane elements -->
+      <bpmndi:BPMNShape id="Shape_StartEvent_Provider" bpmnElement="StartEvent_Provider">
+        <dc:Bounds x="140" y="560" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Provider_ContextZoek" bpmnElement="Task_Provider_ContextZoek">
+        <dc:Bounds x="220" y="540" width="270" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EndEvent_Provider" bpmnElement="EndEvent_Provider">
+        <dc:Bounds x="540" y="560" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Sequence flows (Gebruiker) -->
+      <bpmndi:BPMNEdge id="Edge_Flow_G1" bpmnElement="Flow_G1">
+        <di:waypoint x="176" y="158" />
+        <di:waypoint x="220" y="158" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_G2" bpmnElement="Flow_G2">
+        <di:waypoint x="380" y="158" />
+        <di:waypoint x="420" y="158" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Sequence flows (Portal) -->
+      <bpmndi:BPMNEdge id="Edge_Flow_P1" bpmnElement="Flow_P1">
+        <di:waypoint x="176" y="348" />
+        <di:waypoint x="220" y="348" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_P2" bpmnElement="Flow_P2">
+        <di:waypoint x="420" y="350" />
+        <di:waypoint x="470" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_P3" bpmnElement="Flow_P3">
+        <di:waypoint x="520" y="350" />
+        <di:waypoint x="570" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_P4" bpmnElement="Flow_P4">
+        <di:waypoint x="520" y="350" />
+        <di:waypoint x="570" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_P5" bpmnElement="Flow_P5">
+        <di:waypoint x="760" y="330" />
+        <di:waypoint x="840" y="353" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_P6" bpmnElement="Flow_P6">
+        <di:waypoint x="800" y="430" />
+        <di:waypoint x="858" y="353" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Sequence flows (Provider) -->
+      <bpmndi:BPMNEdge id="Edge_Flow_S1" bpmnElement="Flow_S1">
+        <di:waypoint x="176" y="578" />
+        <di:waypoint x="220" y="578" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_S2" bpmnElement="Flow_S2">
+        <di:waypoint x="490" y="578" />
+        <di:waypoint x="540" y="578" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Message flows -->
+      <bpmndi:BPMNEdge id="Edge_MF_Gebruiker_Navigeer" bpmnElement="MF_Gebruiker_Navigeer">
+        <di:waypoint x="300" y="200" />
+        <di:waypoint x="320" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MF_Portal_ContextZoek" bpmnElement="MF_Portal_ContextZoek">
+        <di:waypoint x="420" y="350" />
+        <di:waypoint x="220" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MF_Provider_ContextResult" bpmnElement="MF_Provider_ContextResult">
+        <di:waypoint x="490" y="578" />
+        <di:waypoint x="650" y="330" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
+

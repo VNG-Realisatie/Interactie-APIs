@@ -3,6 +3,15 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 import { exec } from "child_process";
 
+const DEFAULT_DEV_PORT = 31837;
+
+function getEnvInt(name, fallback) {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function logServerUrl() {
   return {
     name: "log-server-url",
@@ -81,7 +90,8 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    port: 3000,
+    port: getEnvInt("VITE_PORT", DEFAULT_DEV_PORT),
+    strictPort: true,
     allowedHosts: ["host.docker.internal"],
     fs: {
       strict: false,

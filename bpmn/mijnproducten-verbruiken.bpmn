@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_MijnProducten_Verbruiken"
+  targetNamespace="https://github.com/vng-realisatie/api-lab/bpmn">
+
+  <bpmn:process id="Process_Verbruiken" isExecutable="false">
+    <bpmn:startEvent id="StartEvent" name="Burger wil bezoeker aanmelden op bezoekersregeling" />
+    <bpmn:task id="Task_Vergunning" name="Scherm: Parkeervergunning detail" />
+    <bpmn:task id="Task_Bezoekersregeling" name="Scherm: Bezoekersregeling (saldo)" />
+    <bpmn:task id="Task_Aanmelden" name="Scherm: Aanmeldformulier (kenteken, duur)" />
+    <bpmn:task id="Task_Bevestiging" name="Scherm: Bevestiging + nieuw saldo" />
+    <bpmn:endEvent id="EndEvent" name="Bezoeker aangemeld" />
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent" targetRef="Task_Vergunning" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Vergunning" targetRef="Task_Bezoekersregeling" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_Bezoekersregeling" targetRef="Task_Aanmelden" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Aanmelden" targetRef="Task_Bevestiging" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_Bevestiging" targetRef="EndEvent" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram">
+    <bpmndi:BPMNPlane id="BPMNPlane" bpmnElement="Process_Verbruiken">
+      <bpmndi:BPMNShape id="Shape_StartEvent" bpmnElement="StartEvent">
+        <dc:Bounds x="80" y="100" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Vergunning" bpmnElement="Task_Vergunning">
+        <dc:Bounds x="160" y="80" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Bezoekersregeling" bpmnElement="Task_Bezoekersregeling">
+        <dc:Bounds x="420" y="80" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Aanmelden" bpmnElement="Task_Aanmelden">
+        <dc:Bounds x="680" y="80" width="240" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Bevestiging" bpmnElement="Task_Bevestiging">
+        <dc:Bounds x="960" y="80" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EndEvent" bpmnElement="EndEvent">
+        <dc:Bounds x="1220" y="100" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="116" y="118" />
+        <di:waypoint x="160" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_2" bpmnElement="Flow_2">
+        <di:waypoint x="380" y="120" />
+        <di:waypoint x="420" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_3" bpmnElement="Flow_3">
+        <di:waypoint x="640" y="120" />
+        <di:waypoint x="680" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_4" bpmnElement="Flow_4">
+        <di:waypoint x="920" y="120" />
+        <di:waypoint x="960" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_5" bpmnElement="Flow_5">
+        <di:waypoint x="1180" y="120" />
+        <di:waypoint x="1220" y="118" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

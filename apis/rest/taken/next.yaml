@@ -26,13 +26,14 @@ info:
     ### 3. Uitvoering bij de provider
 
     Een taak wordt altijd uitgevoerd bij de provider. Portalen tonen de taak, maar slaan geen uitvoeringsdata op. Dit borgt dataminimalisatie: uitvoeringsdata verlaat de provider niet structureel.
-  version: 0.1.0
+  version: next
   contact:
     name: VNG Realisatie
     url: https://github.com/vng-realisatie/mijn-taken-api
     email: standaarden.ondersteuning@vng.nl
   license:
-    name: EUPL 1.2
+    name: EUPL-1.2
+    x-identifier: EUPL-1.2
     url: https://opensource.org/licenses/EUPL-1.2
 
 servers:
@@ -43,7 +44,10 @@ tags:
   - name: Context
     description: Raadpleeg samengestelde klantgerelateerde gegevens
   - name: Taken
-    description: Raadpleeg en beheer taken
+    description: |
+      Raadpleeg taken: samenvattingen in `POST /context/zoek` (veld `taken`), volledige taak via
+      `GET /taken/{uuid}`. Mutaties (wijzigen, afronden) vallen buiten dit contract — uitvoering
+      verloopt bij de provider.
 
 paths:
   /context/zoek:
@@ -345,7 +349,8 @@ components:
     TaakSamenvatting:
       type: object
       description: |
-        Beknopte taakrepresentatie zoals teruggegeven door `POST /taken/zoek`.
+        Beknopte taakrepresentatie zoals in `ContextResultaat.taken` teruggegeven door
+        `POST /context/zoek` (wanneer `taken` in `include` staat of `include` ontbreekt).
         Bevat alle velden die nodig zijn voor een takenlijst of taakkaart,
         inclusief context en uitvoeringstype. Type-specifieke uitvoeringsvelden
         worden niet meegeleverd.
@@ -451,7 +456,7 @@ components:
       description: Versie van de API die de respons heeft gegenereerd.
       schema:
         type: string
-        example: 0.1.0
+        example: next
 
   responses:
     BadRequest:

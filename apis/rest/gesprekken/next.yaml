@@ -39,6 +39,8 @@ tags:
     description: Operaties op deelname-gegevens (wie neemt wanneer deel).
   - name: GelezenGespreksbijdragen
     description: Operaties op leesstatus van gespreksbijdragen.
+  - name: Bijlagen
+    description: Upload van bijlagen bij gesprekken (experimenteel).
 
 paths:
   # ─────────────────────────────────────────
