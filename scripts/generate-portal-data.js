@@ -106,6 +106,19 @@ async function generatePortalData() {
   const cache = loadCache(cachePath);
   const bundledDir = path.join(__dirname, "../docs/bundled");
 
+  // Optional: per-API documentation links (e.g. Definition of Done)
+  // Format: { "apis/rest/taken": [{ "title": "Definition of Done", "doc": "docs/dod/mijntaken.md" }] }
+  const apiDocsConfigPath = path.join(__dirname, "../docs/api-docs.json");
+  let apiDocsConfig = {};
+  if (fs.existsSync(apiDocsConfigPath)) {
+    try {
+      apiDocsConfig = JSON.parse(fs.readFileSync(apiDocsConfigPath, "utf8")) || {};
+    } catch (e) {
+      console.warn(`⚠️ Kon docs/api-docs.json niet parsen: ${e.message}`);
+      apiDocsConfig = {};
+    }
+  }
+
   if (!fs.existsSync(bundledDir)) {
     fs.mkdirSync(bundledDir, { recursive: true });
   }
@@ -176,8 +189,19 @@ async function generatePortalData() {
   }
 
   // Sort and finalize API groups
-  for (const group of Object.values(apiGroups)) {
+  for (const [apiDir, group] of Object.entries(apiGroups)) {
     group.versions.sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true }));
+
+    // Attach per-API docs links (optional)
+    // Key uses repo-relative paths without leading slash for simplicity.
+    const apiDirKey = apiDir.replace(/\\/g, "/");
+    const docsLinks = apiDocsConfig[apiDirKey];
+    if (Array.isArray(docsLinks) && docsLinks.length > 0) {
+      group.docs = docsLinks
+        .filter((d) => d && typeof d === "object" && typeof d.title === "string" && typeof d.doc === "string")
+        .map((d) => ({ title: d.title, doc: d.doc }));
+    }
+
     data.apis.push(group);
   }
 

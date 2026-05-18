@@ -184,8 +184,11 @@ export default function ScalarView({ url, portalData, navigate }) {
         }
 
         const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+        const gatewayPortRaw = import.meta.env.VITE_MOCK_GATEWAY_PORT;
+        const gatewayPort = Number.parseInt(gatewayPortRaw || "4010", 10);
+        const localGatewayBase = `http://127.0.0.1:${Number.isFinite(gatewayPort) ? gatewayPort : 4010}`;
         const mockServerUrl = isLocal
-          ? `http://127.0.0.1:4010${mockPath}`
+          ? `${localGatewayBase}${mockPath}`
           : `https://vng-interactie-mocks.fly.dev${mockPath}`;
 
         window.Scalar.createApiReference(containerRef.current, {
@@ -256,6 +259,21 @@ export default function ScalarView({ url, portalData, navigate }) {
         onVersionChange={(value) => navigate(`url=${value}`)}
         actions={
           <>
+          {apiEntry?.docs?.length
+            ? apiEntry.docs.map((doc) => (
+                <a
+                  key={doc.doc}
+                  className="api-doc-link"
+                  href={`/?doc=${doc.doc}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`doc=${doc.doc}`);
+                  }}
+                >
+                  {doc.title}
+                </a>
+              ))
+            : null}
           <a className="api-doc-link" href={respecHtml} target="_blank" rel="noopener noreferrer">
             HTML
           </a>

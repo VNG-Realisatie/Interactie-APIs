@@ -8,6 +8,15 @@ const net = require("net");
 const yaml = require("js-yaml");
 const fs = require("fs");
 
+// Load local dev env vars for Node scripts
+try {
+  const dotenv = require("dotenv");
+  const envPath = path.resolve(__dirname, "../.env.development");
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+  }
+} catch (_) {}
+
 function waitForPort(port, host = "127.0.0.1", timeoutMs = 60000) {
   const start = Date.now();
   return new Promise((resolve, reject) => {
@@ -30,11 +39,54 @@ function waitForPort(port, host = "127.0.0.1", timeoutMs = 60000) {
   });
 }
 
+function getEnvInt(name, fallback) {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function isPortAvailable(port, host = "127.0.0.1") {
+  return new Promise((resolve) => {
+    const server = net
+      .createServer()
+      .once("error", () => resolve(false))
+      .once("listening", () => {
+        server.close(() => resolve(true));
+      })
+      .listen(port, host);
+  });
+}
+
+async function allocatePorts(count, { basePort, host }) {
+  const ports = [];
+  let port = basePort;
+  while (ports.length < count) {
+    // Skip already selected ports (shouldn't happen, but safe)
+    if (ports.includes(port)) {
+      port += 1;
+      continue;
+    }
+
+    // Only allocate if actually available
+    // (avoids EADDRINUSE when a dev stack is already running)
+    // eslint-disable-next-line no-await-in-loop
+    const ok = await isPortAvailable(port, host);
+    if (ok) {
+      ports.push(port);
+    }
+    port += 1;
+  }
+  return ports;
+}
+
 async function startMocks() {
   const app = express();
-  const mainPort = 4010;
+  const mainPort = getEnvInt("MOCK_GATEWAY_PORT", 4010);
+  const prismHost = process.env.PRISM_HOST || "127.0.0.1";
+  const prismBasePort = getEnvInt("PRISM_BASE_PORT", 5000);
 
-  // CORS headers toestaan voor lokale ontwikkeling (Vite op :3000)
+  // CORS headers toestaan voor lokale ontwikkeling (Vite op :{VITE_PORT})
   app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
@@ -61,11 +113,15 @@ async function startMocks() {
 
   console.log(`\n🔍 Gevonden API specificaties: ${specFiles.length}`);
 
-  const prismPorts = [];
+  const prismPorts = await allocatePorts(specFiles.length, {
+    basePort: prismBasePort,
+    host: prismHost,
+  });
+
+  const prisms = [];
 
   specFiles.forEach((spec, index) => {
-    const prismPort = 5000 + index;
-    prismPorts.push(prismPort);
+    const prismPort = prismPorts[index];
 
     // Forceer het base path gebaseerd op het bestandspad (bijv. /apis/rest/resources/v0.0.1)
     // Dit zorgt voor consistentie met de UI die dit pad ook dynamisch berekent.
@@ -80,11 +136,12 @@ async function startMocks() {
     // Stderr wordt doorgezet zodat eventuele Prism-fouten in de logs belanden.
     const prism = spawn(
       "./node_modules/.bin/prism",
-      ["mock", spec, "-p", prismPort.toString(), "-h", "127.0.0.1"],
+      ["mock", spec, "-p", prismPort.toString(), "-h", prismHost],
       {
         stdio: ["ignore", "ignore", "inherit"],
       },
     );
+    prisms.push(prism);
 
     prism.on("error", (err) => {
       console.error(`❌ Fout bij starten Prism voor ${spec}:`, err);
@@ -100,7 +157,7 @@ async function startMocks() {
     app.use(
       apiPath,
       createProxyMiddleware({
-        target: `http://127.0.0.1:${prismPort}`,
+        target: `http://${prismHost}:${prismPort}`,
         pathRewrite: {
           [`^${apiPath}`]: "", // Strip de base path voordat het naar Prism gaat
         },
@@ -112,7 +169,7 @@ async function startMocks() {
   // Wacht tot alle Prism processen luisteren voordat we de gateway openstellen.
   // Zonder deze gate krijg je "proxy error" responses tijdens de cold-start op Fly.io.
   console.log("⏳ Wachten tot alle Prism mocks luisteren...");
-  await Promise.all(prismPorts.map((p) => waitForPort(p)));
+  await Promise.all(prismPorts.map((p) => waitForPort(p, prismHost)));
   console.log("✅ Alle Prism mocks zijn klaar.");
 
   // Start de gateway (0.0.0.0 zodat het ook werkt in containers/Fly)
@@ -129,14 +186,26 @@ async function startMocks() {
       console.log(`    • http://localhost:${mainPort}/${endpoint}/`);
     });
     console.log("");
-    console.log("  ➜  Dev server: http://localhost:3000");
+    const devPort = getEnvInt("VITE_PORT", 3000);
+    console.log(`  ➜  Dev server: http://localhost:${devPort}`);
     console.log("");
     console.log("  Gebruik CTRL+C om te stoppen.\n");
   });
 
   // Zorg dat bij CTRL+C alle sub-processen ook stoppen (best effort)
-  process.on("SIGINT", () => {
+  const shutdown = () => {
+    prisms.forEach((child) => {
+      try {
+        child.kill("SIGTERM");
+      } catch (_) {}
+    });
     process.exit();
+  };
+  process.on("SIGINT", () => {
+    shutdown();
+  });
+  process.on("SIGTERM", () => {
+    shutdown();
   });
 }
 

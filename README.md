@@ -60,8 +60,8 @@ Om de API-specificaties lokaal te bekijken of te testen:
    ```
 
     Dit start automatisch:
-    - Het **API lab portaal** op [http://localhost:3000/](http://localhost:3000/)
-    - De **Mock Servers (Gateway)** op [http://127.0.0.1:4010](http://127.0.0.1:4010)
+- Het **API lab portaal** op `http://127.0.0.1:${VITE_PORT}` (default: 31837)
+- De **Mock Servers (Gateway)** op `http://127.0.0.1:${MOCK_GATEWAY_PORT}` (default: 41837)
     - De **ReSpec Generatie** (HTML en PDF bestanden landen in `docs/respec/`)
 
 3. **ReSpec handmatig genereren**:
@@ -83,7 +83,7 @@ De officiële API-specificaties zijn te bekijken via het [VNG API lab portaal](h
 ## Hosting
 
 - **Portal (statische site)**: [vng-api-lab.netlify.app](https://vng-api-lab.netlify.app) via Netlify (automatische deploys vanaf `main`).
-- **Mock Servers**: [vng-interactie-mocks.fly.dev](https://vng-interactie-mocks.fly.dev) via Fly.io. De Scalar "Try it"-knoppen in het portal wijzen naar deze publieke mocks; lokaal wordt `http://127.0.0.1:4010` gebruikt.
+- **Mock Servers**: `vng-interactie-mocks.fly.dev` via Fly.io. De Scalar "Try it"-knoppen in het portal wijzen naar deze publieke mocks; lokaal wordt `http://127.0.0.1:${VITE_MOCK_GATEWAY_PORT}` gebruikt (default: 41837).
 
 ### Mocks deployen naar Fly.io
 

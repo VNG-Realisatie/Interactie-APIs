@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_MijnProducten_Inzien"
+  targetNamespace="https://github.com/vng-realisatie/api-lab/bpmn">
+
+  <bpmn:process id="Process_Inzien" isExecutable="false">
+    <bpmn:startEvent id="StartEvent" name="Burger wil weten wanneer vergunning verloopt" />
+    <bpmn:task id="Task_Overzicht" name="Scherm: MijnProducten overzicht" />
+    <bpmn:task id="Task_Detail" name="Scherm: Containervergunning detail (met verloopdatum)" />
+    <bpmn:endEvent id="EndEvent" name="Verloopdatum gezien" />
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent" targetRef="Task_Overzicht" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Overzicht" targetRef="Task_Detail" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_Detail" targetRef="EndEvent" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram">
+    <bpmndi:BPMNPlane id="BPMNPlane" bpmnElement="Process_Inzien">
+      <bpmndi:BPMNShape id="Shape_StartEvent" bpmnElement="StartEvent">
+        <dc:Bounds x="80" y="100" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Overzicht" bpmnElement="Task_Overzicht">
+        <dc:Bounds x="160" y="80" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Task_Detail" bpmnElement="Task_Detail">
+        <dc:Bounds x="420" y="80" width="280" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EndEvent" bpmnElement="EndEvent">
+        <dc:Bounds x="740" y="100" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="116" y="118" />
+        <di:waypoint x="160" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_2" bpmnElement="Flow_2">
+        <di:waypoint x="380" y="120" />
+        <di:waypoint x="420" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_3" bpmnElement="Flow_3">
+        <di:waypoint x="700" y="120" />
+        <di:waypoint x="740" y="118" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

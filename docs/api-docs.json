@@ -1,0 +1,11 @@
+{
+  "apis/rest/taken": [
+    { "title": "Definition of Done", "doc": "docs/dod/mijntaken.md" }
+  ],
+  "apis/rest/agenda": [
+    { "title": "Definition of Done", "doc": "docs/dod/mijnagenda.md" }
+  ],
+  "apis/rest/gesprekken": [
+    { "title": "Definition of Done", "doc": "docs/dod/mijngesprekken.md" }
+  ]
+}

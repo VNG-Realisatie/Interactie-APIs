@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { marked } from "marked";
+import BpmnViewer from "bpmn-js/lib/Viewer";
 
 export default function MarkdownView({ path, portalData }) {
   const [html, setHtml] = useState("Laden...");
@@ -10,6 +11,93 @@ export default function MarkdownView({ path, portalData }) {
       .then((text) => setHtml(marked.parse(text)))
       .catch((e) => setHtml("Fout bij laden document: " + e.message));
   }, [path]);
+
+  useEffect(() => {
+    const roots = Array.from(document.querySelectorAll("[data-bpmn-src]"));
+    if (roots.length === 0) return undefined;
+
+    const instances = roots.map((root) => {
+      const src = root.getAttribute("data-bpmn-src");
+      const title = root.getAttribute("data-bpmn-title");
+
+      // ensure deterministic mount point
+      root.innerHTML = "";
+      const canvas = document.createElement("div");
+      canvas.className = "bpmn-canvas";
+      root.appendChild(canvas);
+
+      if (title) {
+        const header = document.createElement("div");
+        header.className = "bpmn-header";
+        header.textContent = title;
+        root.insertBefore(header, canvas);
+      }
+
+      const viewer = new BpmnViewer({
+        container: canvas,
+        keyboard: { bindTo: document },
+      });
+
+      // load and render
+      if (src) {
+        fetch(src)
+          .then((r) => r.text())
+          .then((xml) => viewer.importXML(xml))
+          .then(() => {
+            const elementRegistry = viewer.get("elementRegistry");
+            const elements = elementRegistry.getAll();
+            const hasRenderable = elements.some((el) => el && el.type && el.type !== "bpmn:Definitions");
+            if (!hasRenderable) {
+              canvas.innerHTML =
+                "BPMN geladen, maar geen diagram-layout (BPMN DI) gevonden. Voeg BPMN DI (shapes/edges) toe aan het .bpmn bestand.";
+              return;
+            }
+            viewer.get("canvas").zoom("fit-viewport");
+
+            const getDocUrl = (element) => {
+              const text = element?.businessObject?.documentation?.[0]?.text?.trim();
+              return text && /^https?:\/\//i.test(text) ? text : null;
+            };
+            elementRegistry.forEach((element) => {
+              if (!getDocUrl(element)) return;
+              const gfx = elementRegistry.getGraphics(element);
+              if (gfx) gfx.classList.add("bpmn-clickable");
+            });
+            viewer.get("eventBus").on("element.click", (event) => {
+              const url = getDocUrl(event.element);
+              if (url) window.open(url, "_blank", "noopener,noreferrer");
+            });
+          })
+          .catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error("BPMN render error:", err);
+            canvas.innerHTML = "Kon BPMN niet laden/renderen.";
+          });
+      } else {
+        canvas.innerHTML = "Geen BPMN bron opgegeven.";
+      }
+
+      return viewer;
+    });
+
+    const refit = () => {
+      instances.forEach((viewer) => {
+        try {
+          viewer.get("canvas").zoom("fit-viewport");
+        } catch (_) {}
+      });
+    };
+    window.addEventListener("resize", refit);
+
+    return () => {
+      window.removeEventListener("resize", refit);
+      instances.forEach((viewer) => {
+        try {
+          viewer.destroy();
+        } catch (_) {}
+      });
+    };
+  }, [html]);
 
   const renderDataList = () => {
     if (!portalData) return null;
