@@ -4,16 +4,39 @@ Dit document beschrijft de functionele en technische specificaties van de **Mijn
 Het dient als servicebeschrijving voor implementatie en integratie van producten binnen een
 MijnOmgeving, in lijn met de VNG MijnServices standaarden.
 
+## Prototype
+
+Startpunt: [MijnProducten-overzicht in Figma](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9510-17599&starting-point-node-id=9448%3A758053).
+
+<div class="figma-embed"
+  data-figma-title="Interactief prototype — MijnProducten"
+  data-figma-src="https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9510-17599&starting-point-node-id=9448%3A758053"
+  data-figma-width="1280"
+  data-figma-height="2600"></div>
+
 ## Status
 
 Verkennend — een eerste werkversie van het contract staat in deze repo als `next`.
 
 ## Links
 
+**Toekomstig — MijnProducten (VNG):**
+
 - API (interactief): [Open MijnProducten (Scalar)](/?url=/docs/bundled/apis_rest_producten_next.yaml)
 - OpenAPI bron: [apis/rest/producten/next.yaml](/?file=apis/rest/producten/next.yaml)
+
+**Huidige situatie — Open Product (Maykin):**
+
+- Producten API (interactief): [Scalar](/?url=/docs/bundled/apis_rest_producten_openproduct-v1.6.0.yaml)
+- OpenAPI bron: [apis/rest/producten/openproduct-v1.6.0.yaml](/?file=apis/rest/producten/openproduct-v1.6.0.yaml)
+- Producttypen API (interactief): [Scalar](/?url=/docs/bundled/apis_rest_producttypen_openproduct-v1.6.0.yaml)
+- OpenAPI bron: [apis/rest/producttypen/openproduct-v1.6.0.yaml](/?file=apis/rest/producttypen/openproduct-v1.6.0.yaml)
+- Bron: [maykinmedia/open-product](https://github.com/maykinmedia/open-product)
+
+**Overig:**
+
 - Gedeelde foutafhandeling (RFC 7807): [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
-- Prototype: [MijnServices op Figma](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9510-17599&starting-point-node-id=9448%3A758053)
+- Figma: [Prototype (MijnProducten)](#prototype)
 
 ## Inleiding
 
@@ -129,7 +152,9 @@ Losse BPMN-bestanden:
 - OpenAPI 3.1: zie [apis/rest/producten/next.yaml](/?file=apis/rest/producten/next.yaml)
 - Foutafhandeling: RFC 7807 via [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
 - JSON Schema (draft 2020-12) voor producttype-definities
-- [Open Product](https://github.com/maykinmedia/open-product) — afstemming van begrippen en veldnamen
+- [Open Product](https://github.com/maykinmedia/open-product) — afstemming van begrippen en veldnamen;
+  API's in dit lab: [producten v1.6.0](/?url=/docs/bundled/apis_rest_producten_openproduct-v1.6.0.yaml),
+  [producttypen v1.6.0](/?url=/docs/bundled/apis_rest_producttypen_openproduct-v1.6.0.yaml)
 - [UPL — Uniforme Productnamenlijst](https://standaarden.overheid.nl/upl) — via `uniformeProductNaam`
 - [Logius — Samenwerkende Catalogi](https://www.logius.nl/onze-dienstverlening/interactie/samenwerkende-catalogi)
   en de [Omgevingswet PDC](https://samenwerken.pleio.nl/groups/view/814f7141-86c7-4fad-963d-497f5551f489/omgevingswet-ztc-en-pdc) — mogelijke bronnen voor producttype-catalogi
