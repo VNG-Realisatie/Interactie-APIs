@@ -13,11 +13,23 @@ later moment toegevoegd.
 
 ## Links
 
+**MijnAgenda (VNG):**
+
 - API (interactief): [Open MijnAgenda (Scalar)](/?url=/docs/bundled/apis_rest_agenda_next.yaml)
 - OpenAPI bron: [apis/rest/agenda/next.yaml](/?file=apis/rest/agenda/next.yaml)
+
+**Referentie — klantinteracties (Open Klant):**
+
+Afspraken en contactmomenten sluiten aan op het informatiemodel [klantinteracties](https://vng-realisatie.github.io/klantinteracties/).
+In dit lab staat een OpenAPI-referentie voor het bredere klantinteracties-register:
+
+- Klantinteracties API (interactief): [Scalar](/?url=/docs/bundled/apis_rest_klantinteracties_openklant-v0.7.0.yaml)
+- OpenAPI bron: [apis/rest/klantinteracties/openklant-v0.7.0.yaml](/?file=apis/rest/klantinteracties/openklant-v0.7.0.yaml)
+
+**Overig:**
+
 - Gedeelde foutafhandeling (RFC 7807): [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
 - Informatiemodel (ReSpec): [MijnAgenda-Respec](https://vng-realisatie.github.io/MijnAgenda-Respec/)
-- Informatiemodel klantinteracties: [klantinteracties](https://vng-realisatie.github.io/klantinteracties/)
 
 ## Inleiding
 
