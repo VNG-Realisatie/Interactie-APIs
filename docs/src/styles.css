@@ -125,7 +125,7 @@ a {
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--text-muted);
-  margin: 0 0 6px 4px;
+  margin: 0 0 6px;
   border: none;
   padding-bottom: 0;
 }
@@ -133,14 +133,14 @@ a {
   color: inherit;
   font-size: inherit;
   font-weight: 600;
-  padding: 0;
-  display: inline;
-  border-radius: 0;
-  transition: color 0.15s;
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
 }
 .nav-section h3 a:hover {
-  background: none;
-  color: var(--text-color);
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-hover-color);
 }
 .nav-section ul {
   list-style: none;
