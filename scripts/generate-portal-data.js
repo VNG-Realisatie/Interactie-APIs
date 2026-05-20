@@ -301,7 +301,19 @@ async function generatePortalData() {
       const headingMatch = content.match(/^#\s+(.+)$/m);
       let title = headingMatch ? headingMatch[1].trim() : path.basename(file, ".md");
       title = title.replace(/^(Service\s?beschrijving|Definition of Done)\s*[—–-]\s*/i, "").trim();
-      data.services.push({ title, doc: file });
+      const entry = { title, doc: file };
+      const figmaEmbed = content.match(/data-figma-src="([^"]+)"/);
+      const figmaProtoSection = content.match(/^## Prototype\s*\n([\s\S]*?)(?=\n## |\s*$)/m);
+      const figmaLinksSection = content.match(/^## Links\s*\n([\s\S]*?)(?=\n## |\s*$)/m);
+      let figmaUrl = figmaEmbed?.[1];
+      if (!figmaUrl && figmaProtoSection) {
+        figmaUrl = figmaProtoSection[1].match(/https:\/\/www\.figma\.com\/proto\/[^\s)"']+/)?.[0];
+      }
+      if (!figmaUrl && figmaLinksSection) {
+        figmaUrl = figmaLinksSection[1].match(/https:\/\/www\.figma\.com\/proto\/[^\s)"']+/)?.[0];
+      }
+      if (figmaUrl) entry.figmaUrl = figmaUrl;
+      data.services.push(entry);
     } catch (e) {
       console.error(`❌ Fout bij verwerken servicebeschrijving ${file}: ${e.message}`);
     }
