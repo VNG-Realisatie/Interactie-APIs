@@ -22,11 +22,20 @@ export default function HomeView({ data, navigate }) {
         zijn er om de verschillende API's van VNG samen te presenteren en te harmoniseren.
       </p>
 
-      <h2>Portaal Features</h2>
+      <h2>Over het VNG API Lab</h2>
       <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
         <li>
-          <strong>Versiebeheer</strong>: Navigeer naadloos tussen verschillende versies van een
-          specificatie via de branch-kiezer in de zijbalk.
+          <strong>Interactieve API Docs</strong>: Verken API specificaties met de ingebouwde
+          Scalar-viewer om direct test requests te doen, rechtstreeks tegen de test- of mock-server.
+        </li>
+        <li>
+          <strong>Automatisch testen</strong>: Leveranciers kunnen hun eigen implementatie testen
+          tegen de API specs in dit API lab. Druk op "Contract testen" op een API pagina.
+        </li>
+        <li>
+          <strong>Herbruikbare schema's en patronen</strong>: De JSON schema's (datastructuren)
+          worden hergebruikt tussen API specificaties, zodat er zo veel mogelijk wordt hergebruikt.
+          Ook worden patronen tussen API's gedeeld om API's consistent te maken.
         </li>
         <li>
           <strong>UML Diagrammen</strong>: Bekijk automatisch gegenereerde UML-style visuele
@@ -34,8 +43,8 @@ export default function HomeView({ data, navigate }) {
           in één oogopslag te snappen.
         </li>
         <li>
-          <strong>Interactieve REST Docs</strong>: Verken API specificaties met de ingebouwde
-          Scalar-viewer om direct test requests te doen, rechtstreeks tegen de test- of mock-server.
+          <strong>Versiebeheer</strong>: Navigeer naadloos tussen verschillende versies van een API
+          of Schema.
         </li>
         <li>
           <strong>Lokale Mocking</strong>: Ontwikkelaars kunnen een lokale Prism-mock gateway
