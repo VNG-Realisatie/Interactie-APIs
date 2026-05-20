@@ -1,16 +1,42 @@
 import React, { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
 import { marked } from "marked";
 import BpmnViewer from "bpmn-js/lib/Viewer";
+import FigmaEmbedPreview from "./FigmaEmbedPreview";
+import {
+  injectPrototypeAtStart,
+  extractFigmaFromService,
+  parseFigmaEmbedAttrs,
+} from "./figmaEmbed";
 
 export default function MarkdownView({ path, portalData }) {
   const [html, setHtml] = useState("Laden...");
 
+  const serviceMeta = portalData?.services?.find((s) => s.doc === path);
+
   useEffect(() => {
     fetch("/" + path)
       .then((r) => r.text())
-      .then((text) => setHtml(marked.parse(text)))
+      .then((text) => {
+        let md = text;
+        if (path.startsWith("services/")) {
+          const embedAttrs = parseFigmaEmbedAttrs(text);
+          const figmaUrl = embedAttrs?.src || serviceMeta?.figmaUrl || extractFigmaFromService(text);
+          const title =
+            serviceMeta?.title ||
+            text
+              .match(/^#\s+(.+)$/m)?.[1]
+              ?.replace(/^Service\s?beschrijving\s*[—–-]\s*/i, "")
+              .trim() ||
+            path.replace(/^services\//, "").replace(/\.md$/, "");
+          if (figmaUrl && !embedAttrs?.src) {
+            md = injectPrototypeAtStart(text, figmaUrl, title);
+          }
+        }
+        setHtml(marked.parse(md));
+      })
       .catch((e) => setHtml("Fout bij laden document: " + e.message));
-  }, [path]);
+  }, [path, serviceMeta?.figmaUrl, serviceMeta?.title]);
 
   useEffect(() => {
     const roots = Array.from(document.querySelectorAll("[data-bpmn-src]"));
@@ -107,6 +133,35 @@ export default function MarkdownView({ path, portalData }) {
         try {
           viewer.destroy();
         } catch (_) {}
+      });
+    };
+  }, [html]);
+
+  useEffect(() => {
+    const hosts = Array.from(document.querySelectorAll("[data-figma-src]"));
+    if (hosts.length === 0) return undefined;
+
+    const instances = hosts.map((host) => {
+      const src = host.getAttribute("data-figma-src");
+      const title = host.getAttribute("data-figma-title") || "Interactief prototype (Figma)";
+      const frameWidth = Number(host.getAttribute("data-figma-width"));
+      const frameHeight = Number(host.getAttribute("data-figma-height"));
+      host.classList.add("figma-embed-host");
+      const root = createRoot(host);
+      root.render(
+        <FigmaEmbedPreview
+          src={src}
+          title={title}
+          frameWidth={Number.isFinite(frameWidth) ? frameWidth : undefined}
+          frameHeight={Number.isFinite(frameHeight) ? frameHeight : undefined}
+        />,
+      );
+      return { host, root };
+    });
+
+    return () => {
+      instances.forEach(({ root }) => {
+        root.unmount();
       });
     };
   }, [html]);
