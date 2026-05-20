@@ -1,0 +1,452 @@
+openapi: 3.1.0
+info:
+  title: MijnProducten
+  description: |
+    De **MijnProducten API** standaardiseert hoe portalen producten van een inwoner of
+    ondernemer **tonen**. Een product is bijvoorbeeld een parkeervergunning, een
+    containervergunning of een bezoekersregeling.
+
+    Dit is een **inkijk-contract**: portalen raadplegen producten, ze muteren ze niet.
+    Aanvragen, verlengen en verbruiken (bijv. een strip afschrijven van een
+    bezoekersregeling) gebeuren bij de bron en vallen buiten dit contract.
+
+    Begrippen en veldnamen sluiten aan op [Open Product](https://github.com/maykinmedia/open-product)
+    — `producttype`, `dataobject`, `verbruiksobject`, `uniformeProductNaam` en de
+    statuswaarden — zodat een provider die Open Product gebruikt eenvoudig kan mappen.
+    Veldnamen volgen `camelCase` (conform de overige MijnServices-API's in deze repo);
+    dat is de enige bewuste afwijking van Open Product, dat `snake_case` hanteert.
+
+    Identificatie en authenticatie van eindgebruikers vallen buiten de scope; die worden
+    afgehandeld door een externe identity provider (zoals DigiD of eHerkenning).
+
+    ## Principes
+
+    ### 1. Uniform contract
+
+    Alle providers implementeren dezelfde interface: dezelfde endpoints, dezelfde
+    responsestructuur, hetzelfde gedrag. Het maakt voor een portaal niet uit hoe de
+    provider intern is georganiseerd of waar de data vandaan komt.
+
+    ### 2. Forward en backward compatibility
+
+    Portalen en providers moeten onafhankelijk van elkaar kunnen evolueren. Het contract
+    is daarom uitbreidbaar zonder bestaande implementaties te breken. Dit volgt het
+    [Robustness principle](https://en.wikipedia.org/wiki/Robustness_principle): wees
+    conservatief in wat je stuurt, liberaal in wat je accepteert.
+
+    ### 3. Vaste kern, variabele schil
+
+    Elk product heeft een **vaste kern** van attributen die voor alle producttypen
+    gelijk is: `naam`, `startDatum`, `eindDatum`, `status`. Een portaal kan elk product
+    op een uniforme manier in een overzicht tonen zonder het producttype te kennen.
+
+    Daarnaast heeft een product een **variabel deel**: `dataobject` — een JSON-object
+    waarvan de structuur per `ProductType` verschilt (bijv. kenteken bij een
+    parkeervergunning, afmetingen bij een containervergunning). Die structuur wordt
+    beschreven door een **JSON Schema** op het producttype (`dataobjectSchema`). Het
+    portaal haalt het producttype op om de variabele attributen te labelen en te tonen,
+    en kan zo een generieke weergave bouwen voor elk (ook toekomstig) producttype.
+    Hetzelfde geldt voor `verbruiksobject` en `verbruiksobjectSchema`.
+
+    ### 4. Privacy by design
+
+    Producten van een klant worden opgevraagd via `POST /producten/zoek`, zodat
+    `klantId` in de request body staat en niet in URL's, querystrings, browserhistory of
+    access logs lekt. Dit wijkt bewust af van Open Product (dat met een querystring
+    filtert): MijnProducten is een portaal-facing contract waarin identificerende
+    gegevens niet in de URL horen.
+  version: next
+  contact:
+    name: VNG Realisatie
+    url: https://github.com/vng-realisatie/api-lab
+    email: standaarden.ondersteuning@vng.nl
+  license:
+    name: EUPL-1.2
+    x-identifier: EUPL-1.2
+    url: https://opensource.org/licenses/EUPL-1.2
+
+servers:
+  - url: https://api.example.nl/v1
+    description: Productie
+
+tags:
+  - name: Producttypen
+    description: |
+      Raadpleeg producttypen. Een producttype beschrijft de gedeelde eigenschappen van
+      een categorie producten en levert het JSON Schema voor de variabele attributen.
+  - name: Producten
+    description: |
+      Raadpleeg producten van een klant.
+
+paths:
+  /producttypen:
+    get:
+      operationId: listProducttypen
+      summary: Lijst producttypen
+      description: |
+        Retourneert de catalogus van producttypen als samenvattingen. Bevat geen
+        klantgegevens en is daarom een gewone `GET`.
+      tags:
+        - Producttypen
+      responses:
+        "200":
+          description: Succesvol
+          headers:
+            API-Version:
+              $ref: "#/components/headers/API-Version"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductTypeSamenvatting"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /producttypen/{code}:
+    parameters:
+      - name: code
+        in: path
+        required: true
+        description: Stabiele identifier van het producttype.
+        schema:
+          type: string
+        example: parkeervergunning
+    get:
+      operationId: retrieveProducttype
+      summary: Haal één producttype op
+      description: |
+        Geeft de volledige producttypedefinitie terug, inclusief `dataobjectSchema` en
+        `verbruiksobjectSchema`: JSON Schema's die de variabele delen van producten van
+        dit type beschrijven. Portalen gebruiken deze om `dataobject` en
+        `verbruiksobject` correct te labelen en te tonen.
+      tags:
+        - Producttypen
+      responses:
+        "200":
+          description: Succesvol
+          headers:
+            API-Version:
+              $ref: "#/components/headers/API-Version"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductType"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /producten/zoek:
+    post:
+      operationId: zoekProducten
+      summary: Zoek producten van een klant
+      description: |
+        Retourneert de producten van de opgegeven klant als **samenvattingen** (alleen
+        de vaste kern). Het variabele `dataobject` en `verbruiksobject` worden pas
+        meegeleverd in de detailrespons (`GET /producten/{uuid}`).
+
+        **Ontwerpkeuze — POST als query:** de filtercriteria (waaronder `klantId`)
+        staan in de request body, zodat identificerende gegevens niet in URL's of logs
+        lekken. De operatie is **safe** en **idempotent**.
+      tags:
+        - Producten
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductQuery"
+      responses:
+        "200":
+          description: Succesvol
+          headers:
+            API-Version:
+              $ref: "#/components/headers/API-Version"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductSamenvatting"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /producten/{uuid}:
+    parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: 550e8400-e29b-41d4-a716-446655440000
+    get:
+      operationId: retrieveProduct
+      summary: Haal één product op
+      description: |
+        Geeft de volledige representatie van één product terug: de vaste kern plus het
+        variabele `dataobject` (conform `dataobjectSchema` van het producttype) en
+        eventueel een `verbruiksobject` (conform `verbruiksobjectSchema`).
+      tags:
+        - Producten
+      responses:
+        "200":
+          description: Succesvol
+          headers:
+            API-Version:
+              $ref: "#/components/headers/API-Version"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  schemas:
+    ProductTypeSamenvatting:
+      type: object
+      description: |
+        Beknopte producttyperepresentatie. Wordt zelfstandig getoond in de catalogus en
+        geneste meegeleverd als `producttype` bij een product.
+      required:
+        - code
+        - naam
+      properties:
+        code:
+          type: string
+          description: Unieke, stabiele identifier van het producttype.
+          example: parkeervergunning
+        naam:
+          type: string
+          description: Weergavenaam van het producttype.
+          example: Parkeervergunning
+        omschrijving:
+          type: string
+          description: Korte toelichting op het producttype.
+          example: Een vergunning om te parkeren in een aangewezen gebied.
+        uniformeProductNaam:
+          type: string
+          description: |
+            Verwijzing naar de Uniforme Productnamenlijst (UPL), zodat producttypen
+            landelijk vergelijkbaar zijn. Komt overeen met `uniforme_product_naam` in
+            Open Product.
+          example: parkeervergunning
+
+    ProductType:
+      description: |
+        Volledige producttypedefinitie. Breidt de samenvatting uit met de JSON Schema's
+        voor de variabele delen van een product.
+      allOf:
+        - $ref: "#/components/schemas/ProductTypeSamenvatting"
+        - type: object
+          properties:
+            dataobjectSchema:
+              type: object
+              description: |
+                JSON Schema (draft 2020-12) dat het `dataobject` van producten van dit
+                type beschrijft. Het portaal gebruikt dit schema om de variabele
+                attributen te labelen en weer te geven; `title`/`description` per
+                property leveren de UI-labels.
+              additionalProperties: true
+              example:
+                $schema: "https://json-schema.org/draft/2020-12/schema"
+                type: object
+                required: [kenteken, gebied]
+                properties:
+                  kenteken:
+                    type: string
+                    title: Kenteken
+                    pattern: "^[A-Z0-9-]{6,8}$"
+                  gebied:
+                    type: string
+                    title: Parkeergebied
+            verbruiksobjectSchema:
+              type: object
+              description: |
+                Optioneel JSON Schema dat het `verbruiksobject` van producten van dit
+                type beschrijft (bijv. een bezoekersregeling met saldo). Afwezig als het
+                producttype geen verbruiksobject kent.
+              additionalProperties: true
+              example:
+                $schema: "https://json-schema.org/draft/2020-12/schema"
+                type: object
+                properties:
+                  saldo:
+                    type: number
+                    title: Resterend saldo
+                  eenheid:
+                    type: string
+                    title: Eenheid
+
+    ProductStatus:
+      type: string
+      description: |
+        Levenscyclusstatus van een product. Waarden komen overeen met de statussen van
+        Open Product.
+      x-extensible-enum:
+        - initieel
+        - in_aanvraag
+        - gereed
+        - actief
+        - ingetrokken
+        - geweigerd
+        - verlopen
+      example: actief
+
+    Frequentie:
+      type: string
+      description: Hoe vaak voor een product wordt betaald.
+      x-extensible-enum:
+        - eenmalig
+        - maandelijks
+        - jaarlijks
+      example: jaarlijks
+
+    ProductQuery:
+      type: object
+      description: Zoekcriteria voor het opvragen van producten van een klant.
+      required:
+        - klantId
+      properties:
+        klantId:
+          type: string
+          description: Identifier van de klant (bijv. de sub-claim uit het ID-token).
+          example: "a8f3c1d2-7e44-4b1a-9c0f-123456789abc"
+        producttype:
+          type: string
+          description: Optioneel filter op de code van het producttype.
+          example: containervergunning
+        status:
+          type: array
+          description: Optioneel filter op één of meer statussen.
+          items:
+            $ref: "#/components/schemas/ProductStatus"
+          example: [actief]
+
+    ProductSamenvatting:
+      type: object
+      description: |
+        Beknopte productrepresentatie — de **vaste kern**, voldoende voor een
+        overzichtslijst. Wordt teruggegeven door `POST /producten/zoek`.
+      required:
+        - uuid
+        - producttype
+        - naam
+        - status
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          example: 550e8400-e29b-41d4-a716-446655440000
+        producttype:
+          allOf:
+            - $ref: "#/components/schemas/ProductTypeSamenvatting"
+          description: |
+            Het producttype van dit product. Haal de volledige definitie (incl.
+            `dataobjectSchema`) op via `GET /producttypen/{code}`.
+        naam:
+          type: string
+          description: Vast attribuut — naam van het product.
+          example: Containervergunning Dorpsstraat 12
+        status:
+          $ref: "#/components/schemas/ProductStatus"
+        startDatum:
+          type: string
+          format: date
+          description: Vast attribuut — datum waarop het product ingaat.
+          example: "2026-01-01"
+        eindDatum:
+          type: string
+          format: date
+          description: |
+            Vast attribuut — datum waarop het product verloopt. Afwezig als het product
+            geen einddatum heeft.
+          example: "2026-12-31"
+
+    Product:
+      description: |
+        Volledige productrepresentatie zoals teruggegeven door `GET /producten/{uuid}`.
+        Breidt de samenvatting uit met de variabele delen `dataobject` en
+        `verbruiksobject`.
+      allOf:
+        - $ref: "#/components/schemas/ProductSamenvatting"
+        - type: object
+          properties:
+            prijs:
+              type: number
+              description: Optionele prijs van het product.
+              example: 65.5
+            frequentie:
+              $ref: "#/components/schemas/Frequentie"
+            dataobject:
+              type: object
+              description: |
+                Variabele attributen van het product, conform het `dataobjectSchema`
+                van het producttype. Sleutels en typen volgen uit dat schema; het
+                portaal haalt het producttype op voor de bijbehorende labels.
+              additionalProperties: true
+              example:
+                kenteken: AB-123-C
+                gebied: Centrum-Noord
+            verbruiksobject:
+              type: object
+              description: |
+                Optioneel variabel object voor verbruiksgegevens (bijv. een
+                bezoekersregeling met saldo), conform het `verbruiksobjectSchema` van
+                het producttype. Afwezig als het product geen verbruiksobject heeft.
+              additionalProperties: true
+              example:
+                naam: Bezoekersregeling
+                saldo: 48
+                eenheid: uren
+            aanvraagZaakUrn:
+              type: string
+              format: uri
+              pattern: "^urn:"
+              description: |
+                Optionele URN van de zaak waaruit dit product is ontstaan. Stelt een
+                portaal in staat de herkomst-context te tonen.
+              example: "urn:nl:gemeenten:zaak:2026-00042"
+
+  headers:
+    API-Version:
+      description: Versie van de API die de respons heeft gegenereerd.
+      schema:
+        type: string
+        example: next
+
+  responses:
+    BadRequest:
+      description: Ongeldige aanvraag
+      content:
+        application/problem+json:
+          schema:
+            $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
+    Unauthorized:
+      description: Authenticatie vereist
+      content:
+        application/problem+json:
+          schema:
+            $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
+    NotFound:
+      description: Resource niet gevonden
+      content:
+        application/problem+json:
+          schema:
+            $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
