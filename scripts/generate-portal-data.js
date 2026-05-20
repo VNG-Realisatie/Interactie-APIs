@@ -106,8 +106,8 @@ async function generatePortalData() {
   const cache = loadCache(cachePath);
   const bundledDir = path.join(__dirname, "../docs/bundled");
 
-  // Optional: per-API documentation links (e.g. Definition of Done)
-  // Format: { "apis/rest/taken": [{ "title": "Definition of Done", "doc": "docs/dod/mijntaken.md" }] }
+  // Optional: per-API documentation links (e.g. Service beschrijving)
+  // Format: { "apis/rest/taken": [{ "title": "Service beschrijving", "doc": "services/mijntaken.md" }] }
   const apiDocsConfigPath = path.join(__dirname, "../docs/api-docs.json");
   let apiDocsConfig = {};
   if (fs.existsSync(apiDocsConfigPath)) {
@@ -127,6 +127,7 @@ async function generatePortalData() {
     apis: [],
     schemas: [],
     patterns: [],
+    services: [],
   };
 
   let hasChanges = false;
@@ -285,10 +286,32 @@ async function generatePortalData() {
     data.patterns.push(group);
   }
 
+  // 4. Scan servicebeschrijvingen (Service beschrijving docs in services/)
+  const serviceFiles = await fg("services/*.md");
+  for (const file of serviceFiles) {
+    try {
+      const content = fs.readFileSync(file, "utf8");
+      if (!isCacheValid(file, content, cache)) {
+        console.log(`📝 Gewijzigd: ${file}`);
+        hasChanges = true;
+        updateCache(file, content, cache);
+      } else {
+        console.log(`✅ Ongewijzigd: ${file}`);
+      }
+      const headingMatch = content.match(/^#\s+(.+)$/m);
+      let title = headingMatch ? headingMatch[1].trim() : path.basename(file, ".md");
+      title = title.replace(/^(Service\s?beschrijving|Definition of Done)\s*[—–-]\s*/i, "").trim();
+      data.services.push({ title, doc: file });
+    } catch (e) {
+      console.error(`❌ Fout bij verwerken servicebeschrijving ${file}: ${e.message}`);
+    }
+  }
+
   // Sorteer data voor stabiele output
   data.apis.sort((a, b) => a.title.localeCompare(b.title));
   data.schemas.sort((a, b) => a.name.localeCompare(b.name));
   data.patterns.sort((a, b) => a.name.localeCompare(b.name));
+  data.services.sort((a, b) => a.title.localeCompare(b.title));
 
   // Only write portal-data.json if something changed
   if (hasChanges || !fs.existsSync(path.join(__dirname, "../docs/portal-data.json"))) {

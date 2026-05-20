@@ -1,4 +1,4 @@
-# Definition of Done — MijnGesprekken
+# Service beschrijving — MijnGesprekken
 
 Dit document beschrijft de use-cases, uitgangspunten en integratie-afspraken voor **MijnGesprekken**.
 

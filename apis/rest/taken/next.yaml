@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: MijnTaken API
+  title: MijnTaken
   description: |
     De **MijnTaken API** standaardiseert hoe portalen klantgerelateerde gegevens tonen en acties uitvoeren namens hun gebruikers. Het doel: een eindgebruiker kan informatie en taken raadplegen op elk aangesloten portaal, ongeacht welke organisatie de gegevens beheert — vergelijkbaar met hoe je met je telefoon in het buitenland belt via een ander netwerk, zonder dat je iets hoeft in te stellen.
 

@@ -1,7 +1,7 @@
-# Definition of Done — MijnTaken
+# Service beschrijving — MijnTaken
 
 Dit document beschrijft de functionele en technische specificaties van de **MijnTaken** service.
-Het dient als “Definition of Done” voor implementatie en integratie van taken binnen een MijnOmgeving,
+Het dient als servicebeschrijving voor implementatie en integratie van taken binnen een MijnOmgeving,
 in lijn met de VNG MijnServices standaarden.
 
 ## Links
@@ -9,6 +9,7 @@ in lijn met de VNG MijnServices standaarden.
 - API (interactief): [Open MijnTaken (Scalar)](/?url=/docs/bundled/apis_rest_taken_next.yaml)
 - OpenAPI bron: [apis/rest/taken/next.yaml](/?file=apis/rest/taken/next.yaml)
 - Gedeelde foutafhandeling (RFC 7807): [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
+- [Figma design prototype](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9404-5618&starting-point-node-id=9448%3A758053)
 
 ## Inleiding
 
@@ -55,19 +56,19 @@ De presentatie en interactie in de MijnOmgeving volgt bij voorkeur de NL Design 
 
 ## Capabilities
 
-| Capability | Toelichting |
-|---|---|
+| Capability                                  | Toelichting                                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | **Bieden van interactieve dienstverlening** | Portaal biedt een gepersonaliseerde ervaring op basis van ingelogde identiteit en context. |
-| **Overzicht en inzage bieden van taken** | Portaal toont open/afgeronde taken met deadline/context en begeleidt uitvoering. |
-| **Uitvoering bij de provider** | Provider is bronhouder van uitvoeringslogica en uitvoeringsdata; portaal faciliteert. |
+| **Overzicht en inzage bieden van taken**    | Portaal toont open/afgeronde taken met deadline/context en begeleidt uitvoering.           |
+| **Uitvoering bij de provider**              | Provider is bronhouder van uitvoeringslogica en uitvoeringsdata; portaal faciliteert.      |
 
 ## Bedrijfsobjectenmodel (conceptueel)
 
-| Bedrijfsobject | Definitie |
-|---|---|
-| **TAAK** | Afgebakend stuk werk dat iemand moet/kan doen, vaak gekoppeld aan een context (zaak/product/dossier). |
-| **CONTEXT** | Het onderwerp/anker waarbinnen taken bestaan (bijv. ZAAK, PRODUCT), geïdentificeerd met een URN. |
-| **UITVOERING** | Informatie die bepaalt hoe een taak uitgevoerd wordt (type + canonicalUrl + optionele definitie). |
+| Bedrijfsobject | Definitie                                                                                             |
+| -------------- | ----------------------------------------------------------------------------------------------------- |
+| **TAAK**       | Afgebakend stuk werk dat iemand moet/kan doen, vaak gekoppeld aan een context (zaak/product/dossier). |
+| **CONTEXT**    | Het onderwerp/anker waarbinnen taken bestaan (bijv. ZAAK, PRODUCT), geïdentificeerd met een URN.      |
+| **UITVOERING** | Informatie die bepaalt hoe een taak uitgevoerd wordt (type + canonicalUrl + optionele definitie).     |
 
 ## Informatiearchitectuur (hoog niveau)
 
@@ -138,4 +139,3 @@ Losse bestanden:
 - **Eigenaarschap**: provider is bronhouder van taken en uitvoering; portaal beheert presentatie/UX.
 - **Lifecycle**: taken kunnen ontstaan/verdwijnen op basis van bronprocessen; portaal hoort robuust om te gaan met
   ontbrekende/nieuwe velden (forward compatible).
-
