@@ -57,6 +57,25 @@ export default function Sidebar({ data, params, navigate }) {
           </ul>
         </div>
 
+        {data && data.services?.length > 0 && (
+          <div className="nav-section">
+            <h3>
+              <a href="/?doc=docs/services.md" onClick={(e) => go(e, "doc=docs/services.md")}>
+                Services
+              </a>
+            </h3>
+            <ul>
+              {data.services.map((s, i) => (
+                <li key={i} className="api-entry">
+                  <a href={"/?doc=" + s.doc} onClick={(e) => go(e, "doc=" + s.doc)}>
+                    {s.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {data && (
           <div className="nav-section">
             <h3>

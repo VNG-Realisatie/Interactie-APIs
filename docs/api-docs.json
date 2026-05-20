@@ -1,11 +1,14 @@
 {
   "apis/rest/taken": [
-    { "title": "Definition of Done", "doc": "docs/dod/mijntaken.md" }
+    { "title": "Service beschrijving", "doc": "services/mijntaken.md" }
   ],
   "apis/rest/agenda": [
-    { "title": "Definition of Done", "doc": "docs/dod/mijnagenda.md" }
+    { "title": "Service beschrijving", "doc": "services/mijnagenda.md" }
   ],
   "apis/rest/gesprekken": [
-    { "title": "Definition of Done", "doc": "docs/dod/mijngesprekken.md" }
+    { "title": "Service beschrijving", "doc": "services/mijngesprekken.md" }
+  ],
+  "apis/rest/producten": [
+    { "title": "Service beschrijving", "doc": "services/mijnproducten.md" }
   ]
 }

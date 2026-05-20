@@ -41,13 +41,15 @@ function watchApiFiles() {
         "patterns/**/*.yaml",
         "patterns/**/*.yml",
         "docs/**/*.md",
+        "services/**/*.md",
       ]);
       server.watcher.on("change", (file) => {
         if (
           file.includes("/apis/") ||
           file.includes("/schemas/") ||
           file.includes("/patterns/") ||
-          file.includes("/docs/")
+          file.includes("/docs/") ||
+          file.includes("/services/")
         ) {
           if (file.endsWith("portal-data.json") || file.endsWith(".portal-cache.json")) return; // prevent loop
           console.log(`\n📝 Bestand gewijzigd: ${file}. Data opnieuw genereren...`);

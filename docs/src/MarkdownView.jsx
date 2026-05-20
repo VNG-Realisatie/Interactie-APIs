@@ -16,6 +16,22 @@ export default function MarkdownView({ path, portalData }) {
     const roots = Array.from(document.querySelectorAll("[data-bpmn-src]"));
     if (roots.length === 0) return undefined;
 
+    // Size the canvas to the diagram's own aspect ratio, then fit.
+    const sizeAndFit = (viewer, canvas) => {
+      try {
+        const bpmnCanvas = viewer.get("canvas");
+        const inner = bpmnCanvas.viewbox().inner;
+        if (inner && inner.width > 0 && inner.height > 0) {
+          const width = canvas.clientWidth || 800;
+          const height = width * (inner.height / inner.width);
+          canvas.style.height = `${Math.max(160, Math.min(760, Math.round(height)))}px`;
+        }
+        // Tell bpmn-js the container changed size before fitting.
+        bpmnCanvas.resized();
+        bpmnCanvas.zoom("fit-viewport");
+      } catch (_) {}
+    };
+
     const instances = roots.map((root) => {
       const src = root.getAttribute("data-bpmn-src");
       const title = root.getAttribute("data-bpmn-title");
@@ -52,7 +68,7 @@ export default function MarkdownView({ path, portalData }) {
                 "BPMN geladen, maar geen diagram-layout (BPMN DI) gevonden. Voeg BPMN DI (shapes/edges) toe aan het .bpmn bestand.";
               return;
             }
-            viewer.get("canvas").zoom("fit-viewport");
+            sizeAndFit(viewer, canvas);
 
             const getDocUrl = (element) => {
               const text = element?.businessObject?.documentation?.[0]?.text?.trim();
@@ -77,21 +93,17 @@ export default function MarkdownView({ path, portalData }) {
         canvas.innerHTML = "Geen BPMN bron opgegeven.";
       }
 
-      return viewer;
+      return { viewer, canvas };
     });
 
     const refit = () => {
-      instances.forEach((viewer) => {
-        try {
-          viewer.get("canvas").zoom("fit-viewport");
-        } catch (_) {}
-      });
+      instances.forEach(({ viewer, canvas }) => sizeAndFit(viewer, canvas));
     };
     window.addEventListener("resize", refit);
 
     return () => {
       window.removeEventListener("resize", refit);
-      instances.forEach((viewer) => {
+      instances.forEach(({ viewer }) => {
         try {
           viewer.destroy();
         } catch (_) {}
@@ -118,6 +130,10 @@ export default function MarkdownView({ path, portalData }) {
       items = portalData.patterns;
       title = "Beschikbare Patronen";
       linkPrefix = "/?file=";
+    } else if (path === "docs/services.md" && portalData.services) {
+      items = portalData.services;
+      title = "Beschikbare Services";
+      linkPrefix = "/?doc=";
     } else {
       return null;
     }
@@ -129,6 +145,18 @@ export default function MarkdownView({ path, portalData }) {
         <h2>{title}</h2>
         <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
           {items.map((item, i) => {
+            if (path === "docs/services.md") {
+              return (
+                <li key={i} style={{ marginBottom: "16px" }}>
+                  <a
+                    href={"/?doc=" + item.doc}
+                    style={{ textDecoration: "none", fontWeight: "600", fontSize: "1.1em" }}
+                  >
+                    {item.title}
+                  </a>
+                </li>
+              );
+            }
             const linkUrl = item.versions[0].url || item.versions[0].path;
             const displayName = item.title || item.name;
             const fileName = item.versions[0].sourceUrl
