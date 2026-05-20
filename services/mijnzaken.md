@@ -4,6 +4,16 @@ Dit document beschrijft de functionele en technische richting van **MijnZaken**:
 persoonsgebonden zaakinformatie binnen een MijnOmgeving. Het dient als servicebeschrijving in
 lijn met de VNG MijnServices standaarden, en is bedoeld voor publicatie op Developer.overheid.nl.
 
+## Prototype
+
+Startpunt: [MijnZaken-overzicht in Figma](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9427-21196&starting-point-node-id=9448%3A758053).
+
+<div class="figma-embed"
+  data-figma-title="Interactief prototype — MijnZaken"
+  data-figma-src="https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9427-21196&starting-point-node-id=9448%3A758053"
+  data-figma-width="1280"
+  data-figma-height="2600"></div>
+
 ## Status
 
 Verkennend — dit document beschrijft de **huidige stand van zaken** en de ontwerprichting.
@@ -17,7 +27,7 @@ document beschrijft beide: wat er nu is, en waar het naartoe gaat.
 
 - ZGW API's 1.6 (huidige basis): [GEMMA Zaakgericht werken — standaard](https://vng-realisatie.github.io/gemma-zaken/standaard/)
 - Gedeelde foutafhandeling (RFC 7807): [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
-- [Figma prototype](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9427-21196&starting-point-node-id=9448%3A758053)
+- Figma: [Prototype (MijnZaken)](#prototype)
 
 ## Inleiding
 
@@ -102,22 +112,22 @@ besluiten.
 
 ## Capabilities
 
-| Capability | Toelichting |
-|---|---|
-| **Zakenoverzicht bieden** | Portaal toont de lopende en afgeronde zaken van de ingelogde gebruiker. |
-| **Inzage in status en voortgang** | Portaal toont de actuele status, doorlopen stappen en (indien bekend) de volgende stap. |
-| **Inzage in zaakdocumenten** | Portaal toont de documenten die bij een zaak horen. |
-| **Context bieden voor taken** | Een zaak vormt de context waarbinnen taken ([[mijntaken]]) worden getoond en uitgevoerd. |
+| Capability                        | Toelichting                                                                              |
+| --------------------------------- | ---------------------------------------------------------------------------------------- |
+| **Zakenoverzicht bieden**         | Portaal toont de lopende en afgeronde zaken van de ingelogde gebruiker.                  |
+| **Inzage in status en voortgang** | Portaal toont de actuele status, doorlopen stappen en (indien bekend) de volgende stap.  |
+| **Inzage in zaakdocumenten**      | Portaal toont de documenten die bij een zaak horen.                                      |
+| **Context bieden voor taken**     | Een zaak vormt de context waarbinnen taken ([[mijntaken]]) worden getoond en uitgevoerd. |
 
 ## Bedrijfsobjectenmodel (conceptueel)
 
-| Bedrijfsobject | Definitie |
-|---|---|
-| **ZAAK** | Een lopend proces of dossier van een inwoner/ondernemer bij een organisatie. |
-| **ZAAKTYPE** | De definitie van een soort zaak (doorlooptijd, fasen, verwachte documenten). |
-| **STATUS** | De actuele fase van een zaak binnen het zaaktype. |
-| **ZAAKDOCUMENT** | Een document dat bij een zaak hoort (ingediend stuk, brief, besluit). |
-| **RESULTAAT** | De uitkomst van een afgeronde zaak. |
+| Bedrijfsobject   | Definitie                                                                    |
+| ---------------- | ---------------------------------------------------------------------------- |
+| **ZAAK**         | Een lopend proces of dossier van een inwoner/ondernemer bij een organisatie. |
+| **ZAAKTYPE**     | De definitie van een soort zaak (doorlooptijd, fasen, verwachte documenten). |
+| **STATUS**       | De actuele fase van een zaak binnen het zaaktype.                            |
+| **ZAAKDOCUMENT** | Een document dat bij een zaak hoort (ingediend stuk, brief, besluit).        |
+| **RESULTAAT**    | De uitkomst van een afgeronde zaak.                                          |
 
 ## Informatiearchitectuur (hoog niveau)
 
@@ -133,33 +143,21 @@ besluiten.
 
 - [ZGW API's 1.6](https://vng-realisatie.github.io/gemma-zaken/standaard/) — de systeem-standaard
   voor zaakgericht werken; huidige basis en uitgangspunt voor de MijnZaken proces-API
-- Nederlandse API Strategie / REST API Design Rules (repo-linting via Spectral)
+- Toekomst: MijnZaken API (zie [issue](https://github.com/VNG-Realisatie/VNG-API-Lab/issues/26))
 - OAuth 2.0 / Bearer tokens (deployment-specifiek)
-- OpenAPI 3.1 (voor de toekomstige MijnZaken-API)
-- Foutafhandeling: RFC 7807 via [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
-- Afstemming met [[mijntaken]] — gedeeld context-/`include`-model (een zaak als context-URN)
 
-## API's & patronen
-
-### Verhouding tot ZGW 1.6
+## Verhouding MijnZaken API tot ZGW 1.6
 
 ZGW 1.6 is een systeem-API: genormaliseerd, fijnmazig, ontworpen voor integratie. Een portaal
 dat ZGW 1.6 rechtstreeks consumeert moet relatief veel calls orkestreren (zaken, statussen,
 documenten, zaaktypen apart) en zelf samenstellen. De MijnZaken proces-API wil dat wegnemen.
-
-### Samengestelde responses (eenvoud + performance)
 
 Het patroon: één endpoint levert een **samengestelde** response die een scherm direct kan vullen
 — bijvoorbeeld een zaakdetail inclusief status, zaaktype-labels en documentverwijzingen. Dit
 beperkt het aantal calls (performance) en de orkestratielogica bij portaal én leverancier
 (eenvoud).
 
-### Twee-staps flow (lijst → detail)
-
-1. **Overzicht**: een lijst van zaaksamenvattingen voor het zakenoverzicht.
-2. **Detail**: het volledige zaakbeeld, opgehaald bij het openen van één zaak.
-
-### Aansluiting op MijnTaken
+## Aansluiting op MijnTaken
 
 MijnZaken volgt waar mogelijk de patronen van [[mijntaken]]: `POST .../zoek` als query (privacy),
 het `include`-mechanisme voor uitbreidbare samengestelde responses, en de URN als
