@@ -23,8 +23,8 @@ later moment toegevoegd.
 Afspraken en contactmomenten sluiten aan op het informatiemodel [klantinteracties](https://vng-realisatie.github.io/klantinteracties/).
 In dit lab staat een OpenAPI-referentie voor het bredere klantinteracties-register:
 
-- Klantinteracties API (interactief): [Scalar](/?url=/docs/bundled/apis_rest_klantinteracties_openklant-v0.7.0.yaml)
-- OpenAPI bron: [apis/rest/klantinteracties/openklant-v0.7.0.yaml](/?file=apis/rest/klantinteracties/openklant-v0.7.0.yaml)
+- Klantinteracties API (interactief): [Scalar](/?url=/docs/bundled/apis_rest_openklant-klantinteracties_v0.7.0.yaml)
+- OpenAPI bron: [apis/rest/openklant-klantinteracties/v0.7.0.yaml](/?file=apis/rest/openklant-klantinteracties/v0.7.0.yaml)
 
 **Overig:**
 

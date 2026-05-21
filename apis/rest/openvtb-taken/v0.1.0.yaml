@@ -1,3 +1,7 @@
+# Bron: Maykin Open VTB — Taken API
+# Origineel: https://raw.githubusercontent.com/maykinmedia/open-vtb/main/src/openvtb/components/taken/openapi.yaml
+# "As-is" geimporteerd in het VNG API lab om de huidige situatie te tonen.
+
 openapi: 3.0.3
 info:
   title: Taken API

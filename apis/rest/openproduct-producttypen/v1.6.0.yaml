@@ -1,3 +1,7 @@
+# Bron: Maykin Open Product — Producttypen API
+# Origineel: https://raw.githubusercontent.com/maykinmedia/open-product/master/src/producttypen-openapi.yaml
+# "As-is" geimporteerd in het VNG API lab om de huidige situatie te tonen.
+
 openapi: 3.0.3
 info:
   title: Producttypen API
