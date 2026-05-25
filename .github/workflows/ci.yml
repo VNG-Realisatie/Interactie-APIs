@@ -17,11 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Spectral
-        run: npm install -g @stoplight/spectral-cli
+      - name: Install dependencies
+        run: npx pnpm@10.26.0 install --frozen-lockfile
 
       - name: Run Spectral Linting
-        run: spectral lint --fail-severity=error "apis/**/*.yaml" "apis/**/*.yml" "patterns/**/*.yaml" "patterns/**/*.yml"
+        run: npx pnpm@10.26.0 lint
 
   validate-asyncapi:
     runs-on: ubuntu-latest
