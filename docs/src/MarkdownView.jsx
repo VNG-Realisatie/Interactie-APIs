@@ -195,23 +195,32 @@ export default function MarkdownView({ path, portalData }) {
 
     if (items.length === 0) return null;
 
+    if (path === "docs/services.md") {
+      return (
+        <section className="service-overview" aria-labelledby="services-heading">
+          <h2 id="services-heading">{title}</h2>
+          <div className="service-card-grid">
+            {items.map((item, i) => (
+              <a key={i} className="service-card" href={"/?doc=" + item.doc}>
+                <span className="service-card-kicker">MijnService</span>
+                <h3>{item.title}</h3>
+                {item.description && <p>{item.description}</p>}
+                <span className="service-card-link">
+                  Bekijk servicebeschrijving
+                  {item.figmaUrl ? " en prototype" : ""}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
     return (
       <div className="card" style={{ marginTop: "2em", padding: "24px" }}>
         <h2>{title}</h2>
         <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
           {items.map((item, i) => {
-            if (path === "docs/services.md") {
-              return (
-                <li key={i} style={{ marginBottom: "16px" }}>
-                  <a
-                    href={"/?doc=" + item.doc}
-                    style={{ textDecoration: "none", fontWeight: "600", fontSize: "1.1em" }}
-                  >
-                    {item.title}
-                  </a>
-                </li>
-              );
-            }
             const linkUrl = item.versions[0].url || item.versions[0].path;
             const displayName = item.title || item.name;
             const fileName = item.versions[0].sourceUrl

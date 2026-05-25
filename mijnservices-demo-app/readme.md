@@ -19,6 +19,7 @@ Ideeen om deze app te bouwen:
 - Geimporteerde discussies: `discussions/`
 - Importscript: `import-discussions.mjs`
 
-De app is statisch en kan direct in de browser worden geopend. Er is geen database of API nodig.
+De app is statisch en kan direct in de browser worden geopend. In de VNG API lab portal is de app beschikbaar via `/demo/`.
+Er is geen database of API nodig.
 
 De Figma-plugin is geprobeerd met file key `O3Wzm9ANIRHQTK98X0ljYs` en met de concrete voorbeeldlink uit discussie 394 (`pB5d6RlVSa1B088Xpm1sSo`, node `5488:3723`), maar beide files konden vanuit de plugin niet worden geopend door een toegangs-/argumentfout. De lokale screenshot `screenshots/mijnzaken.png` is daarom gebruikt als visuele fallback voor de eerste implementatie.

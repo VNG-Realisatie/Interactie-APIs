@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { resolve } from "path";
+import { createReadStream } from "fs";
+import { extname, resolve } from "path";
 import { exec } from "child_process";
 
 const DEFAULT_DEV_PORT = 31837;
@@ -81,8 +82,52 @@ function serveYamlAsUtf8() {
   };
 }
 
+function serveMijnServicesDemo() {
+  const demoRoot = resolve("mijnservices-demo-app");
+  const contentTypes = {
+    ".css": "text/css; charset=utf-8",
+    ".html": "text/html; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".png": "image/png",
+    ".txt": "text/plain; charset=utf-8",
+  };
+
+  return {
+    name: "serve-mijnservices-demo",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
+        if (pathname === "/demo") {
+          res.statusCode = 302;
+          res.setHeader("Location", "/demo/");
+          res.end();
+          return;
+        }
+        if (!pathname.startsWith("/demo/")) {
+          next();
+          return;
+        }
+
+        const relPath = decodeURIComponent(pathname.slice("/demo/".length)) || "index.html";
+        const filePath = resolve(demoRoot, relPath);
+        if (!filePath.startsWith(demoRoot)) {
+          res.statusCode = 403;
+          res.end("Forbidden");
+          return;
+        }
+
+        const stream = createReadStream(filePath);
+        stream.on("error", next);
+        res.setHeader("Content-Type", contentTypes[extname(filePath)] ?? "application/octet-stream");
+        stream.pipe(res);
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), logServerUrl(), watchApiFiles(), serveYamlAsUtf8()],
+  plugins: [react(), logServerUrl(), watchApiFiles(), serveYamlAsUtf8(), serveMijnServicesDemo()],
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
     "process.env": JSON.stringify({}),

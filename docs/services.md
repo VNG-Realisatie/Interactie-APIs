@@ -1,4 +1,12 @@
-# Services
+# MijnServices
+
+MijnServices zijn herbruikbare bouwstenen voor persoonlijke, voorspelbare en
+kanaalonafhankelijke dienstverlening. Ze beschrijven wat een MijnOmgeving aan een inwoner,
+ondernemer of medewerker toont en welke interacties daarbij horen.
+
+De bouwstenen vullen de generieke klantroute in: van status volgen en documenten raadplegen tot
+taken uitvoeren, berichten ontvangen en afspraken bekijken. De onderliggende gegevens blijven bij
+de bron; een MijnOmgeving is primair een weergave- en interactielaag.
 
 ## Wat is een Service?
 
