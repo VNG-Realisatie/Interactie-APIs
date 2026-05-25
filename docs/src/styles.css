@@ -571,6 +571,64 @@ a {
   filter: brightness(1.06);
 }
 
+.service-overview {
+  margin-top: 28px;
+}
+
+.service-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.service-card {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-white);
+  color: var(--text-color);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+}
+
+.service-card:hover {
+  border-color: rgba(26, 86, 219, 0.35);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+.service-card-kicker {
+  color: var(--text-muted);
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.service-card h3 {
+  margin: 8px 0;
+  color: var(--vng-dark-blue);
+  font-size: 1.2em;
+}
+
+.service-card p {
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.service-card-link {
+  margin-top: auto;
+  padding-top: 18px;
+  color: var(--vng-blue);
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
 .api-view {
   min-height: 100%;
   display: flex;

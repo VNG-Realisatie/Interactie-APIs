@@ -99,6 +99,25 @@ function updateCache(filePath, content, cache) {
   };
 }
 
+function stripMarkdown(text) {
+  return text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_`>#-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractIntroDescription(content) {
+  const withoutTitle = content.replace(/^#\s+.+$/m, "").trim();
+  const beforeNextHeading = withoutTitle.split(/\n##\s+/)[0] || "";
+  const paragraphs = beforeNextHeading
+    .split(/\n\s*\n/)
+    .map(stripMarkdown)
+    .filter(Boolean);
+  return paragraphs[0] || "";
+}
+
 async function generatePortalData() {
   console.log("🔍 Bezig met het scannen van de repository voor API data...");
 
@@ -302,6 +321,8 @@ async function generatePortalData() {
       let title = headingMatch ? headingMatch[1].trim() : path.basename(file, ".md");
       title = title.replace(/^(Service\s?beschrijving|Definition of Done)\s*[—–-]\s*/i, "").trim();
       const entry = { title, doc: file };
+      const description = extractIntroDescription(content);
+      if (description) entry.description = description;
       const figmaEmbed = content.match(/data-figma-src="([^"]+)"/);
       const figmaProtoSection = content.match(/^## Prototype\s*\n([\s\S]*?)(?=\n## |\s*$)/m);
       const figmaLinksSection = content.match(/^## Links\s*\n([\s\S]*?)(?=\n## |\s*$)/m);
