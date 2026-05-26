@@ -582,6 +582,38 @@ a {
   margin-top: 14px;
 }
 
+.service-demo-card {
+  display: block;
+  padding: 22px 24px;
+  border: 1px solid rgba(26, 86, 219, 0.24);
+  border-left: 5px solid var(--vng-blue);
+  border-radius: 8px;
+  background: #f8fbff;
+  color: var(--text-color);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+}
+
+.service-demo-card:hover {
+  border-color: rgba(26, 86, 219, 0.42);
+  border-left-color: var(--vng-blue);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+.service-demo-card h3 {
+  margin: 8px 0;
+  color: var(--vng-dark-blue);
+  font-size: 1.35em;
+}
+
+.service-demo-card p {
+  max-width: 780px;
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
 .service-card {
   min-height: 220px;
   display: flex;
