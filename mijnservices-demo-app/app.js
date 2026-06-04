@@ -1587,7 +1587,7 @@ function planTaskRow(task, showOrg = false) {
   const cls = `task-list-row${isDone ? " is-done" : ""}`;
   const orgMeta = showOrg ? `<small class="plan-row-org">${escapeHtml(orgNaam(task.organisatie ?? "overig"))}</small>` : "";
   const inner = `
-    <strong>${escapeHtml(title)}${orgMeta}</strong>
+    <strong><span class="task-title">${escapeHtml(title)}</span>${orgMeta}</strong>
     ${planRowBadge(task)}
     <span class="arrow" aria-hidden="true">→</span>
   `;

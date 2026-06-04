@@ -9,6 +9,16 @@
   --color-border-soft: #dce2ea;
   --color-panel: #ffffff;
   --color-page: #ffffff;
+  --color-hover: #f7f9fc;
+  --color-neutral: #eef1f5;
+  --ok-bg: #dcf0e4;
+  --ok-fg: #1c5b34;
+  --warn-bg: #fde9db;
+  --warn-fg: #8a3d16;
+  --flag-bg: #fdf1e7;
+  --flag-border: #d98a3d;
+  --alert: #d53b2a;
+  --outline-hover: 3px solid rgb(76 18 240 / 15%);
   --shadow-panel: 0 14px 38px rgb(7 31 69 / 16%);
   --content-width: 1640px;
   --side-width: 270px;
@@ -253,7 +263,7 @@ a:hover,
   min-width: 32px;
   height: 32px;
   border-radius: 999px;
-  background: #eef1f5;
+  background: var(--color-neutral);
   color: var(--color-muted);
   font-weight: 700;
 }
@@ -285,16 +295,7 @@ h3 {
   font-size: 1.1rem;
 }
 
-.overview-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  max-width: 920px;
-}
-
 .overview-card,
-.detail-card,
-.message-card,
 .product-card {
   border: 2px solid var(--color-border-soft);
   background: #ffffff;
@@ -307,11 +308,16 @@ h3 {
   text-decoration: none;
 }
 
-.overview-card:hover,
-.table-link:hover,
-.message-card:hover {
+.overview-card:hover {
   border-color: var(--color-purple);
-  outline: 3px solid rgb(76 18 240 / 15%);
+  outline: var(--outline-hover);
+}
+
+/* Links onderstrepen op hover (consistent met gewone tekstlinks). */
+.table-link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.12em;
 }
 
 .overview-card strong {
@@ -347,28 +353,11 @@ h3 {
   margin-top: 34px;
 }
 
-.quick-action-list,
 .theme-shortcuts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin-top: 24px;
-}
-
-.quick-action-list a {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 16px;
-  min-height: 76px;
-  padding: 18px 22px;
-  border-bottom: 2px solid var(--color-border-soft);
-  color: var(--color-blue);
-  text-decoration: none;
-}
-
-.quick-action-list strong {
-  font-size: 1.08rem;
 }
 
 .folder-card-grid,
@@ -379,26 +368,35 @@ h3 {
   margin-top: 34px;
 }
 
-.folder-card {
+/* Paarse "kaart met notch": gedeeld door folder-card en tax-case-card. */
+.folder-card,
+.tax-case-card {
   position: relative;
   display: grid;
   align-content: space-between;
-  min-height: 250px;
-  padding: 34px;
   background: var(--color-purple-soft);
   color: var(--color-ink);
   text-decoration: none;
 }
 
-.folder-card::after {
+.folder-card::after,
+.tax-case-card::after {
   content: "";
   position: absolute;
   top: 0;
   right: 18px;
-  width: 156px;
   height: 34px;
   background: #ffffff;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 14% 100%);
+}
+
+.folder-card {
+  min-height: 250px;
+  padding: 34px;
+}
+
+.folder-card::after {
+  width: 156px;
 }
 
 .folder-card strong,
@@ -551,8 +549,21 @@ h3 {
   cursor: pointer;
 }
 
+/* --- Gedeelde hover voor klikbare rijen --------------------------------- */
+/* Eén interactie voor task-list-row (dossier/taken/home), arrow-list-row en
+   de berichten-rijen: zachte achtergrond-tint + de titel onderstreept. */
+.task-list-row:hover,
+.arrow-list-row:hover,
 .message-table tbody tr[data-msg-href]:hover {
-  background: #f7f9fc;
+  background: var(--color-hover);
+}
+
+.task-list-row:hover .task-title,
+.arrow-list-row:hover strong,
+.message-table tbody tr[data-msg-href]:hover .message-link span:last-child {
+  text-decoration: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.12em;
 }
 
 .message-link {
@@ -563,12 +574,6 @@ h3 {
   text-decoration: none;
 }
 
-.message-link:hover span:last-child {
-  text-decoration: underline;
-  text-decoration-thickness: 0.07em;
-  text-underline-offset: 0.12em;
-}
-
 .is-unread .message-link {
   font-weight: 700;
 }
@@ -577,7 +582,7 @@ h3 {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: #d53b2a;
+  background: var(--alert);
   flex: 0 0 auto;
 }
 
@@ -636,8 +641,8 @@ h3 {
 .urgent-badge {
   padding: 6px 10px;
   border-radius: 6px;
-  background: #fde9db;
-  color: #8a3d16;
+  background: var(--warn-bg);
+  color: var(--warn-fg);
   font-size: 1.22rem;
   font-weight: 700;
   white-space: nowrap;
@@ -679,26 +684,13 @@ h3 {
 }
 
 .tax-case-card {
-  position: relative;
-  display: grid;
-  align-content: space-between;
   width: min(100%, 390px);
   min-height: 222px;
   padding: 34px 34px 28px;
-  background: var(--color-purple-soft);
-  color: var(--color-ink);
-  text-decoration: none;
 }
 
 .tax-case-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 18px;
   width: 118px;
-  height: 34px;
-  background: #ffffff;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 14% 100%);
 }
 
 .tax-case-card strong {
@@ -737,50 +729,18 @@ h3 {
   font-weight: 400;
 }
 
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin: 0 0 26px;
-  border-bottom: 2px solid var(--color-border-soft);
-}
-
-.tabs button {
-  min-height: 52px;
-  padding: 0 18px;
-  border: 0;
-  border-bottom: 5px solid transparent;
-  background: transparent;
-  color: var(--color-blue);
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.tabs button.active {
-  border-color: var(--color-purple);
-  color: var(--color-ink);
-}
-
 .card-list {
   display: grid;
   gap: 16px;
   max-width: 920px;
 }
 
-.message-card,
 .product-card {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 18px;
   color: var(--color-ink);
   text-decoration: none;
-}
-
-.detail-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 22px;
-  align-items: start;
-  margin-bottom: 28px;
 }
 
 .case-page {
@@ -1000,7 +960,7 @@ h3 {
   display: grid;
   place-items: center;
   align-self: stretch;
-  background: #eef1f5;
+  background: var(--color-neutral);
   color: var(--color-ink);
   font-size: 1.5rem;
 }
@@ -1243,12 +1203,6 @@ h3 {
   gap: 12px;
 }
 
-.detail-card {
-  display: grid;
-  gap: 22px;
-  max-width: 860px;
-}
-
 .anchor-list {
   display: flex;
   flex-wrap: wrap;
@@ -1328,7 +1282,7 @@ h3 {
   max-width: 760px;
   padding: 26px;
   border: 2px solid var(--color-border-soft);
-  background: #f7f9fc;
+  background: var(--color-hover);
 }
 
 .empty-line {
@@ -1504,10 +1458,6 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  .overview-grid {
-    grid-template-columns: 1fr;
-  }
-
   .data-table {
     display: block;
     overflow-x: auto;
@@ -1643,11 +1593,6 @@ h3 {
     margin-bottom: 16px;
   }
 
-  .overview-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
   .dashboard-page {
     gap: 56px;
   }
@@ -1658,18 +1603,12 @@ h3 {
 
   .folder-card-grid,
   .product-card-grid,
-  .quick-action-list,
   .theme-shortcuts,
   .appointment-list,
   .plan-grid {
     grid-template-columns: 1fr;
     gap: 16px;
     margin-top: 22px;
-  }
-
-  .quick-action-list a {
-    min-height: 0;
-    padding: 16px 0;
   }
 
   .folder-card,
@@ -1886,11 +1825,9 @@ h3 {
     height: 8px;
   }
 
-  .detail-header,
   .case-action,
   .document-row,
   .document-row-rich,
-  .message-card,
   .product-card {
     grid-template-columns: 1fr;
   }
@@ -2048,7 +1985,7 @@ h3 {
 .plannen-progress-bar {
   height: 14px;
   border-radius: 999px;
-  background: #eef1f5;
+  background: var(--color-neutral);
   overflow: hidden;
 }
 
@@ -2074,24 +2011,27 @@ h3 {
 }
 
 .plan-status.is-auto {
-  background: #dcf0e4;
-  color: #1c5b34;
+  background: var(--ok-bg);
+  color: var(--ok-fg);
 }
 
 .plan-status.is-info,
 .plan-status.is-done {
-  background: #eef1f5;
+  background: var(--color-neutral);
   color: var(--color-muted);
 }
 
 .plannen-progress-note {
   margin: 10px 0 0;
-  color: #1c5b34;
+  color: var(--ok-fg);
   font-weight: 600;
 }
 
 .task-list-row.is-done strong {
   color: var(--color-muted);
+}
+
+.task-list-row.is-done .task-title {
   text-decoration: line-through;
 }
 
@@ -2103,13 +2043,13 @@ h3 {
 .plan-detail-flag {
   margin: 0 0 28px;
   padding: 14px 18px;
-  border-left: 4px solid #d98a3d;
-  background: #fdf1e7;
+  border-left: 4px solid var(--flag-border);
+  background: var(--flag-bg);
 }
 
 .plan-detail-flag p {
   margin: 4px 0;
-  color: #8a3d16;
+  color: var(--warn-fg);
 }
 
 .plan-detail-page .primary-button {
@@ -2142,7 +2082,7 @@ h3 {
   height: 26px;
   padding: 0 8px;
   border-radius: 999px;
-  background: #eef1f5;
+  background: var(--color-neutral);
   color: var(--color-muted);
   font-size: 0.85rem;
 }
@@ -2167,8 +2107,8 @@ h3 {
 
 /* Afgerond -> groen (i.p.v. grijs), net als "Geregeld". */
 .plan-status.is-done {
-  background: #dcf0e4;
-  color: #1c5b34;
+  background: var(--ok-bg);
+  color: var(--ok-fg);
 }
 
 /* --- Home: prominente ingang naar het Nabestaandendossier ----------------- */
@@ -2185,7 +2125,7 @@ h3 {
 }
 
 .dossier-highlight:hover {
-  outline: 3px solid rgb(76 18 240 / 18%);
+  outline: var(--outline-hover);
 }
 
 .dossier-highlight-icon {
