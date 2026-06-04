@@ -108,7 +108,18 @@ Alleen `titel.nl` is verplicht; de rest is optioneel met de genoemde default.
 | `briefCode` | string | `""` | Kenmerk (detailpagina). |
 
 Antwoord op `POST`: `201` met het aangemaakte object inclusief gegenereerde `uuid`.
-De brief verschijnt in de app na **Vernieuwen** (of een herlaad).
+
+## Live updates (Server-Sent Events)
+
+De server pusht via **`GET /events`** (een SSE-stream) seintjes naar alle verbonden clients:
+
+- bij **aanmaken/bewerken/verwijderen** van een taak → `{"type":"taken"}` → elke open app ververst
+  z'n lijst automatisch (geen "Vernieuwen" nodig);
+- bij **wijziging van `app.js` / `styles.css` / `index.html`** → `{"type":"reload"}` → alle tabs
+  herladen (handige dev-live-reload).
+
+De demo-app verbindt hier automatisch mee in API-modus. Werkt gewoon via de tunnel (SSE is HTTP).
+Snel zelf zien: `curl -N https://<tunnel>/events` en in een ander venster een taak aanmaken.
 
 ## Voorbeelden
 

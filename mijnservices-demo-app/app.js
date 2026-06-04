@@ -1857,4 +1857,32 @@ siteSearch.addEventListener("submit", (event) => {
 
 window.addEventListener("hashchange", render);
 
+// Live updates via Server-Sent Events (alleen in API-modus): de server pusht
+// een seintje als taken wijzigen (dan verversen we) of als de code wijzigt
+// (dan herladen we de pagina). Zo ziet iedereen wijzigingen meteen.
+let planEventSource = null;
+function connectPlanEvents() {
+  if (planEventSource || !planApiEnabled()) return;
+  try {
+    planEventSource = new EventSource(`${planApiBase()}/events`);
+    planEventSource.addEventListener("message", (event) => {
+      let data;
+      try {
+        data = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+      if (data.type === "reload") {
+        location.reload();
+      } else if (data.type === "taken") {
+        planFetchState = "idle";
+        fetchPlanTasks();
+      }
+    });
+  } catch (err) {
+    console.error("Live updates niet beschikbaar", err);
+  }
+}
+
 render();
+connectPlanEvents();

@@ -19,7 +19,8 @@
 
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile, rename } from "node:fs/promises";
+import { watch } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { extname, normalize, join } from "node:path";
 import { takenSeed } from "../data/taken-seed.mjs";
@@ -41,12 +42,35 @@ const MIME = {
   ".ico": "image/x-icon",
 };
 
-// --- Seed-data -------------------------------------------------------------
+// --- State (in-memory, met JSON-persistentie) ------------------------------
 // De correspondentiestroom (demo-seed) staat als gedeeld bestand in
-// data/taken-seed.mjs, zodat de app en deze server dezelfde bron gebruiken.
-// structuredClone zodat mutaties (PATCH) de gedeelde seed niet aanpassen.
-// uuid -> taak
-const taken = new Map(takenSeed.map((taak) => [taak.uuid, structuredClone(taak)]));
+// data/taken-seed.mjs. De live state wordt weggeschreven naar een JSON-bestand
+// zodat hij een serverherstart overleeft. Dat bestand is gitignored (volatiele
+// demodata hoort niet in git). Wil je resetten? Verwijder backend/taken-state.json.
+const STATE_FILE = fileURLToPath(new URL("./taken-state.json", import.meta.url));
+
+// uuid -> taak. Laad uit het state-bestand, anders uit de seed.
+let taken;
+try {
+  const arr = JSON.parse(await readFile(STATE_FILE, "utf-8"));
+  taken = new Map(arr.map((taak) => [taak.uuid, taak]));
+} catch {
+  taken = new Map(takenSeed.map((taak) => [taak.uuid, structuredClone(taak)]));
+}
+
+// Schrijf de state weg (gedebounced, atomisch via tmp + rename).
+let saveTimer = null;
+function persist() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await writeFile(`${STATE_FILE}.tmp`, JSON.stringify([...taken.values()], null, 2));
+      await rename(`${STATE_FILE}.tmp`, STATE_FILE);
+    } catch (err) {
+      console.error("Kon state niet opslaan:", err.message);
+    }
+  }, 200);
+}
 
 // --- Helpers ---------------------------------------------------------------
 const CORS = {
@@ -106,6 +130,34 @@ async function readJson(req) {
   return JSON.parse(Buffer.concat(chunks).toString("utf-8"));
 }
 
+// --- Live updates (Server-Sent Events) -------------------------------------
+// Open verbindingen waarover we seintjes pushen naar alle clients.
+const sseClients = new Set();
+
+function broadcast(payload) {
+  const msg = `data: ${JSON.stringify(payload)}\n\n`;
+  for (const res of sseClients) {
+    try {
+      res.write(msg);
+    } catch {
+      sseClients.delete(res);
+    }
+  }
+}
+
+// Code-live-reload: bij wijziging van app.js/styles.css/index.html herladen
+// alle clients. (Seed-/serverwijzigingen vereisen een serverherstart.)
+let reloadTimer = null;
+try {
+  watch(STATIC_ROOT, (_event, filename) => {
+    if (!filename || !/\.(m?js|css|html)$/.test(filename)) return;
+    clearTimeout(reloadTimer);
+    reloadTimer = setTimeout(() => broadcast({ type: "reload" }), 150);
+  });
+} catch {
+  // fs.watch niet beschikbaar: code-live-reload uit, data-sync werkt nog.
+}
+
 // --- Router ----------------------------------------------------------------
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host ?? "localhost"}`);
@@ -115,6 +167,30 @@ const server = createServer(async (req, res) => {
   if (method === "OPTIONS") return send(res, 204, null);
 
   try {
+    // Live updates: clients luisteren hier en verversen bij een seintje.
+    if (method === "GET" && path === "/events") {
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        ...CORS,
+      });
+      res.write("retry: 3000\n\n");
+      sseClients.add(res);
+      const ping = setInterval(() => {
+        try {
+          res.write(": ping\n\n");
+        } catch {
+          // verbinding weg
+        }
+      }, 25000);
+      req.on("close", () => {
+        clearInterval(ping);
+        sseClients.delete(res);
+      });
+      return; // verbinding blijft open
+    }
+
     // Health / hint (de root "/" serveert de demo-app, zie onderaan)
     if (method === "GET" && path === "/health") {
       return send(res, 200, {
@@ -159,6 +235,8 @@ const server = createServer(async (req, res) => {
       };
       if (body.toelichting?.nl) taak.toelichting = body.toelichting;
       taken.set(taak.uuid, taak);
+      persist();
+      broadcast({ type: "taken" });
       return send(res, 201, taak, { Location: `/taken/${taak.uuid}` });
     }
 
@@ -189,11 +267,15 @@ const server = createServer(async (req, res) => {
         if ("deadline" in body) taak.deadline = body.deadline;
         if ("leidtTotZaak" in body) taak.leidtTotZaak = body.leidtTotZaak;
         if (body.uitvoering) taak.uitvoering = { ...taak.uitvoering, ...body.uitvoering };
+        persist();
+        broadcast({ type: "taken" });
         return send(res, 200, taak);
       }
 
       if (method === "DELETE") {
         taken.delete(uuid);
+        persist();
+        broadcast({ type: "taken" });
         return send(res, 204, null);
       }
     }
@@ -207,10 +289,13 @@ const server = createServer(async (req, res) => {
   }
 });
 
+persist(); // materialiseer het state-bestand bij opstart
+
 server.listen(PORT, () => {
   console.log(`MijnTaken demo-server + app op http://localhost:${PORT}`);
   console.log(`  App:     http://localhost:${PORT}/#plannen`);
   console.log(`  API:     POST http://localhost:${PORT}/context/zoek  (health: /health)`);
-  console.log(`  Taken:   ${taken.size} geseed`);
+  console.log(`  Taken:   ${taken.size} (uit state-bestand of seed)`);
+  console.log(`  State:   backend/taken-state.json`);
   console.log(`  Tunnel:  npx cloudflared tunnel --url http://localhost:${PORT}`);
 });

@@ -100,6 +100,8 @@ Afgeleid uit de brief. Tag: 🔴 Moet · 🟡 Zou moeten · 🔵 Kan/bonus.
       zodat de status consistent is. Geen toggle-suggererende checkbox.
 - [x] **Default sortering = urgentie**; in die platte weergave staat de organisatie klein onder de titel.
 - [x] **Unificatie:** open acties uit het dossier verschijnen ook in **"Mijn taken"** en op de **home**.
+- [x] **Live updates (SSE):** `GET /events` pusht naar alle clients — bij taakmutaties ververst ieders
+      lijst vanzelf; bij code-wijziging (app.js/styles.css/index.html) herladen alle tabs (dev-live-reload).
 
 ### Te doen — kern (correspondentiestroom → taken)
 - [x] **Datamodel `brief → taak`**: brief-type (informatiebrief/actiebrief/factuur/aanmaning),
