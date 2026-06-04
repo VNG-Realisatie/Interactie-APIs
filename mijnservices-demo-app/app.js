@@ -365,11 +365,12 @@ function setActive(section) {
   navButtons.forEach((button) =>
     button.classList.toggle("active", button.dataset.route === section),
   );
-  setBreadcrumb([
-    { label: "Home", href: "#overzicht" },
-    { label: "Gemeente Voorbeeld", href: "#overzicht" },
-    { label: labels[section] ?? "Overzicht" },
-  ]);
+  // Overzicht is de parent van alle menu-pagina's (consistent met de menubalk).
+  setBreadcrumb(
+    section === "overzicht"
+      ? [{ label: "Overzicht" }]
+      : [{ label: "Overzicht", href: "#overzicht" }, { label: labels[section] ?? "Overzicht" }],
+  );
   document.title = `${labels[section] ?? "MijnServices"} - MijnServices Demo App`;
 }
 
@@ -1024,8 +1025,7 @@ function renderTaxPage() {
 
 function renderVacationPermitPage() {
   setBreadcrumb([
-    { label: "Home", href: "#overzicht" },
-    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Overzicht", href: "#overzicht" },
     { label: "Vakantieverhuur", href: "#vakantieverhuur" },
     { label: "Aanvraag vakantieverhuur Dierenselaan 88" },
   ]);
@@ -1103,8 +1103,7 @@ function vacationRentalTable(rows) {
 
 function renderErfpachtContractPage() {
   setBreadcrumb([
-    { label: "Home", href: "#overzicht" },
-    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Overzicht", href: "#overzicht" },
     { label: "Erfpacht", href: "#erfpacht" },
     { label: "Keukenhoflaan 133 en 3 meer" },
   ]);
@@ -1252,8 +1251,7 @@ function paymentNotice(extraClass = "") {
 
 function renderErfpachtInvoicesPage() {
   setBreadcrumb([
-    { label: "Home", href: "#overzicht" },
-    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Overzicht", href: "#overzicht" },
     { label: "Erfpacht", href: "#erfpacht" },
     { label: "Facturen" },
   ]);
@@ -1614,8 +1612,7 @@ function renderPlanDetail(rawId) {
   const task = planFindTask(rawId);
 
   setBreadcrumb([
-    { label: "Home", href: "#overzicht" },
-    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Overzicht", href: "#overzicht" },
     { label: "Nabestaandendossier", href: "#plannen" },
     { label: task?.titel?.nl ?? "Brief" },
   ]);
