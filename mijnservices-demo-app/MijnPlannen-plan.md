@@ -105,7 +105,10 @@ Afgeleid uit de brief. Tag: 🔴 Moet · 🟡 Zou moeten · 🔵 Kan/bonus.
 - [x] **JSON-persistentie:** live state wordt weggeschreven naar `backend/taken-state.json` (gitignored)
       en bij opstart ingeladen → overleeft een serverherstart. Reset = bestand verwijderen.
 - [x] **Versimpeld:** "Sorteren"- en "Organisatie"-filters verwijderd (altijd platte urgentie-lijst);
-      "Vernieuwen"-knop weg (auto-refresh via SSE). Ongebruikte grouping-code opgeruimd.
+      "Vernieuwen"-knop weg (auto-refresh via SSE). Ongebruikte grouping-code + CSS opgeruimd.
+- [x] **Mijn berichten:** de correspondentiestroom uit het dossier verschijnt ook hier (afzender ·
+      onderwerp · ontvangen, nieuwste eerst). Actie-brieven = "ongelezen" (vet + stip); klik = briefdetail.
+      Sidebar-badge toont het aantal actie-brieven.
 
 ### Te doen — kern (correspondentiestroom → taken)
 - [x] **Datamodel `brief → taak`**: brief-type (informatiebrief/actiebrief/factuur/aanmaning),

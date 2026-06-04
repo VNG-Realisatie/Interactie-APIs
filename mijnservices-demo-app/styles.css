@@ -540,6 +540,21 @@ h3 {
   width: 78%;
 }
 
+.message-afzender {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.message-table tbody tr[data-msg-href] {
+  cursor: pointer;
+}
+
+.message-table tbody tr[data-msg-href]:hover {
+  background: #f7f9fc;
+}
+
 .message-link {
   display: inline-flex;
   align-items: center;
@@ -2045,147 +2060,8 @@ h3 {
   transition: width 0.25s ease;
 }
 
-.plannen-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 18px 24px;
-  margin-bottom: 30px;
-}
-
-.plannen-control {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.plannen-control label {
-  color: var(--color-muted);
-  font-size: 0.95rem;
-}
-
-.plannen-control select {
-  min-height: 44px;
-  padding: 0 12px;
-  border: 2px solid var(--color-border);
-  background: var(--color-panel);
-  color: var(--color-ink);
-}
-
-.plannen-control select:hover {
-  border-color: var(--color-purple);
-}
-
-.plannen-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--color-ink);
-  white-space: nowrap;
-}
-
-.plannen-group {
-  margin-bottom: 38px;
-}
-
-.plannen-group-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 14px;
-  padding-bottom: 12px;
-  border-bottom: 3px solid var(--color-border-soft);
-}
-
-.plannen-group-header h2 {
-  margin: 0;
-  color: var(--color-ink);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.7rem;
-  line-height: 1;
-}
-
-.plannen-group-count {
-  color: var(--color-muted);
-  font-size: 1rem;
-}
-
 .plan-task-list {
   width: min(100%, 1120px);
-}
-
-/* Checkbox links + het bestaande task-list-row component rechts. */
-.plan-task-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 18px;
-  border-bottom: 2px solid var(--color-border);
-}
-
-.plan-task-row .task-list-row {
-  border-bottom: 0;
-}
-
-.plan-check {
-  display: inline-flex;
-  align-items: center;
-}
-
-.plan-check input {
-  width: 26px;
-  height: 26px;
-  accent-color: var(--color-purple);
-  cursor: pointer;
-}
-
-.plan-task-row.is-done .task-list-row strong {
-  color: var(--color-muted);
-  text-decoration: line-through;
-}
-
-@media (max-width: 720px) {
-  .plan-task-row {
-    gap: 12px;
-  }
-
-  .plannen-controls {
-    justify-content: flex-start;
-  }
-}
-
-.plannen-api-note {
-  margin: 8px 0 0;
-  color: var(--color-muted);
-  font-size: 0.95rem;
-}
-
-.plannen-api-note code {
-  color: var(--color-ink);
-}
-
-/* --- MijnPlannen: correspondentie/status ---------------------------------- */
-.plan-task-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
-  text-align: right;
-}
-
-.plan-task-sub {
-  color: var(--color-muted);
-  font-size: 0.9rem;
-  line-height: 1.35;
-}
-
-.plan-zaak {
-  color: var(--color-blue);
-}
-
-.plan-urgent {
-  color: #8a3d16;
-  font-weight: 700;
 }
 
 .plan-status {
@@ -2195,11 +2071,6 @@ h3 {
   font-size: 0.95rem;
   font-weight: 700;
   white-space: nowrap;
-}
-
-.plan-status.is-actie {
-  background: #fde9db;
-  color: #8a3d16;
 }
 
 .plan-status.is-auto {
@@ -2213,43 +2084,10 @@ h3 {
   color: var(--color-muted);
 }
 
-.plan-marker {
-  display: inline-grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.plan-marker.is-actie {
-  background: #fde9db;
-  color: #8a3d16;
-}
-
-.plan-marker.is-auto {
-  background: #dcf0e4;
-  color: #1c5b34;
-}
-
-.plan-marker.is-info,
-.plan-marker.is-done {
-  background: #eef1f5;
-  color: var(--color-muted);
-}
-
 .plannen-progress-note {
   margin: 10px 0 0;
   color: #1c5b34;
   font-weight: 600;
-}
-
-@media (max-width: 720px) {
-  .plan-task-meta {
-    align-items: flex-start;
-    text-align: left;
-  }
 }
 
 .task-list-row.is-done strong {

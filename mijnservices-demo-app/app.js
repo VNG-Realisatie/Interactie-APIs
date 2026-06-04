@@ -264,22 +264,6 @@ const organisaties = {
   kvk: { naam: "KVK", kort: "KVK" },
 };
 
-// Volgorde waarin organisaties getoond worden in de gegroepeerde weergave.
-const organisatieVolgorde = [
-  "gemeente",
-  "belastingdienst",
-  "toeslagen",
-  "svb",
-  "cak",
-  "uwv",
-  "rdw",
-  "waterschap",
-  "cjib",
-  "duo",
-  "rvo",
-  "kvk",
-];
-
 // Labels voor de brief-types uit de correspondentiestroom.
 const briefTypeLabels = {
   informatiebrief: "Informatiebrief",
@@ -343,7 +327,7 @@ async function fetchPlanTasks() {
     planFetchState = "error";
     console.error("MijnPlannen: kon taken niet laden van API", err);
   }
-  if (["plannen", "taken", "overzicht"].includes(normalizeRoute().section)) render();
+  if (["plannen", "taken", "overzicht", "berichten"].includes(normalizeRoute().section)) render();
 }
 
 const labels = {
@@ -446,6 +430,16 @@ function render() {
   }
 
   app.focus({ preventScroll: true });
+  updateBerichtenBadge();
+}
+
+// Zet de badge bij "Mijn berichten" op het aantal brieven dat nog actie vraagt.
+function updateBerichtenBadge() {
+  const badge = document.querySelector('.side-nav button[data-route="berichten"] .badge');
+  if (!badge) return;
+  const n = planSource().filter((t) => planActionable(t) && t.status !== "afgerond").length;
+  badge.textContent = String(n);
+  badge.hidden = n === 0;
 }
 
 function renderOverview() {
@@ -830,34 +824,55 @@ function renderTasks() {
 }
 
 function renderMessages() {
+  ensurePlanLoaded();
+  // De brieven uit het Nabestaandendossier zijn de berichten. Nieuwste eerst;
+  // brieven die nog actie vragen tonen we als "ongelezen". Klik = briefdetail.
+  const briefs = [...planSource()].sort((a, b) => (b.ontvangen ?? "").localeCompare(a.ontvangen ?? ""));
+  const loading = planApiEnabled() && planFetchState === "loading" && !briefs.length;
   app.innerHTML = `
     <h1>Mijn berichten</h1>
-    <table class="message-table">
+    <p class="page-subtitle">Post van de overheid na het overlijden van uw partner Cees, gebundeld vanuit uw Nabestaandendossier.</p>
+    ${
+      loading
+        ? `<p class="empty-line">Berichten laden…</p>`
+        : !briefs.length
+          ? `<p class="empty-line">U heeft geen berichten.</p>`
+          : `<table class="message-table">
       <thead>
         <tr>
           <th>Onderwerp</th>
-          <th>Datum</th>
+          <th>Ontvangen</th>
         </tr>
       </thead>
       <tbody>
-        ${messages
-          .map(
-            ([title, date, unread], index) => `
-              <tr class="${unread ? "is-unread" : ""}">
+        ${briefs
+          .map((b) => {
+            const unread = planActionable(b) && b.status !== "afgerond";
+            return `
+              <tr class="${unread ? "is-unread" : ""}" data-msg-href="#plannen/${encodeURIComponent(b.uuid)}">
                 <td data-label="Onderwerp">
-                  <a class="message-link" href="#berichten/${index}">
-                    ${unread ? '<span class="unread-dot" aria-label="Ongelezen"></span>' : ""}
-                    <span>${escapeHtml(title)}</span>
+                  <small class="message-afzender">${escapeHtml(orgNaam(b.organisatie ?? "overig"))}</small>
+                  <a class="message-link" href="#plannen/${encodeURIComponent(b.uuid)}">
+                    ${unread ? '<span class="unread-dot" aria-label="Vraagt om actie"></span>' : ""}
+                    <span>${escapeHtml(b.titel?.nl ?? "")}</span>
                   </a>
                 </td>
-                <td data-label="Datum">${escapeHtml(date)}</td>
+                <td data-label="Ontvangen">${escapeHtml(planFormatDate(b.ontvangen))}</td>
               </tr>
-            `,
-          )
+            `;
+          })
           .join("")}
       </tbody>
-    </table>
+    </table>`
+    }
   `;
+  // Hele rij klikbaar (de titel blijft een echte link voor toetsenbordgebruik).
+  app.querySelectorAll("tr[data-msg-href]").forEach((tr) => {
+    tr.addEventListener("click", (event) => {
+      if (event.target.closest("a")) return;
+      location.hash = tr.dataset.msgHref;
+    });
+  });
 }
 
 function renderMessageDetail(index) {
