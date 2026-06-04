@@ -1,0 +1,349 @@
+{
+  "_comment": "Golden fixture mirroring docs/personas.md and docs/casus-truus.md. All BSNs synthetic; all dates anchored to a 2025-03-15 death.",
+  "persona": "Truus",
+  "overledene": {
+    "id": "urn:overlijden:test:00000000-0000-4000-8000-000000000001",
+    "synthetic": true,
+    "bron": "onegov2-inwoner-centraal-generator",
+    "overledene": {
+      "bsn": "111222333",
+      "geslachtsnaam": "de Vries",
+      "voornamen": "Cees",
+      "geboortedatum": "1953-06-12",
+      "overlijdensdatum": "2025-03-15",
+      "gemeente_overlijden": "Utrecht",
+      "woonadres": {
+        "straat": "Zorgcentrum De Wilg",
+        "huisnummer": "1",
+        "postcode": "3511 AB",
+        "woonplaats": "Utrecht",
+        "verzorgingstehuis": true
+      }
+    },
+    "partner": {
+      "bsn": "999888777",
+      "geslachtsnaam": "de Vries-Bakker",
+      "voornamen": "Truus",
+      "geboortedatum": "1963-09-04",
+      "woonadres": {
+        "straat": "Hoofdstraat",
+        "huisnummer": "42",
+        "postcode": "3512 CD",
+        "woonplaats": "Utrecht",
+        "verzorgingstehuis": false
+      }
+    },
+    "relatie": {
+      "vorm": "huwelijk",
+      "aanvang": "1985-06-22"
+    }
+  },
+  "verplichtingen": [
+    {
+      "id": "urn:verplichting:test:00000000-0000-4000-8000-000000000010",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Toeslagen",
+      "categorie": "toeslag",
+      "omschrijving": "Terugvordering zorgtoeslag (na herziening)",
+      "bedrag": { "bedrag": "287.00", "valuta": "EUR" },
+      "peildatum": "2025-01-01",
+      "vervaldatum": "2025-04-26",
+      "status": "open",
+      "wettelijke_termijn_dagen": 42
+    },
+    {
+      "id": "urn:verplichting:test:00000000-0000-4000-8000-000000000011",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Toeslagen",
+      "categorie": "toeslag",
+      "omschrijving": "Naheffing huurtoeslag (definitieve toekenning, ~1 jaar later)",
+      "bedrag": { "bedrag": "612.00", "valuta": "EUR" },
+      "peildatum": "2025-01-01",
+      "vervaldatum": "2026-04-30",
+      "status": "open",
+      "wettelijke_termijn_dagen": 42
+    },
+    {
+      "id": "urn:verplichting:test:00000000-0000-4000-8000-000000000012",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "CAK",
+      "categorie": "wlz",
+      "omschrijving": "WLZ-eigen bijdrage (laatste maand verzorgingstehuis)",
+      "bedrag": { "bedrag": "1240.00", "valuta": "EUR" },
+      "peildatum": "2025-03-15",
+      "vervaldatum": "2025-04-14",
+      "status": "open",
+      "wettelijke_termijn_dagen": 30
+    },
+    {
+      "id": "urn:verplichting:test:00000000-0000-4000-8000-000000000013",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Belastingdienst",
+      "categorie": "erfbelasting",
+      "omschrijving": "Aangifte erfbelasting",
+      "bedrag": null,
+      "peildatum": "2025-03-15",
+      "vervaldatum": "2025-11-10",
+      "status": "open",
+      "wettelijke_termijn_dagen": 240
+    },
+    {
+      "id": "urn:verplichting:test:00000000-0000-4000-8000-000000000014",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Waterschap",
+      "categorie": "lokaal_belasting",
+      "omschrijving": "Waterschapsbelasting 2025 (peildatum 1 januari)",
+      "bedrag": { "bedrag": "298.00", "valuta": "EUR" },
+      "peildatum": "2025-01-01",
+      "vervaldatum": "2025-05-15",
+      "status": "open",
+      "wettelijke_termijn_dagen": 42
+    }
+  ],
+  "rechten": [
+    {
+      "id": "urn:recht:test:00000000-0000-4000-8000-000000000020",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_partner": "999888777",
+      "organisatie": "SVB",
+      "categorie": "overig",
+      "omschrijving": "Overlijdensuitkering AOW (1 maand AOW + vakantiegeld)",
+      "geschat_maandbedrag": { "bedrag": "1120.83", "valuta": "EUR" },
+      "voorwaarden": ["Overledene ontving AOW", "Achterblijvende partner"],
+      "status": "toegekend"
+    },
+    {
+      "id": "urn:recht:test:00000000-0000-4000-8000-000000000021",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_partner": "999888777",
+      "organisatie": "Toeslagen",
+      "categorie": "toeslag_herberekening",
+      "omschrijving": "Herberekening huurtoeslag en zorgtoeslag op basis van nieuw huishoudinkomen",
+      "geschat_maandbedrag": null,
+      "voorwaarden": [
+        "Inkomenswijziging na overlijden partner",
+        "Toeslag wordt opnieuw berekend vanaf maand na overlijden"
+      ],
+      "status": "aanvraag_open"
+    }
+  ],
+  "correspondentie": [
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000030",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "RDW",
+      "brief_code": "RDW.S-0068",
+      "type": "informatiebrief",
+      "verzonden_op": "2025-03-22",
+      "dagen_na_overlijden": 7,
+      "aanhef": "Beste erven van Cees de Vries",
+      "geadresseerde": "erven",
+      "adres": {
+        "straat": "Zorgcentrum De Wilg", "huisnummer": "1",
+        "postcode": "3511 AB", "woonplaats": "Utrecht",
+        "verzorgingstehuis": true
+      },
+      "actie_vereist": false, "actie_omschrijving": null,
+      "wettelijke_reactietermijn_dagen": null
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000031",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "SVB",
+      "brief_code": "SVB.OVERLIJDENSUITKERING",
+      "type": "informatiebrief",
+      "verzonden_op": "2025-03-22",
+      "dagen_na_overlijden": 7,
+      "aanhef": "Geachte mevrouw Truus de Vries-Bakker",
+      "geadresseerde": "partner",
+      "adres": {
+        "straat": "Hoofdstraat", "huisnummer": "42",
+        "postcode": "3512 CD", "woonplaats": "Utrecht",
+        "verzorgingstehuis": false
+      },
+      "actie_vereist": false, "actie_omschrijving": null,
+      "wettelijke_reactietermijn_dagen": null
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000032",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "CAK",
+      "brief_code": "CAK.WLZ-CONDOLEANCE",
+      "type": "condoleance",
+      "verzonden_op": "2025-03-20",
+      "dagen_na_overlijden": 5,
+      "aanhef": "Aan de erven van meneer Cees de Vries",
+      "geadresseerde": "erven",
+      "adres": {
+        "straat": "Zorgcentrum De Wilg", "huisnummer": "1",
+        "postcode": "3511 AB", "woonplaats": "Utrecht",
+        "verzorgingstehuis": true
+      },
+      "actie_vereist": false, "actie_omschrijving": null,
+      "wettelijke_reactietermijn_dagen": null
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000033",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "CAK",
+      "brief_code": "CAK.WLZ-FACTUUR",
+      "type": "factuur",
+      "verzonden_op": "2025-04-10",
+      "dagen_na_overlijden": 26,
+      "aanhef": "Mevrouw Truus de Vries-Bakker inzake meneer Cees de Vries",
+      "geadresseerde": "contactpersoon",
+      "adres": {
+        "straat": "Hoofdstraat", "huisnummer": "42",
+        "postcode": "3512 CD", "woonplaats": "Utrecht",
+        "verzorgingstehuis": false
+      },
+      "actie_vereist": true,
+      "actie_omschrijving": "Factuur betalen",
+      "wettelijke_reactietermijn_dagen": 30
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000034",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Toeslagen",
+      "brief_code": "TOESLAGEN.HERZIENE-BESCHIKKING-ZORG",
+      "type": "beschikking",
+      "verzonden_op": "2025-03-29",
+      "dagen_na_overlijden": 14,
+      "aanhef": "Aan de erven van",
+      "geadresseerde": "erven",
+      "adres": {
+        "straat": "Zorgcentrum De Wilg", "huisnummer": "1",
+        "postcode": "3511 AB", "woonplaats": "Utrecht",
+        "verzorgingstehuis": true
+      },
+      "actie_vereist": false, "actie_omschrijving": null,
+      "wettelijke_reactietermijn_dagen": null
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000035",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Toeslagen",
+      "brief_code": "TOESLAGEN.TERUGVORDERING-ZORG",
+      "type": "terugvordering",
+      "verzonden_op": "2025-04-05",
+      "dagen_na_overlijden": 21,
+      "aanhef": "Aan de erven van",
+      "geadresseerde": "erven",
+      "adres": {
+        "straat": "Zorgcentrum De Wilg", "huisnummer": "1",
+        "postcode": "3511 AB", "woonplaats": "Utrecht",
+        "verzorgingstehuis": true
+      },
+      "actie_vereist": true,
+      "actie_omschrijving": "Bedrag terugbetalen of bezwaar maken",
+      "wettelijke_reactietermijn_dagen": 42
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000036",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Belastingdienst",
+      "brief_code": "BD.ERVENBRIEF",
+      "type": "actiebrief",
+      "verzonden_op": "2025-04-01",
+      "dagen_na_overlijden": 17,
+      "aanhef": "Aan de erven van",
+      "geadresseerde": "erven",
+      "adres": {
+        "straat": "Zorgcentrum De Wilg", "huisnummer": "1",
+        "postcode": "3511 AB", "woonplaats": "Utrecht",
+        "verzorgingstehuis": true
+      },
+      "actie_vereist": true,
+      "actie_omschrijving": "Contactpersoon doorgeven aan Belastingdienst",
+      "wettelijke_reactietermijn_dagen": 30
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000037",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Belastingdienst",
+      "brief_code": "BD.AANGIFTE-ERFBELASTING",
+      "type": "actiebrief",
+      "verzonden_op": "2025-06-30",
+      "dagen_na_overlijden": 107,
+      "aanhef": "Aan de erven van",
+      "geadresseerde": "erven",
+      "adres": {
+        "straat": "Hoofdstraat", "huisnummer": "42",
+        "postcode": "3512 CD", "woonplaats": "Utrecht",
+        "verzorgingstehuis": false
+      },
+      "actie_vereist": true,
+      "actie_omschrijving": "Aangifte erfbelasting binnen 8 maanden indienen",
+      "wettelijke_reactietermijn_dagen": 240
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000038",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Gemeente",
+      "brief_code": "GEMEENTE.CONDOLEANCE",
+      "type": "condoleance",
+      "verzonden_op": "2025-03-19",
+      "dagen_na_overlijden": 4,
+      "aanhef": "Geachte mevrouw Truus de Vries-Bakker",
+      "geadresseerde": "partner",
+      "adres": {
+        "straat": "Hoofdstraat", "huisnummer": "42",
+        "postcode": "3512 CD", "woonplaats": "Utrecht",
+        "verzorgingstehuis": false
+      },
+      "actie_vereist": false, "actie_omschrijving": null,
+      "wettelijke_reactietermijn_dagen": null
+    },
+    {
+      "id": "urn:brief:test:00000000-0000-4000-8000-000000000039",
+      "synthetic": true,
+      "bron": "onegov2-inwoner-centraal-generator",
+      "bsn_overledene": "111222333",
+      "organisatie": "Waterschap",
+      "brief_code": "WS.AANSLAG",
+      "type": "factuur",
+      "verzonden_op": "2025-04-25",
+      "dagen_na_overlijden": 41,
+      "aanhef": "Aan Cees de Vries",
+      "geadresseerde": "overledene",
+      "adres": {
+        "straat": "Zorgcentrum De Wilg", "huisnummer": "1",
+        "postcode": "3511 AB", "woonplaats": "Utrecht",
+        "verzorgingstehuis": true
+      },
+      "actie_vereist": true,
+      "actie_omschrijving": "Aanslag betalen — als erfgenaam aansprakelijk",
+      "wettelijke_reactietermijn_dagen": 42
+    }
+  ]
+}

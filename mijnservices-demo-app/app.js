@@ -1,5 +1,7 @@
+import { takenSeed } from "./data/taken-seed.mjs";
+
 const app = document.querySelector("#app");
-const breadcrumbCurrent = document.querySelector("[data-breadcrumb-current]");
+const breadcrumbs = document.querySelector(".breadcrumbs");
 const navButtons = [...document.querySelectorAll(".side-nav button")];
 const accountButton = document.querySelector(".account-button");
 const accountMenu = document.querySelector(".account-menu");
@@ -10,44 +12,115 @@ const applyFilterButton = document.querySelector(".apply-filter");
 const siteSearch = document.querySelector(".site-search");
 
 const cases = [
-  ["Aanvraag subsidie geluidsisolatie", "17-10-2024", "Open", "Uw aanvraag is ontvangen. De gemeente beoordeelt de offerte en de ligging van de woning."],
-  ["Wmo-melding", "29-9-2024", "Open", "Een medewerker neemt contact op voor een keukentafelgesprek."],
-  ["Opzeggen parkeervergunning", "5-12-2023", "Open", "De vergunning loopt door tot de einddatum van de huidige betaalperiode."],
-  ["Aanvraag afkoop canon Keukenlaan 133", "5-12-2023", "Open", "De aanvraag ligt bij erfpacht voor berekening van de afkoopsom."],
-  ["Adres onderzoek", "5-12-2023", "Open", "Wij controleren of de gegevens in de basisregistratie kloppen."],
-  ["Bezwaar tegen waardering onroerende zaken", "5-12-2023", "Open", "Het bezwaar is in behandeling bij de taxateur."],
-  ["Aanvraag vakantieverhuur Dierenselaan 88", "5-12-2023", "Gesloten", "De melding is afgehandeld en toegevoegd aan uw overzicht."],
+  [
+    "Aanvraag subsidie geluidsisolatie",
+    "17-10-2024",
+    "Open",
+    "Uw aanvraag is ontvangen. De gemeente beoordeelt de offerte en de ligging van de woning.",
+  ],
+  [
+    "Wmo-melding",
+    "29-9-2024",
+    "Open",
+    "Een medewerker neemt contact op voor een keukentafelgesprek.",
+  ],
+  [
+    "Opzeggen parkeervergunning",
+    "5-12-2023",
+    "Open",
+    "De vergunning loopt door tot de einddatum van de huidige betaalperiode.",
+  ],
+  [
+    "Aanvraag afkoop canon Keukenlaan 133",
+    "5-12-2023",
+    "Open",
+    "De aanvraag ligt bij erfpacht voor berekening van de afkoopsom.",
+  ],
+  [
+    "Adres onderzoek",
+    "5-12-2023",
+    "Open",
+    "Wij controleren of de gegevens in de basisregistratie kloppen.",
+  ],
+  [
+    "Bezwaar tegen waardering onroerende zaken",
+    "5-12-2023",
+    "Open",
+    "Het bezwaar is in behandeling bij de taxateur.",
+  ],
+  [
+    "Aanvraag vakantieverhuur Dierenselaan 88",
+    "5-12-2023",
+    "Gesloten",
+    "De melding is afgehandeld en toegevoegd aan uw overzicht.",
+  ],
   ["Aanvraag mantelzorg parkeervergunning", "5-12-2023", "Gesloten", "De vergunning is afgegeven."],
   ["Aanvraag parkeervergunning", "5-12-2023", "Gesloten", "De aanvraag is afgerond."],
-  ["Verhuizing doorgeven", "3-11-2023", "Gesloten", "De verhuizing is verwerkt in de basisregistratie."],
+  [
+    "Verhuizing doorgeven",
+    "3-11-2023",
+    "Gesloten",
+    "De verhuizing is verwerkt in de basisregistratie.",
+  ],
   ["Evenementenvergunning buurtfeest", "14-8-2023", "Gesloten", "De vergunning is verleend."],
-  ["Melding openbare ruimte", "2-6-2023", "Gesloten", "De melding is afgehandeld door de buitendienst."],
+  [
+    "Melding openbare ruimte",
+    "2-6-2023",
+    "Gesloten",
+    "De melding is afgehandeld door de buitendienst.",
+  ],
 ];
 
 const tasks = [
   ["Geef informatie voor uw aanvraag subsidie geluidsisolatie", "Nog 2 dagen", true],
-  ["Betaal uw parkeerbon van € 74,90 voor parkeren bij Valeriusplein", "vóór 1 maart 2023", false],
-  ["Betaal uw Erfpachtfactuur van € 27,52 voor Keukenhoflaan 133 voor de periode juli tot en met december 2023", "vóór 12 december 2023", false],
+  [
+    "Betaal uw parkeerbon van € 74,90 voor parkeren bij Valeriusplein",
+    "vóór 21 oktober 2023",
+    false,
+  ],
+  [
+    "Betaal uw Erfpachtfactuur van € 27,52 voor Keukenhoflaan 133 voor de periode juli tot en met december 2023",
+    "vóór 12 december 2023",
+    false,
+  ],
   ["Aanleveren extra documenten adres onderzoek", "", false],
 ];
 
 const messages = [
-  ["Herinnering: Informatie geven voor uw aanvraag subsidie geluidsisolatie", "Vandaag", true, "Ontvangen vandaag om 09:12 uur"],
+  [
+    "Herinnering: Informatie geven voor uw aanvraag subsidie geluidsisolatie",
+    "Vandaag",
+    true,
+    "Ontvangen vandaag om 09:12 uur",
+  ],
   ["Betalen van uw parkeerbon", "15-5-2025", true, "Ontvangen op 15 mei 2025 om 18:10 uur"],
-  ["Vernieuwen identiteitskaart", "22-9-2024", false, "Ontvangen op 22 september 2024 om 10:31 uur"],
-  ["Tip: betaal bedragen met automatische incasso", "1-5-2024", false, "Ontvangen op 1 mei 2024 om 12:02 uur"],
+  [
+    "Vernieuwen identiteitskaart",
+    "22-9-2024",
+    false,
+    "Ontvangen op 22 september 2024 om 10:31 uur",
+  ],
+  [
+    "Tip: betaal bedragen met automatische incasso",
+    "1-5-2024",
+    false,
+    "Ontvangen op 1 mei 2024 om 12:02 uur",
+  ],
 ];
 
 const products = [
-  ["Parkeervergunning bewoner", "Actief tot 31-12-2025", "Parkeren"],
-  ["Uittreksel BRP", "Aangevraagd op 12-9-2024", "Burgerzaken"],
-  ["WOZ beschikking 2024", "Beschikbaar", "WOZ"],
-  ["Erfpacht contract", "Keukenlaan 133", "Erfpacht"],
+  ["Erfpachtcontract", "Keukenhoflaan 133", "Erfpacht", "#erfpacht/contract"],
+  ["Verhuurontheffing", "Dierenselaan 88", "Vakantieverhuur", "#vakantieverhuur/vergunning"],
+  ["Parkeervergunning bewoners", "34-FJT-23", "Parkeren", "#parkeren"],
+  ["Parkeerbon", "34-FJT-23", "Parkeren", "#parkeren"],
 ];
 
 const taxTasks = [
   ["Betaal uw gemeentelijke belasting van € 6.982,30", "vóór 1 maart 2024"],
-  ["Betaal uw rioolrecht grootafvoer van € 211,30 voor aanslagnummer 2212002751", "vóór 1 april 2024"],
+  [
+    "Betaal uw rioolrecht grootafvoer van € 211,30 voor aanslagnummer 2212002751",
+    "vóór 1 april 2024",
+  ],
   ["Geef meer informatie over uw bezwaar tegen afvalstoffenheffing 2024", "vóór 2 juni 2024"],
 ];
 
@@ -65,6 +138,18 @@ const taxAssessments = [
   ["2021", "2101057800", "Gemeentelijke belastingen", "€ 735,90", "€ 0,00"],
 ];
 
+const groundLeaseInvoices = [
+  ["Juli t/m december 2023", "€ 732,43", "€ 101,20"],
+  ["Januari t/m juni 2023", "€ 732,43", "€ 0,00"],
+  ["Juli t/m december 2022", "€ 732,43", "€ 0,00"],
+  ["Januari t/m juni 2022", "€ 732,43", "€ 0,00"],
+  ["Juli t/m december 2021", "€ 732,43", "€ 0,00"],
+  ["Januari t/m juni 2021", "€ 732,43", "€ 0,00"],
+  ["Juli t/m december 2020", "€ 732,43", "€ 0,00"],
+  ["Januari t/m juni 2020", "€ 732,43", "€ 0,00"],
+  ["Juli t/m december 2019", "€ 732,43", "€ 0,00"],
+];
+
 const documents = [
   ["example3", "png", "2000 kB", "31-8-2024", "Door u geupload"],
   ["Ontvangstbevestiging", "pdf", "116 kB", "17-10-2022", "Van de gemeente"],
@@ -77,7 +162,12 @@ const themeData = {
   woz: {
     title: "WOZ",
     tasks: [["Geef meer informatie over uw WOZ-bezwaar", "vóór 2 juni 2024"]],
-    actions: ["WOZ-waarde bekijken", "Bezwaar maken tegen WOZ-waarde", "Taxatieverslag downloaden", "Adresgegevens controleren"],
+    actions: [
+      "WOZ-waarde bekijken",
+      "Bezwaar maken tegen WOZ-waarde",
+      "Taxatieverslag downloaden",
+      "Adresgegevens controleren",
+    ],
     cases: [5],
     itemsTitle: "WOZ-objecten",
     items: [
@@ -89,8 +179,15 @@ const themeData = {
   },
   parkeren: {
     title: "Parkeren",
-    tasks: [["Betaal uw parkeerbon van € 74,90 voor parkeren bij Valeriusplein", "vóór 1 maart 2023"]],
-    actions: ["Parkeervergunning aanvragen", "Kenteken wijzigen", "Parkeerbon betalen", "Mantelzorgvergunning aanvragen"],
+    tasks: [
+      ["Betaal uw parkeerbon van € 74,90 voor parkeren bij Valeriusplein", "vóór 1 maart 2023"],
+    ],
+    actions: [
+      "Parkeervergunning aanvragen",
+      "Kenteken wijzigen",
+      "Parkeerbon betalen",
+      "Mantelzorgvergunning aanvragen",
+    ],
     cases: [2, 7, 8],
     itemsTitle: "Parkeerproducten",
     items: [
@@ -102,8 +199,18 @@ const themeData = {
   },
   erfpacht: {
     title: "Erfpacht",
-    tasks: [["Betaal uw Erfpachtfactuur van € 27,52 voor Keukenhoflaan 133 voor de periode juli tot en met december 2023", "vóór 12 december 2023"]],
-    actions: ["Erfpachtcanon bekijken", "Afkoop canon aanvragen", "Erfpachtcontract downloaden", "Adres erfpachtobject wijzigen"],
+    tasks: [
+      [
+        "Betaal uw Erfpachtfactuur van € 27,52 voor Keukenhoflaan 133 voor de periode juli tot en met december 2023",
+        "vóór 12 december 2023",
+      ],
+    ],
+    actions: [
+      "Erfpachtcanon bekijken",
+      "Afkoop canon aanvragen",
+      "Erfpachtcontract downloaden",
+      "Adres erfpachtobject wijzigen",
+    ],
     cases: [3],
     itemsTitle: "Erfpachtcontracten",
     items: [
@@ -116,7 +223,12 @@ const themeData = {
   vakantieverhuur: {
     title: "Vakantieverhuur",
     tasks: [],
-    actions: ["Vakantieverhuur melden", "Nachtteller bekijken", "Melding wijzigen", "Voorwaarden vakantieverhuur bekijken"],
+    actions: [
+      "Vakantieverhuur melden",
+      "Nachtteller bekijken",
+      "Melding wijzigen",
+      "Voorwaarden vakantieverhuur bekijken",
+    ],
     cases: [6],
     itemsTitle: "Meldingen vakantieverhuur",
     items: [
@@ -127,6 +239,115 @@ const themeData = {
     ],
   },
 };
+
+// --- MijnPlannen -----------------------------------------------------------
+// Demo van een takenlijst voor het regelen van zaken na een overlijden.
+// De data is bewust gemodelleerd naar het MijnTaken-contract (TaakSamenvatting:
+// uuid, titel.nl, toelichting.nl, status, deadline, uitvoering). Het enige
+// extra veld is `organisatie`; in een echte MijnTaken-koppeling volgt dat uit
+// de provider/context. Zo is deze statische lijst later 1-op-1 te vervangen
+// door `POST /context/zoek`-resultaten.
+
+// De 12 organisaties uit de correspondentiestroom-inventarisatie (Aanpak Levensgebeurtenissen).
+const organisaties = {
+  gemeente: { naam: "Gemeente", kort: "Gemeente" },
+  belastingdienst: { naam: "Belastingdienst", kort: "Belastingdienst" },
+  toeslagen: { naam: "Dienst Toeslagen", kort: "Toeslagen" },
+  svb: { naam: "Sociale Verzekeringsbank", kort: "SVB" },
+  cak: { naam: "CAK", kort: "CAK" },
+  uwv: { naam: "UWV", kort: "UWV" },
+  rdw: { naam: "RDW", kort: "RDW" },
+  waterschap: { naam: "Waterschap", kort: "Waterschap" },
+  cjib: { naam: "CJIB", kort: "CJIB" },
+  duo: { naam: "DUO", kort: "DUO" },
+  rvo: { naam: "RVO", kort: "RVO" },
+  kvk: { naam: "KVK", kort: "KVK" },
+};
+
+// Volgorde waarin organisaties getoond worden in de gegroepeerde weergave.
+const organisatieVolgorde = [
+  "gemeente",
+  "belastingdienst",
+  "toeslagen",
+  "svb",
+  "cak",
+  "uwv",
+  "rdw",
+  "waterschap",
+  "cjib",
+  "duo",
+  "rvo",
+  "kvk",
+];
+
+// Labels voor de brief-types uit de correspondentiestroom.
+const briefTypeLabels = {
+  informatiebrief: "Informatiebrief",
+  actiebrief: "Actiebrief",
+  factuur: "Factuur",
+  aanmaning: "Aanmaning",
+};
+
+// De correspondentiestroom (demo-seed) staat als gedeeld bestand in data/taken-seed.mjs,
+// zodat de app en de server (backend/server.mjs) dezelfde bron gebruiken.
+const planTasks = takenSeed;
+
+// Weergave-state voor het Nabestaandendossier.
+let planFilterOrg = "alle";
+let planSort = "urgentie"; // "urgentie" (platte lijst, default) of "organisatie" (gegroepeerd)
+
+// API-modus (opt-in). Standaard draait MijnPlannen op de statische `planTasks`.
+// Geef een MijnTaken-server mee via ?api=<url> in de URL om live te koppelen;
+// de waarde wordt onthouden in localStorage zodat hash-navigatie blijft werken.
+// Leeg maken kan met ?api= (lege waarde).
+let planApiTasks = [];
+let planFetchState = "idle"; // idle | loading | loaded | error
+
+// Basis-URL voor de MijnTaken-API. Drie bronnen, in volgorde van voorrang:
+//  1. window.MIJNPLANNEN_API — geïnjecteerd als de combined server de app
+//     serveert. Waarde "" betekent same-origin (relatieve fetch, geen CORS).
+//  2. ?api=<url> in de URL — onthouden in localStorage. Leeg = wissen.
+//  3. anders: statische demo-data.
+function planApiBase() {
+  if (typeof window.MIJNPLANNEN_API === "string") return window.MIJNPLANNEN_API;
+  const fromQuery = new URLSearchParams(location.search).get("api");
+  if (fromQuery !== null) {
+    if (fromQuery) localStorage.setItem("mijnplannen-api", fromQuery.replace(/\/+$/, ""));
+    else localStorage.removeItem("mijnplannen-api");
+  }
+  return localStorage.getItem("mijnplannen-api") ?? "";
+}
+
+// API-modus aan? (same-origin base "" telt ook als aan.)
+function planApiEnabled() {
+  return typeof window.MIJNPLANNEN_API === "string" || !!planApiBase();
+}
+
+// De actieve takenbron: live API-resultaat of de statische lijst.
+function planSource() {
+  return planApiEnabled() ? planApiTasks : planTasks;
+}
+
+async function fetchPlanTasks() {
+  if (!planApiEnabled()) return;
+  const base = planApiBase();
+  planFetchState = "loading";
+  try {
+    const res = await fetch(`${base}/context/zoek`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ klantId: "demo", include: ["taken"] }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    planApiTasks = Array.isArray(data.taken) ? data.taken : [];
+    planFetchState = "loaded";
+  } catch (err) {
+    planFetchState = "error";
+    console.error("MijnPlannen: kon taken niet laden van API", err);
+  }
+  if (["plannen", "taken", "overzicht"].includes(normalizeRoute().section)) render();
+}
 
 const labels = {
   overzicht: "Overzicht",
@@ -142,6 +363,7 @@ const labels = {
   gegevens: "Mijn gegevens",
   agenda: "Mijn agenda",
   plan: "Mijn plan",
+  plannen: "Nabestaandendossier",
 };
 
 function escapeHtml(value) {
@@ -159,9 +381,26 @@ function normalizeRoute() {
 }
 
 function setActive(section) {
-  navButtons.forEach((button) => button.classList.toggle("active", button.dataset.route === section));
-  breadcrumbCurrent.textContent = labels[section] ?? "Overzicht";
+  navButtons.forEach((button) =>
+    button.classList.toggle("active", button.dataset.route === section),
+  );
+  setBreadcrumb([
+    { label: "Home", href: "#overzicht" },
+    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: labels[section] ?? "Overzicht" },
+  ]);
   document.title = `${labels[section] ?? "MijnServices"} - MijnServices Demo App`;
+}
+
+function setBreadcrumb(items) {
+  breadcrumbs.innerHTML = items
+    .map((item, index) => {
+      const content = item.href
+        ? `<a href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`
+        : `<span>${escapeHtml(item.label)}</span>`;
+      return `${index > 0 ? '<span aria-hidden="true">›</span>' : ""}${content}`;
+    })
+    .join("");
 }
 
 function render() {
@@ -191,10 +430,20 @@ function render() {
     renderProfile();
   } else if (route === "belastingzaken") {
     renderTaxPage();
+  } else if (route === "erfpacht" && detail === "facturen") {
+    renderErfpachtInvoicesPage();
+  } else if (route === "erfpacht" && detail === "contract") {
+    renderErfpachtContractPage();
+  } else if (route === "vakantieverhuur" && detail === "vergunning") {
+    renderVacationPermitPage();
   } else if (route === "agenda") {
     renderAgenda();
   } else if (route === "plan") {
     renderPlan();
+  } else if (route === "plannen" && detail) {
+    renderPlanDetail(detail);
+  } else if (route === "plannen") {
+    renderPlannen();
   } else {
     renderTheme(route);
   }
@@ -203,6 +452,11 @@ function render() {
 }
 
 function renderOverview() {
+  ensurePlanLoaded();
+  const openActions = planOpenActions();
+  const takenHtml = openActions.length
+    ? `<div class="plan-task-list">${openActions.slice(0, 4).map((t) => planTaskRow(t, true)).join("")}</div>`
+    : `<p class="empty-line">U heeft op dit moment geen openstaande taken.</p>`;
   app.innerHTML = `
     <article class="dashboard-page">
       <header class="dashboard-intro">
@@ -210,20 +464,19 @@ function renderOverview() {
         <p>In ‘Mijn omgeving’ kunt u zelf uw persoonlijke zaken regelen wanneer het u uitkomt. U kunt bijvoorbeeld uw rekeningen betalen en zien wanneer uw aanvraag klaar is.</p>
       </header>
 
-      <section class="dashboard-section">
-        <h1>Wat kan ik regelen</h1>
-        <div class="quick-action-list">
-          <a href="#belastingzaken"><strong>Belasting gespreid betalen met automatische incasso</strong><span aria-hidden="true">→</span></a>
-          <a href="#parkeren"><strong>Parkeervergunning aanvragen of wijzigen</strong><span aria-hidden="true">→</span></a>
-          <a href="#woz"><strong>WOZ-waarde bekijken of bezwaar maken</strong><span aria-hidden="true">→</span></a>
-          <a href="#agenda"><strong>Afspraak bij de gemeente bekijken</strong><span aria-hidden="true">→</span></a>
-        </div>
-      </section>
+      <a class="dossier-highlight" href="#plannen">
+        <span class="dossier-highlight-icon" aria-hidden="true"><svg class="icon"><use href="#icon-clipboard"></use></svg></span>
+        <span class="dossier-highlight-body">
+          <strong>Nabestaandendossier</strong>
+          <span>Na het overlijden van uw partner Cees moet er veel geregeld worden. Bekijk gebundeld wat er al automatisch is geregeld en wat nog uw aandacht vraagt.</span>
+        </span>
+        <span class="dossier-highlight-cta">${openActions.length} ${openActions.length === 1 ? "taak" : "taken"} openstaand <span aria-hidden="true">→</span></span>
+      </a>
 
       <section class="dashboard-section">
         <h1>Mijn taken</h1>
-        <a class="all-link" href="#taken">Bekijk alle taken (4) <span aria-hidden="true">→</span></a>
-        ${taskListHtml()}
+        <a class="all-link" href="#taken">Bekijk alle taken (${openActions.length}) <span aria-hidden="true">→</span></a>
+        ${takenHtml}
       </section>
 
       <section class="dashboard-section">
@@ -241,8 +494,8 @@ function renderOverview() {
         <h1>Wat heb ik gekregen?</h1>
         <a class="all-link" href="#producten">Bekijk alle producten (4) <span aria-hidden="true">→</span></a>
         <div class="product-card-grid">
-          ${productDashboardCard("Erfpachtcontract", "Keukenlaan 133", "1 december 2023", "1 taak open")}
-          ${productDashboardCard("Verhuurontheffing", "Keukenlaan 133", "17 oktober 2021")}
+          ${productDashboardCard("Erfpachtcontract", "Keukenhoflaan 133", "1 december 2023", "1 taak open", "erfpacht/contract")}
+          ${productDashboardCard("Verhuurontheffing", "Dierenselaan 88", "17 oktober 2021", "", "vakantieverhuur/vergunning")}
           ${productDashboardCard("Parkeervergunning bewoners", "34-FJT-23", "16 januari 2024")}
           ${productDashboardCard("Parkeerbon", "34-FJT-23", "30 januari 2025")}
         </div>
@@ -301,9 +554,9 @@ function folderCard(route, title, date) {
   `;
 }
 
-function productDashboardCard(title, subtitle, date, badge = "") {
+function productDashboardCard(title, subtitle, date, badge = "", route = "producten") {
   return `
-    <a class="dashboard-product-card" href="#producten">
+    <a class="dashboard-product-card" href="#${escapeHtml(route)}">
       <strong>${escapeHtml(title)}</strong>
       <span>${escapeHtml(subtitle)}</span>
       <small>${escapeHtml(date)}</small>
@@ -453,7 +706,11 @@ function renderCaseDetail(index) {
         <h1>Eerdere contactmomenten</h1>
         <ol class="contact-timeline">
           ${[
-            ["1-12-2022", "mail", "Er is naar u een herinnering verstuurd over het geven van informatie"],
+            [
+              "1-12-2022",
+              "mail",
+              "Er is naar u een herinnering verstuurd over het geven van informatie",
+            ],
             ["1-12-2022", "mail", "Er is van u gevraagd om informatie te geven"],
             ["1-12-2022", "main", "Er is naar u een tip verstuurd over recht op extra subsidie"],
             ["1-12-2022", "mail", "Status is veranderd naar ‘Onderzoek naar geluidsoverlast’"],
@@ -462,7 +719,11 @@ function renderCaseDetail(index) {
             ["1-12-2022", "brief", "Er is naar u een brief verstuurd over kosten onderzoek en"],
             ["1-12-2022", "mail", "Status is veranderd naar ‘Deelname aan gebruikersonderzoek’"],
             ["1-12-2022", "balie", "Bezoek gehad voor het inscannen van documenten"],
-            ["1-12-2022", "brief", "Er is naar u een brief verstuurd over actie woningverbetering verkeersgeluid bewoner"],
+            [
+              "1-12-2022",
+              "brief",
+              "Er is naar u een brief verstuurd over actie woningverbetering verkeersgeluid bewoner",
+            ],
           ]
             .map(
               ([date, channel, text]) => `
@@ -555,9 +816,19 @@ function renderInformationForm() {
 }
 
 function renderTasks() {
+  ensurePlanLoaded();
+  const open = planOpenActions();
+  const loading = planApiEnabled() && planFetchState === "loading" && !open.length;
   app.innerHTML = `
     <h1>Mijn taken</h1>
-    ${taskListHtml()}
+    <p class="page-subtitle">Alles wat er na het overlijden van uw partner Cees nog uw aandacht vraagt, uit uw nabestaandedossier.</p>
+    ${
+      loading
+        ? `<p class="empty-line">Taken laden…</p>`
+        : open.length
+          ? `<div class="plan-task-list">${open.map((t) => planTaskRow(t, true)).join("")}</div>`
+          : `<p class="empty-line">U heeft op dit moment geen openstaande taken.</p>`
+    }
   `;
 }
 
@@ -641,14 +912,14 @@ function renderProducts() {
     <div class="card-list">
       ${products
         .map(
-          ([title, text, group]) => `
-            <article class="product-card">
+          ([title, text, group, route]) => `
+            <a class="product-card" href="${escapeHtml(route)}">
               <span>
                 <h3>${escapeHtml(title)}</h3>
                 <span class="muted">${escapeHtml(text)}</span>
               </span>
               <strong>${escapeHtml(group)}</strong>
-            </article>
+            </a>
           `,
         )
         .join("")}
@@ -659,8 +930,12 @@ function renderProducts() {
 function renderTaxPage() {
   app.innerHTML = `
     <section class="stacked-page tax-page">
+      <header class="tax-page-header">
+        <h1>Belastingzaken</h1>
+      </header>
+
       <section>
-        <h1>Mijn taken</h1>
+        <h2>Mijn taken</h2>
         <div class="arrow-list">
           ${taxTasks
             .map(
@@ -677,7 +952,7 @@ function renderTaxPage() {
       </section>
 
       <section>
-        <h1>Wat kan ik regelen</h1>
+        <h2>Wat kan ik regelen</h2>
         <div class="arrow-list">
           ${taxActions
             .map(
@@ -693,7 +968,7 @@ function renderTaxPage() {
       </section>
 
       <section>
-        <h1>Mijn zaken</h1>
+        <h2>Mijn zaken</h2>
         <a class="tax-case-card" href="#zaken/5">
           <strong>Bezwaar tegen afvalstoffenheffing 2024</strong>
           <span>5 januari 2024</span>
@@ -702,7 +977,7 @@ function renderTaxPage() {
       </section>
 
       <section>
-        <h1>Aanslagen</h1>
+        <h2>Aanslagen</h2>
         <a class="all-link" href="#belastingzaken">Bekijk alle aanslagen (8) <span aria-hidden="true">→</span></a>
         <table class="assessment-table">
           <thead>
@@ -733,6 +1008,292 @@ function renderTaxPage() {
       </section>
     </section>
   `;
+}
+
+function renderVacationPermitPage() {
+  setBreadcrumb([
+    { label: "Home", href: "#overzicht" },
+    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Vakantieverhuur", href: "#vakantieverhuur" },
+    { label: "Aanvraag vakantieverhuur Dierenselaan 88" },
+  ]);
+  app.innerHTML = `
+    <article class="product-detail-page">
+      <a class="back-link" href="#vakantieverhuur"><span aria-hidden="true">←</span> Terug</a>
+      <h1>Vergunning vakantieverhuur<br />Dierenselaan 88</h1>
+
+      <section class="product-detail-section">
+        <h1>Wat kan ik regelen</h1>
+        <div class="arrow-list">
+          <a class="arrow-list-row action-row" href="#vakantieverhuur/vergunning">
+            <strong>Verblijf melden op deze locatie</strong>
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Gemelde huur</h1>
+        <h2>Aankomend</h2>
+        ${vacationRentalTable([["2", "3-11-2025", "15-11-2025", "12", "Aanpassen"]])}
+
+        <h2>Geschiedenis</h2>
+        ${vacationRentalTable([
+          ["5", "17-3-2024", "29-3-2024", "12", ""],
+          ["8", "11-2-2024", "16-2-2024", "5", ""],
+          ["1", "1-1-2024", "12-1-2024", "2", ""],
+        ])}
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Aanslag</h1>
+        <dl class="case-detail-list">
+          <dt>Registratienummer</dt><dd>8rw44r7847890</dd>
+          <dt>Ingangsdatum</dt><dd>1 januari 2025</dd>
+          <dt>Einddatum</dt><dd>31 december 2025</dd>
+          <dt>Nachten beschikbaar</dt><dd>13</dd>
+        </dl>
+      </section>
+    </article>
+  `;
+}
+
+function vacationRentalTable(rows) {
+  return `
+    <table class="assessment-table rental-table">
+      <thead>
+        <tr>
+          <th>Aantal gasten</th>
+          <th>Incheckdatum</th>
+          <th>Uitcheckdatum</th>
+          <th>Aantal dagen</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows
+          .map(
+            ([guests, checkIn, checkOut, days, action]) => `
+              <tr>
+                <td data-label="Aantal gasten">${escapeHtml(guests)}</td>
+                <td data-label="Incheckdatum">${escapeHtml(checkIn)}</td>
+                <td data-label="Uitcheckdatum">${escapeHtml(checkOut)}</td>
+                <td data-label="Aantal dagen">${escapeHtml(days)}</td>
+                <td data-label="Actie">${action ? `<a href="#vakantieverhuur/vergunning">${escapeHtml(action)}</a>` : ""}</td>
+              </tr>
+            `,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderErfpachtContractPage() {
+  setBreadcrumb([
+    { label: "Home", href: "#overzicht" },
+    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Erfpacht", href: "#erfpacht" },
+    { label: "Keukenhoflaan 133 en 3 meer" },
+  ]);
+  app.innerHTML = `
+    <article class="product-detail-page">
+      <a class="back-link" href="#erfpacht"><span aria-hidden="true">←</span> Terug</a>
+      <h1>Keukenhoflaan 133 en 3 meer</h1>
+
+      ${paymentNotice()}
+
+      <section class="product-detail-section">
+        <h1>Wat kan ik regelen?</h1>
+        <div class="arrow-list">
+          ${[
+            "Vraag heruitgifte erfpacht aan",
+            "Vraag omzetting erfpacht aan",
+            "Vraag afkoop canonverplichting aan",
+            "Koop erfpachtgrond",
+          ]
+            .map(
+              (title) => `
+                <a class="arrow-list-row action-row" href="#erfpacht/contract">
+                  <strong>${escapeHtml(title)}</strong>
+                  <span class="arrow" aria-hidden="true">→</span>
+                </a>
+              `,
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Mijn zaken</h1>
+        ${folderCard("zaken/3", "Aanvraag afkoop canon Keukenhoflaan 133", "5 januari 2024")}
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Factuur</h1>
+        <a class="document-row" href="#erfpacht/contract">
+          <span class="document-icon" aria-hidden="true">▤</span>
+          <span>example3 (png, 2000 kB, 31-8-2024)</span>
+          <span class="download-link">⇩ Download</span>
+        </a>
+        <a class="all-link paid-invoices-link" href="#erfpacht/facturen">Bekijk betaalde facturen <span aria-hidden="true">→</span></a>
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Gegevens contactpersoon</h1>
+        ${definitionList([
+          ["Naam", "B. Smilde"],
+          ["Adres", "Keukenhoflaan 133, 2548 PD voorbeeld"],
+          ["Klantnummer", "1056034"],
+          ["E-mailadres", "b.smilde@gmail.com"],
+        ])}
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Contractgegevens</h1>
+        ${definitionList([
+          ["Contracttype", "vw 86 heruitgifte obl afkoop"],
+          ["Contractnummer", "4992"],
+          ["Einddatum contract", ""],
+        ])}
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Kadastrale gegevens</h1>
+        ${definitionList(
+          [
+            [
+              "Kadastraal object",
+              "GVH37 AW 01639 0036<br />GVH37 AW 01639 2381<br />GVH37 AW 73462 72361<br />GVH40 AW 01639 2381",
+            ],
+            [
+              "Contractnummer",
+              "Keukenhoflaan 133 Voorbeeld<br />Keukenhoflaan 133A Voorbeeld<br />Keukenhoflaan 133B Voorbeeld<br />Keukenhoflaan 133C Voorbeeld",
+            ],
+          ],
+          true,
+        )}
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Financiële gegevens</h1>
+        ${definitionList([
+          ["Grondwaarde", "€ 25.850,00"],
+          ["Canonpercentage", "1,5%"],
+        ])}
+        <table class="assessment-table finance-table">
+          <thead>
+            <tr>
+              <th>Soort financiën</th>
+              <th>Bedrag</th>
+              <th>Periode</th>
+              <th>Factuurwijze</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Soort financiën">Canon oude rechten</td>
+              <td data-label="Bedrag">€ 6,32</td>
+              <td data-label="Periode">Halfjaarlijks</td>
+              <td data-label="Factuurwijze">Achteraf</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="product-detail-section">
+        <h1>Canonherziening</h1>
+        ${definitionList([
+          ["Geplande canonherziening", "01-07-2024"],
+          ["Soort herziening", "Vijfjaarlijkse herziening rentepercentage"],
+        ])}
+      </section>
+
+      ${paymentNotice("product-detail-bottom-notice")}
+    </article>
+  `;
+}
+
+function definitionList(rows, allowHtml = false) {
+  return `
+    <dl class="case-detail-list product-definition-list">
+      ${rows
+        .map(([key, value]) => {
+          const safeValue = allowHtml ? value : escapeHtml(value);
+          return `<dt>${escapeHtml(key)}</dt><dd>${safeValue}</dd>`;
+        })
+        .join("")}
+    </dl>
+  `;
+}
+
+function paymentNotice(extraClass = "") {
+  return `
+    <section class="case-action product-payment-notice ${extraClass}">
+      <strong>Uw erfpachtfactuur van € 27,52 voor de periode juli tot en met december 2023</strong>
+      <span class="case-warning" aria-label="Urgent">△</span>
+      <span class="case-warning-text">01-03-2024</span>
+      <a class="primary-button" href="#erfpacht/contract">Betalen</a>
+    </section>
+  `;
+}
+
+function renderErfpachtInvoicesPage() {
+  setBreadcrumb([
+    { label: "Home", href: "#overzicht" },
+    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Erfpacht", href: "#erfpacht" },
+    { label: "Facturen" },
+  ]);
+  app.innerHTML = `
+    <article class="product-detail-page invoice-page">
+      <a class="back-link" href="#erfpacht/contract"><span aria-hidden="true">←</span> Terug</a>
+      <h1>Facturen</h1>
+
+      <form class="search-row invoice-search" data-invoice-search>
+        <label class="sr-only" for="invoice-search">Zoeken in facturen</label>
+        <input id="invoice-search" name="q" autocomplete="off" placeholder="Zoeken..." />
+        <button class="secondary-button" type="submit">Zoeken</button>
+        <button class="secondary-button filter-button" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-filter"></use></svg>Filter</button>
+      </form>
+
+      <p class="count">12 facturen</p>
+
+      <table class="assessment-table invoice-table">
+        <thead>
+          <tr>
+            <th>Periode</th>
+            <th>Totaal</th>
+            <th>Openstaand</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${groundLeaseInvoices
+            .map(
+              ([period, total, open]) => `
+                <tr>
+                  <td data-label="Periode"><a href="#erfpacht/facturen">${escapeHtml(period)}</a></td>
+                  <td data-label="Totaal">${escapeHtml(total)}</td>
+                  <td data-label="Openstaand">${escapeHtml(open)}</td>
+                  <td data-label="Download"><a href="#erfpacht/facturen">Download</a></td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+
+      <nav class="pagination invoice-pagination" aria-label="Paginering facturen">
+        <span>Vorige</span>
+        <a aria-current="page" href="#erfpacht/facturen">1</a>
+        <a href="#erfpacht/facturen">2</a>
+        <a href="#erfpacht/facturen">Volgende</a>
+      </nav>
+    </article>
+  `;
+  const form = app.querySelector("[data-invoice-search]");
+  form?.addEventListener("submit", (event) => event.preventDefault());
 }
 
 function renderTheme(route) {
@@ -788,7 +1349,15 @@ function renderTheme(route) {
           data.cases.length
             ? `<div class="folder-card-grid theme-card-grid">${data.cases
                 .slice(0, 4)
-                .map((caseIndex) => folderCard(`zaken/${caseIndex}`, cases[caseIndex][0], cases[caseIndex][1]))
+                .map((caseIndex) => {
+                  const target =
+                    route === "vakantieverhuur" && caseIndex === 6
+                      ? "vakantieverhuur/vergunning"
+                      : route === "erfpacht" && caseIndex === 3
+                        ? "erfpacht/contract"
+                        : `zaken/${caseIndex}`;
+                  return folderCard(target, cases[caseIndex][0], cases[caseIndex][1]);
+                })
                 .join("")}</div>`
             : `<p class="empty-line">U heeft geen openstaande zaken.</p>`
         }
@@ -809,7 +1378,13 @@ function renderTheme(route) {
               .map(
                 ([name, description, status]) => `
                   <tr>
-                    <td data-label="Naam">${escapeHtml(name)}</td>
+                    <td data-label="Naam">${
+                      route === "vakantieverhuur"
+                        ? `<a href="#vakantieverhuur/vergunning">${escapeHtml(name)}</a>`
+                        : route === "erfpacht"
+                          ? `<a href="#erfpacht/contract">${escapeHtml(name)}</a>`
+                          : escapeHtml(name)
+                    }</td>
                     <td data-label="Omschrijving">${escapeHtml(description)}</td>
                     <td data-label="Status">${escapeHtml(status)}</td>
                   </tr>
@@ -839,11 +1414,15 @@ function renderProfile() {
         ["Telefoonnummer", "06 12345678"],
       ])}
 
-      ${profileSection("Persoonsgegevens", [
-        ["Naam", "Jeroen van Drouwen"],
-        ["Geboortedatum", "14 maart 1981"],
-        ["Burgerservicenummer", "••••••782"],
-      ], "Bekijk hoe de gemeente met persoonsgegevens omgaat")}
+      ${profileSection(
+        "Persoonsgegevens",
+        [
+          ["Naam", "Jeroen van Drouwen"],
+          ["Geboortedatum", "14 maart 1981"],
+          ["Burgerservicenummer", "••••••782"],
+        ],
+        "Bekijk hoe de gemeente met persoonsgegevens omgaat",
+      )}
 
       ${profileSection("Adresgegevens", [
         ["Woonadres", "Keukenlaan 133, 1234 AB Voorbeeld"],
@@ -931,6 +1510,316 @@ function renderPlan() {
       </section>
     </article>
   `;
+}
+
+function planFormatDate(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+}
+
+// Moet de nabestaande zelf iets doen?
+function planActionable(task) {
+  return task.actieNodig === true;
+}
+
+// Sorteer: open vóór afgerond, actie-nodig vóór passief, dan op deadline.
+function planByUrgency(a, b) {
+  const doneA = a.status === "afgerond" ? 1 : 0;
+  const doneB = b.status === "afgerond" ? 1 : 0;
+  if (doneA !== doneB) return doneA - doneB;
+  const actA = planActionable(a) ? 0 : 1;
+  const actB = planActionable(b) ? 0 : 1;
+  if (actA !== actB) return actA - actB;
+  return planDeadlineTs(a) - planDeadlineTs(b);
+}
+
+// Zorg dat de takendata geladen is (API-modus); re-rendert na binnenkomst.
+function ensurePlanLoaded() {
+  if (planApiEnabled() && planFetchState === "idle") fetchPlanTasks();
+}
+
+// Open acties (te doen), gesorteerd op urgentie — voor "Mijn taken" en de home.
+function planOpenActions() {
+  return planSource()
+    .filter((t) => planActionable(t) && t.status !== "afgerond")
+    .sort(planByUrgency);
+}
+
+// Badge rechts van de titel:
+//  - actie met deadline → "Nog X dagen" (urgent) of "vóór <datum>"
+//  - afgerond / automatisch geregeld → groene "✓"-badge
+//  - ter info (geen actie, niet automatisch) → grijze "Ter info"-badge
+//  - actie zonder deadline → niets (de sectie "Nog te doen" zegt het al)
+function planRowBadge(task) {
+  if (task.status === "afgerond") return `<span class="plan-status is-done">✓ Afgerond</span>`;
+  if (planActionable(task)) {
+    if (!task.deadline) return "<span></span>";
+    const ts = planDeadlineTs(task);
+    if (!Number.isFinite(ts)) return "<span></span>";
+    const days = Math.ceil((ts - Date.now()) / (24 * 60 * 60 * 1000));
+    if (days < 0) return `<span class="urgent-badge">Te laat</span>`;
+    if (days <= 14) return `<span class="urgent-badge">Nog ${days} ${days === 1 ? "dag" : "dagen"}</span>`;
+    return `<span class="task-due">vóór ${escapeHtml(planFormatDate(task.deadline))}</span>`;
+  }
+  if (task.automatisch) return `<span class="plan-status is-auto">✓ Geregeld</span>`;
+  return `<span class="plan-status is-info">Ter info</span>`;
+}
+
+// Eén brief/taak als rij — exact het `task-list-row`-component van "Mijn taken"
+// (titel · badge · pijl). `showOrg` toont de organisatie klein onder de titel
+// (in de platte/urgentie-weergave, waar geen organisatie-kop is).
+function planTaskRow(task, showOrg = false) {
+  const isDone = task.status === "afgerond";
+  const title = task.titel?.nl ?? "";
+  const cls = `task-list-row${isDone ? " is-done" : ""}`;
+  const orgMeta = showOrg ? `<small class="plan-row-org">${escapeHtml(orgNaam(task.organisatie ?? "overig"))}</small>` : "";
+  const inner = `
+    <strong>${escapeHtml(title)}${orgMeta}</strong>
+    ${planRowBadge(task)}
+    <span class="arrow" aria-hidden="true">→</span>
+  `;
+  // Klik opent de briefdetailpagina binnen de app (niet de externe site).
+  return `<a class="${cls}" href="#plannen/${encodeURIComponent(task.uuid)}">${inner}</a>`;
+}
+
+// Rendert een set taken volgens de huidige sortering: platte urgentie-lijst
+// (organisatie klein per rij) of gegroepeerd per organisatie.
+function planRenderBlock(tasks, orderedOrgs) {
+  if (!tasks.length) return "";
+  if (planSort === "urgentie") {
+    const rows = [...tasks].sort(planByUrgency);
+    return `<div class="plan-task-list">${rows.map((t) => planTaskRow(t, true)).join("")}</div>`;
+  }
+  return orderedOrgs
+    .map((id) => {
+      const orgTasks = tasks.filter((t) => (t.organisatie ?? "overig") === id).sort(planByUrgency);
+      if (!orgTasks.length) return "";
+      return `
+        <section class="plannen-group">
+          <header class="plannen-group-header"><h2>${escapeHtml(orgNaam(id))}</h2></header>
+          <div class="plan-task-list">${orgTasks.map((t) => planTaskRow(t, false)).join("")}</div>
+        </section>`;
+    })
+    .join("");
+}
+
+function planFindTask(rawId) {
+  const uuid = decodeURIComponent(rawId);
+  return planSource().find((t) => t.uuid === uuid);
+}
+
+function formatAdres(a) {
+  if (!a) return "";
+  const regel = `${a.straat ?? ""} ${a.huisnummer ?? ""}`.trim();
+  const plaats = `${a.postcode ?? ""} ${a.woonplaats ?? ""}`.trim();
+  return [regel, plaats].filter(Boolean).join(", ");
+}
+
+// Detailpagina van één brief: afzender, aanhef, adressering, wat er gevraagd
+// wordt + de handoff-knop. Toont ook de adresserings-pijnpunten uit de challenge.
+function renderPlanDetail(rawId) {
+  if (planApiEnabled() && planFetchState === "idle") fetchPlanTasks();
+  const task = planFindTask(rawId);
+
+  setBreadcrumb([
+    { label: "Home", href: "#overzicht" },
+    { label: "Gemeente Voorbeeld", href: "#overzicht" },
+    { label: "Nabestaandendossier", href: "#plannen" },
+    { label: task?.titel?.nl ?? "Brief" },
+  ]);
+
+  if (!task) {
+    const loading = planApiEnabled() && planFetchState === "loading";
+    app.innerHTML = `
+      <article class="case-page">
+        <a class="back-link" href="#plannen"><span aria-hidden="true">←</span> Terug naar het dossier</a>
+        ${loading ? `<p class="empty-line">Brief laden…</p>` : `<div class="empty-state"><h2>Brief niet gevonden</h2><p>Deze brief bestaat niet (meer).</p></div>`}
+      </article>`;
+    app.focus({ preventScroll: true });
+    return;
+  }
+
+  const org = orgNaam(task.organisatie ?? "overig");
+  const actionable = planActionable(task);
+  const adres = formatAdres(task.adres);
+  const deadline = task.deadline ? planFormatDate(task.deadline) : "";
+  const url = task.uitvoering?.canonicalUrl ?? "";
+
+  const flags = [];
+  if (task.geadresseerde === "erven") flags.push("Deze brief is gericht aan ‘de erven’ in plaats van aan u persoonlijk.");
+  if (task.adres?.verzorgingstehuis) flags.push("De brief is bezorgd op het adres van het verzorgingstehuis van de overledene.");
+
+  const rows = [["Afzender", org]];
+  if (task.briefType) rows.push(["Soort brief", briefTypeLabels[task.briefType] ?? task.briefType]);
+  const ontvangen = planFormatDate(task.ontvangen);
+  if (ontvangen) rows.push(["Ontvangen", ontvangen]);
+  if (task.aanhef) rows.push(["Aanhef", task.aanhef]);
+  if (task.geadresseerde) rows.push(["Gericht aan", task.geadresseerde === "erven" ? "De erven van de overledene" : "U (partner)"]);
+  if (adres) rows.push(["Bezorgd op", adres + (task.adres?.verzorgingstehuis ? " — verzorgingstehuis" : "")]);
+  if (actionable && deadline) rows.push(["Uiterlijk reageren", `vóór ${deadline}`]);
+  if (task.leidtTotZaak) rows.push(["Leidt tot zaak", task.leidtTotZaak]);
+  if (task.briefCode) rows.push(["Kenmerk", task.briefCode]);
+
+  const watGevraagd = actionable
+    ? (task.toelichting?.nl ?? "Er wordt actie van u gevraagd.")
+    : task.automatisch
+      ? "Dit is automatisch door de overheid geregeld. U hoeft niets te doen."
+      : "Deze brief is ter informatie. U hoeft niets te doen.";
+
+  app.innerHTML = `
+    <article class="case-page plan-detail-page">
+      <a class="back-link" href="#plannen"><span aria-hidden="true">←</span> Terug naar het dossier</a>
+      <h1>${escapeHtml(task.titel?.nl ?? "Brief")}</h1>
+      <p class="page-subtitle">Brief van ${escapeHtml(org)}</p>
+
+      <div class="plan-detail-status">${planRowBadge(task)}</div>
+
+      ${flags.length ? `<div class="plan-detail-flag">${flags.map((f) => `<p>⚠ ${escapeHtml(f)}</p>`).join("")}</div>` : ""}
+
+      <section class="case-section">
+        <h1>Wat wordt er gevraagd?</h1>
+        <p>${escapeHtml(watGevraagd)}</p>
+        ${url ? `<a class="primary-button" href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(actionable ? `Regel dit bij ${org}` : `Bekijk bij ${org}`)} <span aria-hidden="true">→</span></a>` : ""}
+      </section>
+
+      <section class="case-section">
+        <h1>Over deze brief</h1>
+        <dl class="case-detail-list">
+          ${rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join("")}
+        </dl>
+      </section>
+    </article>
+  `;
+  app.focus({ preventScroll: true });
+}
+
+// Tijdstip van de deadline voor sortering; taken zonder deadline achteraan.
+function planDeadlineTs(task) {
+  if (!task.deadline) return Infinity;
+  const ts = new Date(task.deadline).getTime();
+  return Number.isNaN(ts) ? Infinity : ts;
+}
+
+function orgNaam(id) {
+  return organisaties[id]?.naam ?? id;
+}
+
+function renderPlannen() {
+  const apiMode = planApiEnabled();
+  const apiLabel = planApiBase() || location.origin;
+  if (apiMode && planFetchState === "idle") fetchPlanTasks();
+
+  const source = planSource();
+  const total = source.length;
+  const actionTasks = source.filter(planActionable);
+  const totalActions = actionTasks.length;
+  const doneActions = actionTasks.filter((task) => task.status === "afgerond").length;
+  const percent = totalActions ? Math.round((doneActions / totalActions) * 100) : 0;
+  const autoCount = source.filter((task) => !planActionable(task) && task.automatisch).length;
+
+  // Organisaties in volgorde, aangevuld met onbekende die in de data voorkomen
+  // (bijv. taken die tijdens de hackathon zijn aangemaakt).
+  const present = [...new Set(source.map((task) => task.organisatie ?? "overig"))];
+  const orderedOrgs = [
+    ...organisatieVolgorde.filter((id) => present.includes(id)),
+    ...present.filter((id) => !organisatieVolgorde.includes(id)),
+  ];
+  const orgOptions = ["alle", ...orderedOrgs]
+    .map(
+      (id) =>
+        `<option value="${escapeHtml(id)}" ${planFilterOrg === id ? "selected" : ""}>${escapeHtml(id === "alle" ? "Alle organisaties" : orgNaam(id))}</option>`,
+    )
+    .join("");
+
+  const controls = `
+    <div class="plannen-controls">
+      <div class="plannen-control">
+        <label for="plan-sort">Sorteren</label>
+        <select id="plan-sort" data-plan-sort>
+          <option value="urgentie" ${planSort === "urgentie" ? "selected" : ""}>Op urgentie</option>
+          <option value="organisatie" ${planSort === "organisatie" ? "selected" : ""}>Per organisatie</option>
+        </select>
+      </div>
+      <div class="plannen-control">
+        <label for="plan-org">Organisatie</label>
+        <select id="plan-org" data-plan-org>${orgOptions}</select>
+      </div>
+    </div>
+  `;
+
+  // Twee aparte secties: nog te doen (open acties) en al geregeld (de rest).
+  const filtered = source.filter(
+    (task) => planFilterOrg === "alle" || (task.organisatie ?? "overig") === planFilterOrg,
+  );
+  const teDoen = filtered.filter((task) => planActionable(task) && task.status !== "afgerond");
+  const geregeld = filtered.filter((task) => !(planActionable(task) && task.status !== "afgerond"));
+
+  const sections = `
+    <section class="plannen-section">
+      <div class="plannen-section-title">Nog te doen <span class="plannen-section-count">${teDoen.length}</span></div>
+      ${planRenderBlock(teDoen, orderedOrgs) || `<p class="empty-line">Niets meer te doen — alles is geregeld.</p>`}
+    </section>
+    ${
+      geregeld.length
+        ? `<section class="plannen-section plannen-section-done">
+             <div class="plannen-section-title">Geen actie nodig <span class="plannen-section-count">${geregeld.length}</span></div>
+             ${planRenderBlock(geregeld, orderedOrgs)}
+           </section>`
+        : ""
+    }
+  `;
+
+  let body;
+  if (apiMode && planFetchState === "loading" && !total) {
+    body = `<p class="empty-line">Taken laden van ${escapeHtml(apiLabel)} …</p>`;
+  } else if (apiMode && planFetchState === "error") {
+    body = `<div class="empty-state"><h2>Kon de API niet bereiken</h2><p>Geen verbinding met <code>${escapeHtml(apiLabel)}</code>. Controleer of de server en tunnel draaien.</p></div>`;
+  } else {
+    body = `${controls}${sections}`;
+  }
+
+  app.innerHTML = `
+    <article class="stacked-page plannen-page">
+      <section class="plannen-intro">
+        <h1>Nabestaandendossier</h1>
+        <p class="page-subtitle">Na het overlijden van uw partner Cees moet er veel worden geregeld. Wij hebben de brieven van de overheid voor u gebundeld zodat u ziet wat er <strong>al automatisch is geregeld</strong> en wat er nog <strong>uw aandacht</strong> vraagt.</p>
+        ${apiMode ? `<p class="plannen-api-note"><button type="button" class="link-button" data-plan-refresh>Vernieuwen</button></p>` : ""}
+      </section>
+
+      <section class="plannen-progress" aria-label="Voortgang">
+        <div class="plannen-progress-head">
+          <strong>${doneActions} van ${totalActions} acties afgerond</strong>
+          <span>${percent}%</span>
+        </div>
+        <div class="plannen-progress-bar"><span style="width: ${percent}%"></span></div>
+        ${autoCount ? `<p class="plannen-progress-note">✓ ${autoCount} ${autoCount === 1 ? "zaak is" : "zaken zijn"} al automatisch voor u geregeld door de overheid</p>` : ""}
+      </section>
+
+      <section>${body}</section>
+    </article>
+  `;
+
+  bindPlannen();
+}
+
+function bindPlannen() {
+  const sortSelect = app.querySelector("[data-plan-sort]");
+  sortSelect?.addEventListener("change", () => {
+    planSort = sortSelect.value;
+    renderPlannen();
+  });
+
+  const orgSelect = app.querySelector("[data-plan-org]");
+  orgSelect?.addEventListener("change", () => {
+    planFilterOrg = orgSelect.value;
+    renderPlannen();
+  });
+
+  app.querySelector("[data-plan-refresh]")?.addEventListener("click", () => {
+    planFetchState = "idle";
+    renderPlannen();
+  });
 }
 
 function openFilter() {

@@ -1,25 +1,41 @@
 # MijnServices Demo App
 
-Doel: een doorklikbare demo app (zonder logica / database) om ons meer een gevoel te geven over hoe de MijnServices werken.
+Een doorklikbare demo van een MijnOmgeving, gebaseerd op de
+[Figma-designs](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9427-21196&starting-point-node-id=9448%3A758053)
+en de [NL Design System discussies](https://github.com/orgs/nl-design-system/discussions/categories/mijn-omgevingen).
 
-Brondata: [deze figma designs](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9427-21196&starting-point-node-id=9448%3A758053)
+De app is statisch (HTML/CSS/vanilla JS, geen build). Open `index.html` in de browser,
+of bekijk hem in de portal via `/demo/`.
 
-[Design discussies](https://github.com/orgs/nl-design-system/discussions/categories/mijn-omgevingen), bijvoorbeeld [deze](https://github.com/orgs/nl-design-system/discussions/394).
+## Bestanden
 
-Ideeen om deze app te bouwen:
+- `index.html` — markup en navigatie
+- `styles.css` — opmaak
+- `app.js` — routing, data en interactie
+- `discussions/` — geïmporteerde design-discussies (`import-discussions.mjs`)
+- `backend/` — optionele MijnTaken demo-server (zie hieronder)
 
-- importeer alle discussies als plaintext en zet ze in deze map
-- maak de app en doe hem bijna precies zoals de figma designs
+## MijnPlannen
 
-## Uitvoering
+`MijnPlannen` is een takenlijst voor alles wat je na een overlijden moet regelen,
+geordend per organisatie (gemeente, belastingdienst, RDW, bank, …). Je kunt filteren
+per organisatie, taken afvinken en de voortgang volgen.
 
-- Demo app: `index.html`
-- Styles: `styles.css`
-- Interactie/data: `app.js`
-- Geimporteerde discussies: `discussions/`
-- Importscript: `import-discussions.mjs`
+Standaard werkt het op statische demo-data; afvinken wordt onthouden in `localStorage`.
 
-De app is statisch en kan direct in de browser worden geopend. In de VNG API lab portal is de app beschikbaar via `/demo/`.
-Er is geen database of API nodig.
+De data is gemodelleerd naar het [MijnTaken-contract](../apis/rest/taken/next.yaml),
+zodat de lijst live aan een echte API gekoppeld kan worden.
 
-De Figma-plugin is geprobeerd met file key `O3Wzm9ANIRHQTK98X0ljYs` en met de concrete voorbeeldlink uit discussie 394 (`pB5d6RlVSa1B088Xpm1sSo`, node `5488:3723`), maar beide files konden vanuit de plugin niet worden geopend door een toegangs-/argumentfout. De lokale screenshot `screenshots/mijnzaken.png` is daarom gebruikt als visuele fallback voor de eerste implementatie.
+## Live draaien met de MijnTaken-server
+
+Voor een live demo (taken aanmaken/bewerken via een API) draai je de meegeleverde
+server, die de app én de API op één URL serveert:
+
+```sh
+node backend/server.mjs
+# open http://localhost:8787/#plannen
+```
+
+Online zetten met één tunnel: `npx cloudflared tunnel --url http://localhost:8787`.
+
+Details en API-endpoints: zie [`backend/README.md`](backend/README.md).

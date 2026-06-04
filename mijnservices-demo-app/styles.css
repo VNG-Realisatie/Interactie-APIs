@@ -571,8 +571,20 @@ h3 {
   gap: 78px;
 }
 
-.tax-page h1 {
+.tax-page {
+  gap: 82px;
+}
+
+.tax-page-header h1 {
+  margin-bottom: -10px;
+}
+
+.tax-page h2 {
   margin-bottom: 30px;
+  color: var(--color-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 3.2vw, 3rem);
+  line-height: 1;
 }
 
 .arrow-list {
@@ -761,7 +773,8 @@ h3 {
 }
 
 .message-detail-page,
-.profile-page {
+.profile-page,
+.product-detail-page {
   width: min(100%, 980px);
 }
 
@@ -1029,6 +1042,94 @@ h3 {
 .case-action-bottom {
   margin-top: 88px;
   margin-bottom: 0;
+}
+
+.product-detail-page > h1 {
+  max-width: 880px;
+}
+
+.product-detail-section {
+  margin-top: 86px;
+}
+
+.product-detail-section > h1 {
+  margin-bottom: 34px;
+}
+
+.product-detail-section > h2 {
+  margin: 0 0 18px;
+  color: var(--color-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.85rem;
+}
+
+.product-detail-section > h2 + .assessment-table {
+  margin-top: 0;
+  margin-bottom: 36px;
+}
+
+.product-detail-section .folder-card {
+  width: min(100%, 520px);
+}
+
+.product-detail-section .document-row,
+.product-definition-list,
+.product-detail-section .assessment-table {
+  width: min(100%, 980px);
+}
+
+.product-payment-notice {
+  margin-bottom: 82px;
+}
+
+.product-payment-notice strong {
+  max-width: 620px;
+}
+
+.product-detail-bottom-notice {
+  margin-top: 92px;
+  margin-bottom: 0;
+}
+
+.paid-invoices-link {
+  display: inline-flex;
+  margin-top: 18px;
+}
+
+.finance-table td:first-child {
+  font-size: 1.2rem;
+}
+
+.invoice-page .search-row {
+  margin-bottom: 26px;
+}
+
+.invoice-table {
+  margin-top: 36px;
+}
+
+.invoice-table th:first-child,
+.invoice-table td:first-child {
+  width: 28%;
+}
+
+.invoice-table th:nth-child(2),
+.invoice-table td:nth-child(2),
+.invoice-table th:nth-child(3),
+.invoice-table td:nth-child(3) {
+  width: 20%;
+}
+
+.invoice-table a {
+  color: var(--color-blue);
+}
+
+.invoice-pagination {
+  margin-top: 34px;
+}
+
+.invoice-pagination span:first-child {
+  flex-basis: auto;
 }
 
 .form-page {
@@ -1699,7 +1800,8 @@ h3 {
   }
 
   .task-due,
-  .urgent-badge {
+  .urgent-badge,
+  .plan-status {
     justify-self: start;
     font-size: 0.95rem;
   }
@@ -1900,5 +2002,394 @@ h3 {
   .secondary-button,
   .primary-button {
     min-height: 46px;
+  }
+}
+
+/* --- MijnPlannen ----------------------------------------------------------- */
+.plannen-page {
+  gap: 40px;
+}
+
+.plannen-progress {
+  width: min(100%, 1120px);
+}
+
+.plannen-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.plannen-progress-head strong {
+  font-size: 1.2rem;
+}
+
+.plannen-progress-head span {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.plannen-progress-bar {
+  height: 14px;
+  border-radius: 999px;
+  background: #eef1f5;
+  overflow: hidden;
+}
+
+.plannen-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-purple);
+  transition: width 0.25s ease;
+}
+
+.plannen-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 18px 24px;
+  margin-bottom: 30px;
+}
+
+.plannen-control {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plannen-control label {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.plannen-control select {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 2px solid var(--color-border);
+  background: var(--color-panel);
+  color: var(--color-ink);
+}
+
+.plannen-control select:hover {
+  border-color: var(--color-purple);
+}
+
+.plannen-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.plannen-group {
+  margin-bottom: 38px;
+}
+
+.plannen-group-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--color-border-soft);
+}
+
+.plannen-group-header h2 {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.plannen-group-count {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.plan-task-list {
+  width: min(100%, 1120px);
+}
+
+/* Checkbox links + het bestaande task-list-row component rechts. */
+.plan-task-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.plan-task-row .task-list-row {
+  border-bottom: 0;
+}
+
+.plan-check {
+  display: inline-flex;
+  align-items: center;
+}
+
+.plan-check input {
+  width: 26px;
+  height: 26px;
+  accent-color: var(--color-purple);
+  cursor: pointer;
+}
+
+.plan-task-row.is-done .task-list-row strong {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+@media (max-width: 720px) {
+  .plan-task-row {
+    gap: 12px;
+  }
+
+  .plannen-controls {
+    justify-content: flex-start;
+  }
+}
+
+.plannen-api-note {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.plannen-api-note code {
+  color: var(--color-ink);
+}
+
+/* --- MijnPlannen: correspondentie/status ---------------------------------- */
+.plan-task-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  text-align: right;
+}
+
+.plan-task-sub {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.plan-zaak {
+  color: var(--color-blue);
+}
+
+.plan-urgent {
+  color: #8a3d16;
+  font-weight: 700;
+}
+
+.plan-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.plan-status.is-actie {
+  background: #fde9db;
+  color: #8a3d16;
+}
+
+.plan-status.is-auto {
+  background: #dcf0e4;
+  color: #1c5b34;
+}
+
+.plan-status.is-info,
+.plan-status.is-done {
+  background: #eef1f5;
+  color: var(--color-muted);
+}
+
+.plan-marker {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.plan-marker.is-actie {
+  background: #fde9db;
+  color: #8a3d16;
+}
+
+.plan-marker.is-auto {
+  background: #dcf0e4;
+  color: #1c5b34;
+}
+
+.plan-marker.is-info,
+.plan-marker.is-done {
+  background: #eef1f5;
+  color: var(--color-muted);
+}
+
+.plannen-progress-note {
+  margin: 10px 0 0;
+  color: #1c5b34;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .plan-task-meta {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+.task-list-row.is-done strong {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+/* --- MijnPlannen: briefdetail -------------------------------------------- */
+.plan-detail-status {
+  margin: 0 0 22px;
+}
+
+.plan-detail-flag {
+  margin: 0 0 28px;
+  padding: 14px 18px;
+  border-left: 4px solid #d98a3d;
+  background: #fdf1e7;
+}
+
+.plan-detail-flag p {
+  margin: 4px 0;
+  color: #8a3d16;
+}
+
+.plan-detail-page .primary-button {
+  margin-top: 18px;
+}
+
+/* --- Nabestaande dossier: secties & rij-metadata -------------------------- */
+.plannen-section {
+  margin-bottom: 46px;
+}
+
+.plannen-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-border);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.plannen-section-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #eef1f5;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+/* "Al geregeld" gedempt zodat het duidelijk verschilt van "Nog te doen". */
+.plannen-section-done .plannen-section-title {
+  color: var(--color-muted);
+}
+
+.plannen-section-done .task-list-row strong {
+  color: var(--color-muted);
+}
+
+/* Kleine organisatie-metadata onder de titel (platte/urgentie-weergave). */
+.plan-row-org {
+  display: block;
+  margin-top: 3px;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+/* Afgerond -> groen (i.p.v. grijs), net als "Geregeld". */
+.plan-status.is-done {
+  background: #dcf0e4;
+  color: #1c5b34;
+}
+
+/* --- Home: prominente ingang naar het Nabestaandendossier ----------------- */
+.dossier-highlight {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 26px 30px;
+  background: var(--color-purple-soft);
+  border-left: 6px solid var(--color-purple);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.dossier-highlight:hover {
+  outline: 3px solid rgb(76 18 240 / 18%);
+}
+
+.dossier-highlight-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: var(--color-purple);
+}
+
+.dossier-highlight-icon .icon {
+  width: 28px;
+  height: 28px;
+  color: #ffffff;
+}
+
+.dossier-highlight-body strong {
+  display: block;
+  margin-bottom: 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.dossier-highlight-body span {
+  max-width: 720px;
+  color: var(--color-ink);
+}
+
+.dossier-highlight-cta {
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--color-purple-dark);
+}
+
+@media (max-width: 720px) {
+  .dossier-highlight {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .dossier-highlight-cta {
+    grid-column: 2;
+    justify-self: start;
   }
 }
