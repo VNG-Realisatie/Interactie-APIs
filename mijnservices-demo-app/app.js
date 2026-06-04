@@ -292,9 +292,6 @@ const briefTypeLabels = {
 // zodat de app en de server (backend/server.mjs) dezelfde bron gebruiken.
 const planTasks = takenSeed;
 
-// Weergave-state voor het Nabestaandendossier.
-let planFilterOrg = "alle";
-let planSort = "urgentie"; // "urgentie" (platte lijst, default) of "organisatie" (gegroepeerd)
 
 // API-modus (opt-in). Standaard draait MijnPlannen op de statische `planTasks`.
 // Geef een MijnTaken-server mee via ?api=<url> in de URL om live te koppelen;
@@ -1583,27 +1580,6 @@ function planTaskRow(task, showOrg = false) {
   return `<a class="${cls}" href="#plannen/${encodeURIComponent(task.uuid)}">${inner}</a>`;
 }
 
-// Rendert een set taken volgens de huidige sortering: platte urgentie-lijst
-// (organisatie klein per rij) of gegroepeerd per organisatie.
-function planRenderBlock(tasks, orderedOrgs) {
-  if (!tasks.length) return "";
-  if (planSort === "urgentie") {
-    const rows = [...tasks].sort(planByUrgency);
-    return `<div class="plan-task-list">${rows.map((t) => planTaskRow(t, true)).join("")}</div>`;
-  }
-  return orderedOrgs
-    .map((id) => {
-      const orgTasks = tasks.filter((t) => (t.organisatie ?? "overig") === id).sort(planByUrgency);
-      if (!orgTasks.length) return "";
-      return `
-        <section class="plannen-group">
-          <header class="plannen-group-header"><h2>${escapeHtml(orgNaam(id))}</h2></header>
-          <div class="plan-task-list">${orgTasks.map((t) => planTaskRow(t, false)).join("")}</div>
-        </section>`;
-    })
-    .join("");
-}
-
 function planFindTask(rawId) {
   const uuid = decodeURIComponent(rawId);
   return planSource().find((t) => t.uuid === uuid);
@@ -1718,53 +1694,24 @@ function renderPlannen() {
   const percent = totalActions ? Math.round((doneActions / totalActions) * 100) : 0;
   const autoCount = source.filter((task) => !planActionable(task) && task.automatisch).length;
 
-  // Organisaties in volgorde, aangevuld met onbekende die in de data voorkomen
-  // (bijv. taken die tijdens de hackathon zijn aangemaakt).
-  const present = [...new Set(source.map((task) => task.organisatie ?? "overig"))];
-  const orderedOrgs = [
-    ...organisatieVolgorde.filter((id) => present.includes(id)),
-    ...present.filter((id) => !organisatieVolgorde.includes(id)),
-  ];
-  const orgOptions = ["alle", ...orderedOrgs]
-    .map(
-      (id) =>
-        `<option value="${escapeHtml(id)}" ${planFilterOrg === id ? "selected" : ""}>${escapeHtml(id === "alle" ? "Alle organisaties" : orgNaam(id))}</option>`,
-    )
-    .join("");
-
-  const controls = `
-    <div class="plannen-controls">
-      <div class="plannen-control">
-        <label for="plan-sort">Sorteren</label>
-        <select id="plan-sort" data-plan-sort>
-          <option value="urgentie" ${planSort === "urgentie" ? "selected" : ""}>Op urgentie</option>
-          <option value="organisatie" ${planSort === "organisatie" ? "selected" : ""}>Per organisatie</option>
-        </select>
-      </div>
-      <div class="plannen-control">
-        <label for="plan-org">Organisatie</label>
-        <select id="plan-org" data-plan-org>${orgOptions}</select>
-      </div>
-    </div>
-  `;
-
-  // Twee aparte secties: nog te doen (open acties) en al geregeld (de rest).
-  const filtered = source.filter(
-    (task) => planFilterOrg === "alle" || (task.organisatie ?? "overig") === planFilterOrg,
-  );
-  const teDoen = filtered.filter((task) => planActionable(task) && task.status !== "afgerond");
-  const geregeld = filtered.filter((task) => !(planActionable(task) && task.status !== "afgerond"));
+  // Twee aparte secties, beide een platte lijst op urgentie:
+  // nog te doen (open acties) en geen actie nodig (de rest). Organisatie staat
+  // klein onder elke titel.
+  const sorted = (tasks) => [...tasks].sort(planByUrgency);
+  const teDoen = sorted(source.filter((task) => planActionable(task) && task.status !== "afgerond"));
+  const geregeld = sorted(source.filter((task) => !(planActionable(task) && task.status !== "afgerond")));
+  const taskList = (tasks) => `<div class="plan-task-list">${tasks.map((t) => planTaskRow(t, true)).join("")}</div>`;
 
   const sections = `
     <section class="plannen-section">
       <div class="plannen-section-title">Nog te doen <span class="plannen-section-count">${teDoen.length}</span></div>
-      ${planRenderBlock(teDoen, orderedOrgs) || `<p class="empty-line">Niets meer te doen — alles is geregeld.</p>`}
+      ${teDoen.length ? taskList(teDoen) : `<p class="empty-line">Niets meer te doen — alles is geregeld.</p>`}
     </section>
     ${
       geregeld.length
         ? `<section class="plannen-section plannen-section-done">
              <div class="plannen-section-title">Geen actie nodig <span class="plannen-section-count">${geregeld.length}</span></div>
-             ${planRenderBlock(geregeld, orderedOrgs)}
+             ${taskList(geregeld)}
            </section>`
         : ""
     }
@@ -1776,7 +1723,7 @@ function renderPlannen() {
   } else if (apiMode && planFetchState === "error") {
     body = `<div class="empty-state"><h2>Kon de API niet bereiken</h2><p>Geen verbinding met <code>${escapeHtml(apiLabel)}</code>. Controleer of de server en tunnel draaien.</p></div>`;
   } else {
-    body = `${controls}${sections}`;
+    body = sections;
   }
 
   app.innerHTML = `
@@ -1784,7 +1731,6 @@ function renderPlannen() {
       <section class="plannen-intro">
         <h1>Nabestaandendossier</h1>
         <p class="page-subtitle">Na het overlijden van uw partner Cees moet er veel worden geregeld. Wij hebben de brieven van de overheid voor u gebundeld zodat u ziet wat er <strong>al automatisch is geregeld</strong> en wat er nog <strong>uw aandacht</strong> vraagt.</p>
-        ${apiMode ? `<p class="plannen-api-note"><button type="button" class="link-button" data-plan-refresh>Vernieuwen</button></p>` : ""}
       </section>
 
       <section class="plannen-progress" aria-label="Voortgang">
@@ -1799,27 +1745,6 @@ function renderPlannen() {
       <section>${body}</section>
     </article>
   `;
-
-  bindPlannen();
-}
-
-function bindPlannen() {
-  const sortSelect = app.querySelector("[data-plan-sort]");
-  sortSelect?.addEventListener("change", () => {
-    planSort = sortSelect.value;
-    renderPlannen();
-  });
-
-  const orgSelect = app.querySelector("[data-plan-org]");
-  orgSelect?.addEventListener("change", () => {
-    planFilterOrg = orgSelect.value;
-    renderPlannen();
-  });
-
-  app.querySelector("[data-plan-refresh]")?.addEventListener("click", () => {
-    planFetchState = "idle";
-    renderPlannen();
-  });
 }
 
 function openFilter() {

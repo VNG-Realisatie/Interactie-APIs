@@ -102,6 +102,10 @@ Afgeleid uit de brief. Tag: 🔴 Moet · 🟡 Zou moeten · 🔵 Kan/bonus.
 - [x] **Unificatie:** open acties uit het dossier verschijnen ook in **"Mijn taken"** en op de **home**.
 - [x] **Live updates (SSE):** `GET /events` pusht naar alle clients — bij taakmutaties ververst ieders
       lijst vanzelf; bij code-wijziging (app.js/styles.css/index.html) herladen alle tabs (dev-live-reload).
+- [x] **JSON-persistentie:** live state wordt weggeschreven naar `backend/taken-state.json` (gitignored)
+      en bij opstart ingeladen → overleeft een serverherstart. Reset = bestand verwijderen.
+- [x] **Versimpeld:** "Sorteren"- en "Organisatie"-filters verwijderd (altijd platte urgentie-lijst);
+      "Vernieuwen"-knop weg (auto-refresh via SSE). Ongebruikte grouping-code opgeruimd.
 
 ### Te doen — kern (correspondentiestroom → taken)
 - [x] **Datamodel `brief → taak`**: brief-type (informatiebrief/actiebrief/factuur/aanmaning),
