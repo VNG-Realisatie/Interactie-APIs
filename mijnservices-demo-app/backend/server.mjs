@@ -112,11 +112,11 @@ async function serveStatic(res, pathname) {
         "</head>",
         '  <script>window.MIJNPLANNEN_API = "";</script>\n  </head>',
       );
-      res.writeHead(200, { "Content-Type": MIME[".html"], "Cache-Control": "no-cache" });
+      res.writeHead(200, { "Content-Type": MIME[".html"], "Cache-Control": "no-store" });
       return res.end(html);
     }
     const data = await readFile(filePath);
-    res.writeHead(200, { "Content-Type": MIME[ext] ?? "application/octet-stream", "Cache-Control": "no-cache" });
+    res.writeHead(200, { "Content-Type": MIME[ext] ?? "application/octet-stream", "Cache-Control": "no-store" });
     res.end(data);
   } catch {
     fout(res, 404, "Bestand niet gevonden");

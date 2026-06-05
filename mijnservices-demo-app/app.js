@@ -1937,6 +1937,10 @@ function renderPlannen() {
         <p class="page-subtitle">Na het overlijden van uw partner Cees moet er veel worden geregeld. Wij hebben de brieven van de overheid voor u gebundeld zodat u ziet wat er <strong>al automatisch is geregeld</strong> en wat er nog <strong>uw aandacht</strong> vraagt.</p>
       </section>
 
+      ${featured}
+
+      ${docs}
+
       <section class="plannen-progress" aria-label="Voortgang">
         <div class="plannen-progress-head">
           <strong>${doneActions} van ${totalActions} acties afgerond</strong>
@@ -1945,10 +1949,6 @@ function renderPlannen() {
         <div class="plannen-progress-bar"><span style="width: ${percent}%"></span></div>
         ${autoCount ? `<p class="plannen-progress-note">✓ ${autoCount} ${autoCount === 1 ? "zaak is" : "zaken zijn"} al automatisch voor u geregeld door de overheid</p>` : ""}
       </section>
-
-      ${featured}
-
-      ${docs}
 
       <section>${body}</section>
 
