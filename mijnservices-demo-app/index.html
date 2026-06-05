@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MijnServices Demo App</title>
+    <title>MijnOverheid</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -92,42 +92,37 @@
       </symbol>
     </svg>
     <header class="site-header">
-      <a class="brand" href="#overzicht" aria-label="Gemeente Voorbeeld">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span>Voorbeeld</span>
+      <a class="site-header-lint" href="#overzicht" aria-label="Naar home">
+        <img class="rijkslint" src="./rijksoverheid-lint.svg" alt="" aria-hidden="true" />
+      </a>
+      <a class="brand" href="#overzicht" aria-label="MijnOverheid">
+        <span>MijnOverheid</span>
       </a>
       <nav class="top-links" aria-label="Hoofdnavigatie">
-        <a href="#contact">Contact</a>
-        <button class="link-button account-button" type="button" aria-expanded="false">Jeroen van Drouwen</button>
+        <a class="account-name" href="#gegevens"><svg class="icon" aria-hidden="true"><use href="#icon-user"></use></svg>Jeroen van Drouwen</a>
+        <a class="logout-link" href="#uitloggen">Uitloggen</a>
       </nav>
-      <form class="site-search" role="search">
+      <form class="site-search" role="search" hidden>
         <label class="sr-only" for="site-search">Zoeken</label>
-        <input id="site-search" name="q" autocomplete="off" placeholder="Bijvoorbeeld zwembad of grofvuil" />
+        <input id="site-search" name="q" autocomplete="off" placeholder="Zoeken" />
         <button type="submit">
           <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
           Zoeken
         </button>
       </form>
-      <div class="account-menu" hidden>
-        <a href="#gegevens">Mijn gegevens</a>
-        <a href="#berichten">Mijn berichten</a>
-        <a href="#uitloggen">Uitloggen</a>
-      </div>
     </header>
 
     <div class="accent-line"></div>
 
     <nav class="breadcrumbs" aria-label="Broodkruimelpad">
-      <a href="#overzicht">Home</a>
+      <a href="#overzicht">MijnOverheid</a>
       <span aria-hidden="true">›</span>
-      <a href="#overzicht">Gemeente Voorbeeld</a>
-      <span aria-hidden="true">›</span>
-      <span data-breadcrumb-current>Overzicht</span>
+      <span data-breadcrumb-current>Home</span>
     </nav>
 
     <main class="page-shell">
       <aside class="side-nav" aria-label="Mijn omgeving">
-        <button data-route="overzicht"><svg class="icon" aria-hidden="true"><use href="#icon-grid"></use></svg>Overzicht</button>
+        <button data-route="overzicht"><svg class="icon" aria-hidden="true"><use href="#icon-grid"></use></svg>Home</button>
         <button data-route="plannen"><svg class="icon" aria-hidden="true"><use href="#icon-clipboard"></use></svg>Nabestaandendossier</button>
         <button data-route="taken"><svg class="icon" aria-hidden="true"><use href="#icon-checks"></use></svg>Mijn taken</button>
         <button data-route="berichten"><svg class="icon" aria-hidden="true"><use href="#icon-mail"></use></svg>Mijn berichten <span class="badge">9</span></button>
@@ -148,18 +143,18 @@
 
     <footer class="site-footer" id="contact">
       <a class="footer-brand" href="#overzicht">
-        <span class="brand-mark brand-mark-inverted" aria-hidden="true"></span>
-        <span>Voorbeeld</span>
+        <img class="rijkslint footer-lint" src="./rijksoverheid-lint.svg" alt="" aria-hidden="true" />
+        <span>MijnOverheid</span>
       </a>
       <section>
         <h2>Contact</h2>
-        <p>Bel <a href="tel:453453">453 453</a> maandag tot en met vrijdag van 9.00 tot 17.00 of stuur een email naar <a href="mailto:vragen@voorbeeld.nl">vragen@voorbeeld.nl</a></p>
+        <p>Bel <a href="tel:14000">1400</a> maandag tot en met vrijdag van 8.00 tot 20.00 of stel uw vraag via <a href="mailto:vragen@mijn.overheid.nl">vragen@mijn.overheid.nl</a></p>
       </section>
       <nav aria-label="Footer">
-        <a href="#overzicht">Over gemeente Voorbeeld</a>
+        <a href="#overzicht">Over MijnOverheid</a>
         <a href="#berichten">Nieuwsbrief</a>
-        <a href="#contact">Social media</a>
-        <a href="#gegevens">Werken bij gemeente Voorbeeld</a>
+        <a href="#contact">Toegankelijkheid</a>
+        <a href="#gegevens">Werken bij de overheid</a>
       </nav>
       <nav aria-label="Juridisch">
         <a href="#privacy">Bescherming persoonsgegevens</a>

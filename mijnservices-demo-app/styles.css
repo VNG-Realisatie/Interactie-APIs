@@ -1,16 +1,22 @@
 :root {
-  --color-purple: #4c12f0;
-  --color-purple-dark: #3300c9;
-  --color-purple-soft: #e8ddff;
-  --color-blue: #005a8d;
-  --color-ink: #071f45;
-  --color-muted: #5b6b85;
-  --color-border: #b8c1cf;
-  --color-border-soft: #dce2ea;
+  /* Rijkshuisstijl-palet (MijnOverheid). De variabelenamen blijven 'purple'
+     voor minimale diff, maar dragen nu de Rijksoverheid-donkerblauwwaarden. */
+  --color-purple: #154273; /* Rijksoverheid donkerblauw — primair accent */
+  --color-purple-dark: #0b3060; /* donkerder voor hover/tekst */
+  --color-purple-soft: #e5eff7; /* lichtblauwe tint (actief/hover-vlak) */
+  --color-blue: #154273; /* links en rij-tekst */
+  --color-ink: #3b3b3b; /* hoofdtekst */
+  --color-muted: #595959; /* gedempt grijs */
+  --color-border: #b4b4b4;
+  --color-border-soft: #e0e0e0;
   --color-panel: #ffffff;
-  --color-page: #ffffff;
-  --color-hover: #f7f9fc;
+  --color-page: #f3f3f3; /* lichtgrijze pagina-achtergrond */
+  --color-hover: #eaf0f6;
   --color-neutral: #eef1f5;
+  --color-accent: #d74085; /* Rijkshuisstijl magenta — notificatie-badges */
+  --font-sans: rijkssansvf, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  --font-heading: var(--font-sans);
   --ok-bg: #dcf0e4;
   --ok-fg: #1c5b34;
   --warn-bg: #fde9db;
@@ -19,12 +25,12 @@
   --flag-border: #d98a3d;
   --alert: #d53b2a;
   --alert-bg: #fdeceb;
-  --outline-hover: 3px solid rgb(76 18 240 / 15%);
+  --outline-hover: 3px solid rgb(21 66 115 / 18%);
   --shadow-panel: 0 14px 38px rgb(7 31 69 / 16%);
   --content-width: 1640px;
   --side-width: 270px;
   color: var(--color-ink);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.45;
 }
@@ -71,13 +77,24 @@ a:hover,
 .site-header {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto minmax(360px, 640px);
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 28px;
-  max-width: var(--content-width);
-  min-height: 128px;
-  margin: 0 auto;
-  padding: 18px 42px;
+  min-height: 132px;
+  background: #ffffff;
+  padding: 18px max(42px, calc((100vw - var(--content-width)) / 2 + 42px));
+}
+
+.logout-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-blue);
+  text-decoration: none;
+}
+
+.logout-link:hover {
+  text-decoration: underline;
 }
 
 .brand,
@@ -85,24 +102,34 @@ a:hover,
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  color: #17005d;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2rem, 2.8vw, 3.1rem);
-  font-weight: 700;
+  color: var(--color-ink);
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2vw, 1.85rem);
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
 }
 
-.brand-mark {
-  display: inline-block;
-  width: 76px;
-  height: 66px;
-  background: var(--color-purple);
-  clip-path: polygon(31% 0, 61% 4%, 75% 20%, 70% 42%, 86% 55%, 74% 80%, 55% 74%, 47% 100%, 28% 84%, 11% 89%, 0 67%, 20% 52%, 9% 32%, 25% 21%);
+/* Rijksoverheid-lint: donkerblauwe verticale wimpel met wit rijkswapen,
+   onderaan in een punt (vrije benadering, niet het beschermde logo). */
+.rijkslint {
+  display: block;
+  width: 50px;
+  height: 100px;
 }
 
-.brand-mark-inverted {
-  background: #ffffff;
+.site-header-lint {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: block;
+  line-height: 0;
+  transform: translateX(-50%);
+}
+
+.footer-lint {
+  width: 40px;
+  height: 80px;
 }
 
 .top-links {
@@ -120,22 +147,24 @@ a:hover,
   padding: 0;
 }
 
-.account-button::after {
-  content: "";
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-left: 12px;
-  border-right: 3px solid currentColor;
-  border-bottom: 3px solid currentColor;
-  transform: rotate(45deg) translateY(-4px);
+.account-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.account-name:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
 }
 
 .account-menu {
   position: absolute;
   z-index: 30;
-  top: 86px;
-  right: 500px;
+  top: 96px;
+  right: 42px;
   display: grid;
   gap: 10px;
   min-width: 220px;
@@ -177,7 +206,7 @@ a:hover,
   min-height: 54px;
   padding: 0 22px;
   border: 2px solid var(--color-purple);
-  border-radius: 10px;
+  border-radius: 2px;
   background: #ffffff;
   color: var(--color-purple-dark);
   cursor: pointer;
@@ -196,7 +225,7 @@ a:hover,
 }
 
 .accent-line {
-  height: 6px;
+  height: 3px;
   background: var(--color-purple);
 }
 
@@ -230,7 +259,7 @@ a:hover,
 .side-nav {
   display: grid;
   align-content: start;
-  gap: 24px;
+  gap: 4px;
   padding-top: 8px;
 }
 
@@ -240,32 +269,38 @@ a:hover,
   align-items: center;
   gap: 14px;
   width: 100%;
-  min-height: 38px;
+  min-height: 40px;
+  padding: 8px 14px;
   border: 0;
+  border-radius: 2px;
   background: transparent;
-  color: var(--color-blue);
+  color: var(--color-ink);
   cursor: pointer;
   font-size: 1.05rem;
   text-align: left;
 }
 
 .side-nav button:hover {
-  color: var(--color-purple-dark);
+  background: var(--color-hover);
 }
 
 .side-nav button.active {
   color: var(--color-ink);
   font-weight: 700;
+  background: var(--color-purple-soft);
+  box-shadow: inset 4px 0 0 var(--color-purple);
 }
 
 .badge {
   display: inline-grid;
   place-items: center;
-  min-width: 32px;
-  height: 32px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
   border-radius: 999px;
-  background: var(--color-neutral);
-  color: var(--color-muted);
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
@@ -278,11 +313,12 @@ a:hover,
 }
 
 h1 {
-  margin: 0 0 32px;
+  margin: 0 0 28px;
   color: var(--color-ink);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.6rem, 4.4vw, 4.2rem);
-  line-height: 0.95;
+  font-family: var(--font-heading);
+  font-size: clamp(1.9rem, 3vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.12;
 }
 
 h2 {
@@ -403,7 +439,7 @@ h3 {
 .folder-card strong,
 .dashboard-product-card strong {
   max-width: 380px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-heading);
   font-size: 2rem;
   line-height: 1.08;
 }
@@ -603,7 +639,7 @@ h3 {
 .tax-page h2 {
   margin-bottom: 30px;
   color: var(--color-ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-heading);
   font-size: clamp(2rem, 3.2vw, 3rem);
   line-height: 1;
 }
@@ -696,7 +732,7 @@ h3 {
 
 .tax-case-card strong {
   max-width: 270px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-heading);
   font-size: 1.6rem;
   line-height: 1.1;
 }
@@ -1035,7 +1071,7 @@ h3 {
 .product-detail-section > h2 {
   margin: 0 0 18px;
   color: var(--color-ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-heading);
   font-size: 1.85rem;
 }
 
@@ -1318,7 +1354,7 @@ h3 {
 
 .appointment-list strong,
 .plan-card strong {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-heading);
   font-size: 1.6rem;
   line-height: 1.1;
 }
@@ -1334,7 +1370,7 @@ h3 {
   gap: 50px;
   min-height: 330px;
   padding: 62px max(42px, calc((100vw - var(--content-width)) / 2 + 42px));
-  background: var(--color-purple);
+  background: #535353;
   color: #ffffff;
 }
 
@@ -1410,15 +1446,40 @@ h3 {
 }
 
 @media (max-width: 1100px) {
+  /* Lint uit de absolute centrering halen en op een eigen rij zetten, zodat
+     hij niet over de wordmark/het account-blok valt. */
   .site-header {
-    grid-template-columns: 1fr;
-    gap: 18px;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "lint lint"
+      "brand links";
+    gap: 10px 18px;
     min-height: 0;
-    padding: 22px 26px;
+    padding: 14px 26px 18px;
+  }
+
+  .site-header-lint {
+    position: static;
+    transform: none;
+    grid-area: lint;
+    justify-self: center;
+  }
+
+  .rijkslint {
+    width: 36px;
+    height: 72px;
+  }
+
+  .brand {
+    grid-area: brand;
+    align-self: center;
   }
 
   .top-links {
+    grid-area: links;
+    align-self: center;
     flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .site-search {
@@ -1477,37 +1538,19 @@ h3 {
   }
 
   .site-header {
-    grid-template-columns: 1fr auto;
-    gap: 12px 16px;
-    padding: 16px 20px;
+    gap: 10px 16px;
+    padding: 14px 20px 16px;
   }
 
   .brand,
   .footer-brand {
     gap: 10px;
-    font-size: 1.8rem;
-  }
-
-  .brand-mark {
-    width: 44px;
-    height: 40px;
+    font-size: 1.5rem;
   }
 
   .top-links {
-    justify-self: end;
-    gap: 0;
+    gap: 14px;
     font-size: 0.95rem;
-  }
-
-  .top-links > a {
-    display: none;
-  }
-
-  .account-button {
-    max-width: 44vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .side-nav {
@@ -2057,17 +2100,44 @@ h3 {
   margin-top: 18px;
 }
 
+/* --- Witte content-panelen (lijsten op taken/berichten/zaken/dossier) ----- */
+/* Het paneel omsluit precies de lijst/tabel; de rijen en cellen hebben hun
+   eigen padding, dus het paneel zelf voegt er geen extra witruimte omheen. */
+.content-panel {
+  width: min(100%, 1120px);
+  margin-bottom: 28px;
+  padding: 6px 0;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 4px;
+}
+
+.content-panel .task-list-row:last-child,
+.content-panel .message-table tbody tr:last-child td,
+.content-panel .data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 /* --- Nabestaande dossier: secties & rij-metadata -------------------------- */
 .plannen-section {
-  margin-bottom: 46px;
+  width: min(100%, 1120px);
+  margin-bottom: 24px;
+  padding: 6px 0;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 4px;
+}
+
+.plannen-section .task-list-row:last-child {
+  border-bottom: 0;
 }
 
 .plannen-section-title {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 0 16px;
-  padding-bottom: 10px;
+  margin: 0;
+  padding: 14px 22px 12px;
   border-bottom: 2px solid var(--color-border);
   font-size: 0.95rem;
   font-weight: 700;
@@ -2155,7 +2225,7 @@ h3 {
 
 /* --- Nabestaande dossier: blok-koppen (serif, als de pagina-titels) ------- */
 .plan-block-title {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-heading);
   font-size: clamp(1.6rem, 2.4vw, 2.1rem);
   line-height: 1.1;
 }
@@ -2452,7 +2522,7 @@ h3 {
 .dossier-highlight-body strong {
   display: block;
   margin-bottom: 6px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-heading);
   font-size: 1.6rem;
   line-height: 1.1;
 }

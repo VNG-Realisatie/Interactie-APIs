@@ -3,8 +3,6 @@ import { takenSeed } from "./data/taken-seed.mjs";
 const app = document.querySelector("#app");
 const breadcrumbs = document.querySelector(".breadcrumbs");
 const navButtons = [...document.querySelectorAll(".side-nav button")];
-const accountButton = document.querySelector(".account-button");
-const accountMenu = document.querySelector(".account-menu");
 const modalBackdrop = document.querySelector(".modal-backdrop");
 const filterPanel = document.querySelector(".filter-panel");
 const closeFilterButton = document.querySelector(".close-filter");
@@ -331,7 +329,7 @@ async function fetchPlanTasks() {
 }
 
 const labels = {
-  overzicht: "Overzicht",
+  overzicht: "Home",
   taken: "Mijn taken",
   berichten: "Mijn berichten",
   zaken: "Mijn zaken",
@@ -365,13 +363,13 @@ function setActive(section) {
   navButtons.forEach((button) =>
     button.classList.toggle("active", button.dataset.route === section),
   );
-  // Overzicht is de parent van alle menu-pagina's (consistent met de menubalk).
+  // Home is de parent van alle menu-pagina's (consistent met de menubalk).
   setBreadcrumb(
     section === "overzicht"
-      ? [{ label: "Overzicht" }]
-      : [{ label: "Overzicht", href: "#overzicht" }, { label: labels[section] ?? "Overzicht" }],
+      ? [{ label: "Home" }]
+      : [{ label: "Home", href: "#overzicht" }, { label: labels[section] ?? "Home" }],
   );
-  document.title = `${labels[section] ?? "MijnServices"} - MijnServices Demo App`;
+  document.title = `${labels[section] ?? "MijnOverheid"} - MijnOverheid`;
 }
 
 function setBreadcrumb(items) {
@@ -565,7 +563,7 @@ function renderCases(query = "") {
     <h1>Mijn zaken</h1>
     ${searchControls("Zoeken...", query)}
     <p class="count">${filtered.length === cases.length ? "89" : filtered.length} zaken</p>
-    <table class="data-table">
+    <div class="content-panel"><table class="data-table">
       <thead>
         <tr>
           <th>Naam</th>
@@ -818,7 +816,7 @@ function renderTasks() {
       loading
         ? `<p class="empty-line">Taken laden…</p>`
         : open.length
-          ? `<div class="plan-task-list">${open.map((t) => planTaskRow(t, true)).join("")}</div>`
+          ? `<div class="content-panel"><div class="plan-task-list">${open.map((t) => planTaskRow(t, true)).join("")}</div></div>`
           : `<p class="empty-line">U heeft op dit moment geen openstaande taken.</p>`
     }
   `;
@@ -838,7 +836,7 @@ function renderMessages() {
         ? `<p class="empty-line">Berichten laden…</p>`
         : !briefs.length
           ? `<p class="empty-line">U heeft geen berichten.</p>`
-          : `<table class="message-table">
+          : `<div class="content-panel"><table class="message-table">
       <thead>
         <tr>
           <th>Onderwerp</th>
@@ -864,7 +862,7 @@ function renderMessages() {
           })
           .join("")}
       </tbody>
-    </table>`
+    </table></div>`
     }
   `;
   // Hele rij klikbaar (de titel blijft een echte link voor toetsenbordgebruik).
@@ -1025,7 +1023,7 @@ function renderTaxPage() {
 
 function renderVacationPermitPage() {
   setBreadcrumb([
-    { label: "Overzicht", href: "#overzicht" },
+    { label: "Home", href: "#overzicht" },
     { label: "Vakantieverhuur", href: "#vakantieverhuur" },
     { label: "Aanvraag vakantieverhuur Dierenselaan 88" },
   ]);
@@ -1103,7 +1101,7 @@ function vacationRentalTable(rows) {
 
 function renderErfpachtContractPage() {
   setBreadcrumb([
-    { label: "Overzicht", href: "#overzicht" },
+    { label: "Home", href: "#overzicht" },
     { label: "Erfpacht", href: "#erfpacht" },
     { label: "Keukenhoflaan 133 en 3 meer" },
   ]);
@@ -1251,7 +1249,7 @@ function paymentNotice(extraClass = "") {
 
 function renderErfpachtInvoicesPage() {
   setBreadcrumb([
-    { label: "Overzicht", href: "#overzicht" },
+    { label: "Home", href: "#overzicht" },
     { label: "Erfpacht", href: "#erfpacht" },
     { label: "Facturen" },
   ]);
@@ -1612,7 +1610,7 @@ function renderPlanDetail(rawId) {
   const task = planFindTask(rawId);
 
   setBreadcrumb([
-    { label: "Overzicht", href: "#overzicht" },
+    { label: "Home", href: "#overzicht" },
     { label: "Nabestaandendossier", href: "#plannen" },
     { label: task?.titel?.nl ?? "Brief" },
   ]);
@@ -1974,12 +1972,6 @@ navButtons.forEach((button) => {
   button.addEventListener("click", () => {
     location.hash = button.dataset.route;
   });
-});
-
-accountButton.addEventListener("click", () => {
-  const isOpen = accountMenu.hidden;
-  accountMenu.hidden = !isOpen;
-  accountButton.setAttribute("aria-expanded", String(isOpen));
 });
 
 closeFilterButton.addEventListener("click", closeFilter);
