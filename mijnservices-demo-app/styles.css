@@ -2182,6 +2182,155 @@ h3 {
   color: var(--ok-fg);
 }
 
+/* --- Nabestaande dossier: drie preview-boxen ----------------------------- */
+.plan-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  width: min(100%, 1120px);
+}
+
+.plan-preview {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 4px;
+}
+
+.plan-preview-head {
+  padding: 16px 18px 12px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.plan-preview-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.plan-preview-all {
+  font-size: 0.95rem;
+  color: var(--color-blue);
+}
+
+.plan-preview-list {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0;
+}
+
+.plan-preview-list .empty-line {
+  margin: 0;
+  padding: 14px 18px;
+}
+
+.plan-preview-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border-soft);
+  color: var(--color-blue);
+  text-decoration: none;
+}
+
+.plan-preview-row:last-child {
+  border-bottom: 0;
+}
+
+.plan-preview-row:hover {
+  background: var(--color-hover);
+}
+
+.plan-preview-row:hover .plan-preview-row-title {
+  text-decoration: underline;
+}
+
+.plan-preview-row-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.plan-preview-row-org {
+  display: block;
+  margin-top: 3px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* Klein label/tag-chip op een taak (bv. "Ingevuld door AI"). */
+.taak-label {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-purple-soft);
+  color: var(--color-purple-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* --- Mijn taken: filterbalk (categorie/label) ---------------------------- */
+.task-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: min(100%, 1120px);
+  margin: 0 0 24px;
+}
+
+.task-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-panel);
+  color: var(--color-ink);
+  text-decoration: none;
+  font-size: 0.98rem;
+}
+
+.task-filter:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+
+.task-filter.is-active {
+  background: var(--color-purple);
+  border-color: var(--color-purple);
+  color: #ffffff;
+}
+
+.task-filter-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-neutral);
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.task-filter.is-active .task-filter-count {
+  background: rgb(255 255 255 / 25%);
+  color: #ffffff;
+}
+
 /* --- Nabestaande dossier: uitgelichte taak ------------------------------- */
 .plan-featured {
   display: grid;

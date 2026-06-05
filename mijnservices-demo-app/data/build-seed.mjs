@@ -71,6 +71,21 @@ const TITLES = {
   "WS.AANSLAG": "Aanslag waterschapsbelasting betalen",
 };
 
+// Taken die we voor de demo doen alsof een AI ze al heeft 'ingevuld' (een label
+// op de taak, net als 'nabestaandendossier'). Formulier-/aanvraagachtige acties.
+const INGEVULD = new Set([
+  "BD.ERVENBRIEF", // Contactpersoon doorgeven aan de Belastingdienst
+  "BD.AANGIFTE-ERFBELASTING", // Aangifte erfbelasting indienen
+  "TOESLAGEN.TERUGVORDERING-ZORG", // Bezwaar/terugbetaling zorgtoeslag
+]);
+
+// Taken die de nabestaande in de demo al heeft afgerond (bv. betaald), zodat
+// de "Afgerond"-weergave gevuld is en de voortgang zichtbaar vooruit gaat.
+const AFGEROND = new Set([
+  "WS.AANSLAG", // Aanslag waterschapsbelasting betaald
+  "CAK.WLZ-FACTUUR", // Eindafrekening eigen bijdrage Wlz betaald
+]);
+
 const TYPE_LABEL = {
   informatiebrief: "Informatiebrief",
   condoleance: "Condoleancebrief",
@@ -119,10 +134,11 @@ const taken = src.correspondentie.map((c) => {
     adres: c.adres ?? null,
     actieNodig: c.actie_vereist === true,
     automatisch: c.actie_vereist === false && c.type === "beschikking",
-    status: "open",
+    status: AFGEROND.has(c.brief_code) ? "afgerond" : "open",
     deadline,
     leidtTotZaak: c.actie_vereist ? cap(c.actie_omschrijving) : null,
     uitvoering: { canonicalUrl: URL_BY_ORG[org] ?? "" },
+    labels: ["nabestaandendossier", ...(INGEVULD.has(c.brief_code) ? ["ingevuld"] : [])],
   };
 });
 

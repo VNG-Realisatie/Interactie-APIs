@@ -232,6 +232,7 @@ const server = createServer(async (req, res) => {
         deadline: body.deadline ?? "",
         leidtTotZaak: body.leidtTotZaak ?? null,
         uitvoering: { canonicalUrl: body.uitvoering?.canonicalUrl ?? "", ...(body.uitvoering ?? {}) },
+        labels: Array.isArray(body.labels) ? body.labels : ["nabestaandendossier"],
       };
       if (body.toelichting?.nl) taak.toelichting = body.toelichting;
       taken.set(taak.uuid, taak);
@@ -267,6 +268,7 @@ const server = createServer(async (req, res) => {
         if ("deadline" in body) taak.deadline = body.deadline;
         if ("leidtTotZaak" in body) taak.leidtTotZaak = body.leidtTotZaak;
         if (body.uitvoering) taak.uitvoering = { ...taak.uitvoering, ...body.uitvoering };
+        if (Array.isArray(body.labels)) taak.labels = body.labels;
         persist();
         broadcast({ type: "taken" });
         return send(res, 200, taak);

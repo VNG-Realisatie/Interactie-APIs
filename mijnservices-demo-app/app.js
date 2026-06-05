@@ -399,7 +399,7 @@ function render() {
   } else if (route === "overzicht") {
     renderOverview();
   } else if (route === "taken") {
-    renderTasks();
+    renderTasks(detail);
   } else if (route === "berichten" && detail) {
     renderMessageDetail(Number(detail));
   } else if (route === "berichten") {
@@ -805,21 +805,69 @@ function renderInformationForm() {
   `;
 }
 
-function renderTasks() {
+function renderTasks(filter = "alle") {
   ensurePlanLoaded();
-  const open = planOpenActions();
-  const loading = planApiEnabled() && planFetchState === "loading" && !open.length;
+  const source = planSource();
+  const loading = planApiEnabled() && planFetchState === "loading" && !source.length;
+
+  // De filters zijn de drie dossier-categorieën + "Alle taken" + "Afgerond".
+  // De preview-boxen op het dossier linken hierheen via #taken/<filter>.
+  const filters = [
+    { key: "alle", label: "Alle taken", match: () => true },
+    { key: "belangrijkste", label: "Belangrijkste", match: taakBelangrijkste },
+    { key: "ingevuld", label: "Ingevuld door AI", match: taakIngevuld },
+    { key: "geen-actie", label: "Geen actie nodig", match: taakGeenActie },
+    { key: "afgerond", label: "Afgerond", match: taakAfgerond },
+  ];
+  const active = filters.find((f) => f.key === filter) ?? filters[0];
+  const base = source.filter(active.match);
+
+  // Lijst voor een zoekterm (titel + organisatie), gesorteerd op urgentie.
+  const listHtml = (query) => {
+    const needle = query.trim().toLowerCase();
+    const tasks = base
+      .filter((t) => !needle || `${t.titel?.nl ?? ""} ${orgNaam(t.organisatie ?? "overig")}`.toLowerCase().includes(needle))
+      .sort(planByUrgency);
+    return tasks.length
+      ? `<div class="content-panel"><div class="plan-task-list">${tasks.map((t) => planTaskRow(t, true)).join("")}</div></div>`
+      : `<p class="empty-line">Geen taken gevonden.</p>`;
+  };
+
+  const chips = `
+    <div class="task-filter-bar" aria-label="Filter taken">
+      ${filters
+        .map((f) => {
+          const count = source.filter(f.match).length;
+          const href = f.key === "alle" ? "#taken" : `#taken/${f.key}`;
+          return `<a class="task-filter${f.key === active.key ? " is-active" : ""}" href="${href}">${escapeHtml(f.label)} <span class="task-filter-count">${count}</span></a>`;
+        })
+        .join("")}
+    </div>`;
+
   app.innerHTML = `
     <h1>Mijn taken</h1>
-    <p class="page-subtitle">Alles wat er na het overlijden van uw partner Cees nog uw aandacht vraagt, uit uw nabestaandedossier.</p>
-    ${
-      loading
-        ? `<p class="empty-line">Taken laden…</p>`
-        : open.length
-          ? `<div class="content-panel"><div class="plan-task-list">${open.map((t) => planTaskRow(t, true)).join("")}</div></div>`
-          : `<p class="empty-line">U heeft op dit moment geen openstaande taken.</p>`
-    }
+    <p class="page-subtitle">Alle taken en brieven uit uw nabestaandendossier. Filter op categorie of zoek.</p>
+    <form class="search-row" data-taken-search role="search">
+      <label class="sr-only" for="taken-zoek">Zoeken in taken</label>
+      <input id="taken-zoek" name="q" autocomplete="off" placeholder="Zoek in taken…" />
+      <button class="secondary-button" type="submit"><svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>Zoeken</button>
+    </form>
+    ${chips}
+    <div id="taken-list">${loading ? `<p class="empty-line">Taken laden…</p>` : listHtml("")}</div>
   `;
+
+  // Zoeken-als-je-typt: alleen de lijst verversen, zodat het invoerveld focus houdt.
+  const form = app.querySelector("[data-taken-search]");
+  const input = form?.querySelector("input");
+  const update = () => {
+    const list = document.getElementById("taken-list");
+    if (list) list.innerHTML = listHtml(input.value);
+  };
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    update();
+  });
+  input?.addEventListener("input", update);
 }
 
 function renderMessages() {
@@ -1554,6 +1602,54 @@ function planOpenActions() {
     .sort(planByUrgency);
 }
 
+// --- Labels/tags op taken --------------------------------------------------
+// Elke nabestaanden-taak draagt minstens het label "nabestaandendossier".
+// "ingevuld" markeert taken die (in de demo) al door een AI zijn ingevuld.
+const taakLabelNamen = {
+  nabestaandendossier: "Nabestaandendossier",
+  ingevuld: "Ingevuld door AI",
+};
+
+function taakLabels(task) {
+  return Array.isArray(task.labels) && task.labels.length ? task.labels : ["nabestaandendossier"];
+}
+
+function taakHeeftLabel(task, label) {
+  return taakLabels(task).includes(label);
+}
+
+// De drie weergaven, gedeeld door het dossier-overzicht en "Mijn taken":
+//  - belangrijkste: openstaande acties (kortste deadline eerst)
+//  - ingevuld:      taken met het label "ingevuld"
+//  - geen actie:    afgerond of niet-actie (ter info / automatisch geregeld)
+function taakBelangrijkste(task) {
+  return planActionable(task) && task.status !== "afgerond";
+}
+function taakIngevuld(task) {
+  return taakHeeftLabel(task, "ingevuld");
+}
+function taakGeenActie(task) {
+  return !(planActionable(task) && task.status !== "afgerond");
+}
+function taakAfgerond(task) {
+  return task.status === "afgerond";
+}
+
+// Compacte rij voor de preview-boxen: titel (+ label) en organisatie links,
+// de status/deadline-badge en pijl rechts.
+function planPreviewRow(task) {
+  const tag = taakHeeftLabel(task, "ingevuld") ? `<span class="taak-label">${taakLabelNamen.ingevuld}</span>` : "";
+  return `
+    <a class="plan-preview-row" href="#plannen/${encodeURIComponent(task.uuid)}">
+      <span class="plan-preview-row-main">
+        <span class="plan-preview-row-title">${escapeHtml(task.titel?.nl ?? "")}${tag}</span>
+        <small class="plan-preview-row-org">${escapeHtml(orgNaam(task.organisatie ?? "overig"))}</small>
+      </span>
+      ${planRowBadge(task)}
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>`;
+}
+
 // Badge rechts van de titel:
 //  - actie met deadline → "Nog X dagen" (urgent) of "vóór <datum>"
 //  - afgerond / automatisch geregeld → groene "✓"-badge
@@ -1582,8 +1678,9 @@ function planTaskRow(task, showOrg = false) {
   const title = task.titel?.nl ?? "";
   const cls = `task-list-row${isDone ? " is-done" : ""}`;
   const orgMeta = showOrg ? `<small class="plan-row-org">${escapeHtml(orgNaam(task.organisatie ?? "overig"))}</small>` : "";
+  const tag = taakHeeftLabel(task, "ingevuld") ? `<span class="taak-label">${taakLabelNamen.ingevuld}</span>` : "";
   const inner = `
-    <strong><span class="task-title">${escapeHtml(title)}</span>${orgMeta}</strong>
+    <strong><span class="task-title">${escapeHtml(title)}</span>${tag}${orgMeta}</strong>
     ${planRowBadge(task)}
     <span class="arrow" aria-hidden="true">→</span>
   `;
@@ -1892,27 +1989,30 @@ function renderPlannen() {
   const percent = totalActions ? Math.round((doneActions / totalActions) * 100) : 0;
   const autoCount = source.filter((task) => !planActionable(task) && task.automatisch).length;
 
-  // Twee aparte secties, beide een platte lijst op urgentie:
-  // nog te doen (open acties) en geen actie nodig (de rest). Organisatie staat
-  // klein onder elke titel.
-  const sorted = (tasks) => [...tasks].sort(planByUrgency);
-  const teDoen = sorted(source.filter((task) => planActionable(task) && task.status !== "afgerond"));
-  const geregeld = sorted(source.filter((task) => !(planActionable(task) && task.status !== "afgerond")));
-  const taskList = (tasks) => `<div class="plan-task-list">${tasks.map((t) => planTaskRow(t, true)).join("")}</div>`;
+  // Drie preview-boxen: elk een 'filter' op alle taken (max 3 getoond), met een
+  // "Bekijk alle taken"-link naar de overeenkomstige gefilterde MijnTaken-weergave.
+  const sorted = (pred) => source.filter(pred).sort(planByUrgency);
+  const belangrijkste = sorted(taakBelangrijkste);
+  const ingevuld = sorted(taakIngevuld);
+  const geenActie = sorted(taakGeenActie);
+
+  const previewBox = (titel, tasks, filter) => `
+    <section class="plan-preview">
+      <div class="plan-preview-head">
+        <h3 class="plan-preview-title">${escapeHtml(titel)} <span class="plannen-section-count">${tasks.length}</span></h3>
+        <a class="plan-preview-all" href="#taken/${filter}">Bekijk alle taken <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="plan-preview-list">
+        ${tasks.length ? tasks.slice(0, 3).map(planPreviewRow).join("") : `<p class="empty-line">Geen taken.</p>`}
+      </div>
+    </section>`;
 
   const sections = `
-    <section class="plannen-section">
-      <div class="plannen-section-title">Nog te doen <span class="plannen-section-count">${teDoen.length}</span></div>
-      ${teDoen.length ? taskList(teDoen) : `<p class="empty-line">Niets meer te doen — alles is geregeld.</p>`}
-    </section>
-    ${
-      geregeld.length
-        ? `<section class="plannen-section plannen-section-done">
-             <div class="plannen-section-title">Geen actie nodig <span class="plannen-section-count">${geregeld.length}</span></div>
-             ${taskList(geregeld)}
-           </section>`
-        : ""
-    }
+    <div class="plan-preview-grid">
+      ${previewBox("Belangrijkste taken", belangrijkste, "belangrijkste")}
+      ${previewBox("Ingevulde taken", ingevuld, "ingevuld")}
+      ${previewBox("Geen actie nodig", geenActie, "geen-actie")}
+    </div>
   `;
 
   let body;
