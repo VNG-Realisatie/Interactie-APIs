@@ -17,15 +17,20 @@ de overheid die losse poststroom kan bundelen tot **één overzicht** waarin de 
 **🔗 Live demo:** **https://t-1sk9qbdw.tunn.dev/#plannen**
 _(draait via een tunnel naar mijn laptop — kan tijdelijk offline zijn)_
 
-![Het Nabestaandendossier: nog te doen en geen actie nodig](screenshots/dossier.png)
+![Het Nabestaandendossier: uitgelichte taak, drie taken-overzichten, tijdlijn en documenten](screenshots/dossier.png)
 
 ## In deze demo
 
-- **Nabestaandendossier** — een nieuwe pagina met een overzicht van **taken en brieven**, gesplitst in
-  _Nog te doen_ en _Geen actie nodig_, gesorteerd op urgentie, met een voortgangsindicator en de
-  geruststelling "X zaken zijn al automatisch geregeld". Bovenaan een **uitgelichte taak** (de actie
-  met de kortste deadline), een accordion met **belangrijke documenten** (condoleanceberichten,
-  akte/erfrecht, mogelijke rechten, FAQ) en een **"wat komt er nog aan"-tijdlijn** per maand.
+- **Nabestaandendossier** — één pagina die de poststroom bundelt: bovenaan een **uitgelichte taak**
+  (kortste deadline) en de voortgang, daaronder **drie overzichten** die elk een filter op álle taken
+  zijn (max 3 getoond, met "Bekijk alle taken"): **Belangrijkste** (urgente acties die u zelf moet
+  doen), **Ingevuld door AI** (taken die de assistent al heeft voorbereid) en **Geen actie nodig**
+  (ter info of afgerond). Verder een **"wat komt er nog aan"-tijdlijn** per maand en onderaan een
+  accordion met **belangrijke documenten** (condoleanceberichten, akte/erfrecht, mogelijke rechten, FAQ).
+- **Mijn taken** — alle taken met **tabs** (_Open taken_ / _Afgerond_), **categoriefilters**
+  (Belangrijkste / Ingevuld door AI / Geen actie nodig) en een **zoekbalk**. Taken dragen **labels**
+  (bv. `nabestaandendossier`, `ingevuld`) waarop gefilterd kan worden — zo is zichtbaar wat een AI al
+  heeft ingevuld.
 - **Briefdetail** — elke brief is klikbaar: afzender, aanhef, aan wie gericht, op welk adres, wat er
   gevraagd wordt + een knop naar de afhandeling. Het signaleert de adresserings-pijnpunten uit de
   challenge (gericht aan _"de erven"_, bezorgd op het verzorgingstehuis-adres).
@@ -40,6 +45,10 @@ _(draait via een tunnel naar mijn laptop — kan tijdelijk offline zijn)_
   donkerblauw palet, RO Sans, witte content-panelen), aansluitend op MijnOverheid en het NL Design
   System. (De Rijkshuisstijl-fonts en het lint-logo zijn voorbehouden aan officiële Rijksoverheids-
   communicatie; dit is een prototype.)
+
+**Mijn taken** — tabs, filters, labels en zoeken:
+
+![Mijn taken met tabs, filters en zoekbalk](screenshots/taken.png)
 
 | Briefdetail (met pijnpunt-signalering)       | Mijn berichten                               |
 | -------------------------------------------- | -------------------------------------------- |

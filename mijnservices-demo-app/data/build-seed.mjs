@@ -73,16 +73,18 @@ const TITLES = {
 
 // Taken die we voor de demo doen alsof een AI ze al heeft 'ingevuld' (een label
 // op de taak, net als 'nabestaandendossier'). Formulier-/aanvraagachtige acties.
+// Taken waarvan een AI in de demo het formulier al heeft ingevuld (klaar om te
+// controleren en in te dienen). Bewust niet de meest urgente, zodat ze
+// verschillen van de "Belangrijkste" (= urgente acties die de burger zelf moet
+// oppakken, niet AI-ingevuld).
 const INGEVULD = new Set([
-  "BD.ERVENBRIEF", // Contactpersoon doorgeven aan de Belastingdienst
-  "BD.AANGIFTE-ERFBELASTING", // Aangifte erfbelasting indienen
-  "TOESLAGEN.TERUGVORDERING-ZORG", // Bezwaar/terugbetaling zorgtoeslag
+  "TOESLAGEN.TERUGVORDERING-ZORG", // AI heeft het bezwaarschrift opgesteld
+  "BD.AANGIFTE-ERFBELASTING", // AI heeft de aangifte erfbelasting voorbereid
 ]);
 
 // Taken die de nabestaande in de demo al heeft afgerond (bv. betaald), zodat
 // de "Afgerond"-weergave gevuld is en de voortgang zichtbaar vooruit gaat.
 const AFGEROND = new Set([
-  "WS.AANSLAG", // Aanslag waterschapsbelasting betaald
   "CAK.WLZ-FACTUUR", // Eindafrekening eigen bijdrage Wlz betaald
 ]);
 

@@ -805,22 +805,26 @@ function renderInformationForm() {
   `;
 }
 
-function renderTasks(filter = "alle") {
+function renderTasks(view = "alle") {
   ensurePlanLoaded();
   const source = planSource();
   const loading = planApiEnabled() && planFetchState === "loading" && !source.length;
 
-  // De filters zijn de drie dossier-categorieën + "Alle taken" + "Afgerond".
-  // De preview-boxen op het dossier linken hierheen via #taken/<filter>.
-  const filters = [
-    { key: "alle", label: "Alle taken", match: () => true },
+  // Status als tabs: Open taken vs Afgerond.
+  const openTasks = source.filter((t) => t.status !== "afgerond");
+  const afgerondTasks = source.filter(taakAfgerond);
+  const isAfgerondTab = view === "afgerond";
+
+  // Categorie-pills (alleen binnen "Open taken"). De preview-boxen op het
+  // dossier linken hierheen via #taken/<pill>.
+  const pills = [
+    { key: "alle", label: "Alle", match: () => true },
     { key: "belangrijkste", label: "Belangrijkste", match: taakBelangrijkste },
     { key: "ingevuld", label: "Ingevuld door AI", match: taakIngevuld },
     { key: "geen-actie", label: "Geen actie nodig", match: taakGeenActie },
-    { key: "afgerond", label: "Afgerond", match: taakAfgerond },
   ];
-  const active = filters.find((f) => f.key === filter) ?? filters[0];
-  const base = source.filter(active.match);
+  const activePill = isAfgerondTab ? null : pills.find((p) => p.key === view) ?? pills[0];
+  const base = isAfgerondTab ? afgerondTasks : openTasks.filter(activePill.match);
 
   // Lijst voor een zoekterm (titel + organisatie), gesorteerd op urgentie.
   const listHtml = (query) => {
@@ -833,26 +837,34 @@ function renderTasks(filter = "alle") {
       : `<p class="empty-line">Geen taken gevonden.</p>`;
   };
 
-  const chips = `
-    <div class="task-filter-bar" aria-label="Filter taken">
-      ${filters
-        .map((f) => {
-          const count = source.filter(f.match).length;
-          const href = f.key === "alle" ? "#taken" : `#taken/${f.key}`;
-          return `<a class="task-filter${f.key === active.key ? " is-active" : ""}" href="${href}">${escapeHtml(f.label)} <span class="task-filter-count">${count}</span></a>`;
-        })
-        .join("")}
+  const tabs = `
+    <div class="task-tabs">
+      <a class="task-tab${isAfgerondTab ? "" : " is-active"}" href="#taken">Open taken <span class="task-tab-count">${openTasks.length}</span></a>
+      <a class="task-tab${isAfgerondTab ? " is-active" : ""}" href="#taken/afgerond">Afgerond <span class="task-tab-count">${afgerondTasks.length}</span></a>
     </div>`;
+
+  const pillBar = isAfgerondTab
+    ? ""
+    : `<div class="task-filter-bar" aria-label="Filter open taken">
+        ${pills
+          .map((p) => {
+            const count = openTasks.filter(p.match).length;
+            const href = p.key === "alle" ? "#taken" : `#taken/${p.key}`;
+            return `<a class="task-filter${p.key === activePill.key ? " is-active" : ""}" href="${href}">${escapeHtml(p.label)} <span class="task-filter-count">${count}</span></a>`;
+          })
+          .join("")}
+      </div>`;
 
   app.innerHTML = `
     <h1>Mijn taken</h1>
-    <p class="page-subtitle">Alle taken en brieven uit uw nabestaandendossier. Filter op categorie of zoek.</p>
+    <p class="page-subtitle">Alle taken en brieven uit uw nabestaandendossier.</p>
+    ${tabs}
     <form class="search-row" data-taken-search role="search">
       <label class="sr-only" for="taken-zoek">Zoeken in taken</label>
       <input id="taken-zoek" name="q" autocomplete="off" placeholder="Zoek in taken…" />
       <button class="secondary-button" type="submit"><svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>Zoeken</button>
     </form>
-    ${chips}
+    ${pillBar}
     <div id="taken-list">${loading ? `<p class="empty-line">Taken laden…</p>` : listHtml("")}</div>
   `;
 
@@ -1618,12 +1630,13 @@ function taakHeeftLabel(task, label) {
   return taakLabels(task).includes(label);
 }
 
-// De drie weergaven, gedeeld door het dossier-overzicht en "Mijn taken":
-//  - belangrijkste: openstaande acties (kortste deadline eerst)
-//  - ingevuld:      taken met het label "ingevuld"
+// De weergaven, gedeeld door het dossier-overzicht en "Mijn taken":
+//  - belangrijkste: openstaande acties die de burger zélf moet oppakken
+//                   (níet AI-ingevuld), kortste deadline eerst
+//  - ingevuld:      taken met het label "ingevuld" (AI heeft ze voorbereid)
 //  - geen actie:    afgerond of niet-actie (ter info / automatisch geregeld)
 function taakBelangrijkste(task) {
-  return planActionable(task) && task.status !== "afgerond";
+  return planActionable(task) && task.status !== "afgerond" && !taakHeeftLabel(task, "ingevuld");
 }
 function taakIngevuld(task) {
   return taakHeeftLabel(task, "ingevuld");
@@ -2039,8 +2052,6 @@ function renderPlannen() {
 
       ${featured}
 
-      ${docs}
-
       <section class="plannen-progress" aria-label="Voortgang">
         <div class="plannen-progress-head">
           <strong>${doneActions} van ${totalActions} acties afgerond</strong>
@@ -2053,6 +2064,8 @@ function renderPlannen() {
       <section>${body}</section>
 
       ${timeline}
+
+      ${docs}
     </article>
   `;
 }

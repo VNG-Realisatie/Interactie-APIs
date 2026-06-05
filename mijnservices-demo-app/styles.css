@@ -2280,6 +2280,54 @@ h3 {
   vertical-align: middle;
 }
 
+/* --- Mijn taken: status-tabs (Open / Afgerond) --------------------------- */
+.task-tabs {
+  display: flex;
+  gap: 30px;
+  width: min(100%, 1120px);
+  margin: 0 0 22px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.task-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -1px;
+  padding: 10px 2px;
+  border-bottom: 3px solid transparent;
+  color: var(--color-muted);
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.task-tab:hover {
+  color: var(--color-ink);
+}
+
+.task-tab.is-active {
+  color: var(--color-purple);
+  border-bottom-color: var(--color-purple);
+}
+
+.task-tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--color-neutral);
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.task-tab.is-active .task-tab-count {
+  background: var(--color-purple-soft);
+  color: var(--color-purple-dark);
+}
+
 /* --- Mijn taken: filterbalk (categorie/label) ---------------------------- */
 .task-filter-bar {
   display: flex;

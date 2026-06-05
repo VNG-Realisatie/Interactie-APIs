@@ -241,8 +241,7 @@ export const takenSeed = [
       "canonicalUrl": "https://www.belastingdienst.nl/overlijden"
     },
     "labels": [
-      "nabestaandendossier",
-      "ingevuld"
+      "nabestaandendossier"
     ]
   },
   {
@@ -338,7 +337,7 @@ export const takenSeed = [
     },
     "actieNodig": true,
     "automatisch": false,
-    "status": "afgerond",
+    "status": "open",
     "deadline": "2026-08-06T23:59:59+01:00",
     "leidtTotZaak": "Aanslag betalen — als erfgenaam aansprakelijk",
     "uitvoering": {
