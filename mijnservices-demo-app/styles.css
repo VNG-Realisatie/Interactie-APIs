@@ -18,6 +18,7 @@
   --flag-bg: #fdf1e7;
   --flag-border: #d98a3d;
   --alert: #d53b2a;
+  --alert-bg: #fdeceb;
   --outline-hover: 3px solid rgb(76 18 240 / 15%);
   --shadow-panel: 0 14px 38px rgb(7 31 69 / 16%);
   --content-width: 1640px;
@@ -2109,6 +2110,311 @@ h3 {
 .plan-status.is-done {
   background: var(--ok-bg);
   color: var(--ok-fg);
+}
+
+/* --- Nabestaande dossier: uitgelichte taak ------------------------------- */
+.plan-featured {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  width: min(100%, 1120px);
+  padding: 20px 24px;
+  border: 2px solid var(--alert);
+  border-left-width: 6px;
+  border-radius: 8px;
+  background: var(--alert-bg);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.plan-featured:hover {
+  outline: var(--outline-hover);
+}
+
+.plan-featured-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--alert);
+}
+
+.plan-featured-body {
+  display: grid;
+  gap: 4px;
+}
+
+.plan-featured-body strong {
+  font-size: 1.2rem;
+  color: var(--alert);
+}
+
+.plan-featured .arrow {
+  color: var(--color-blue);
+  font-size: 1.3rem;
+}
+
+/* --- Nabestaande dossier: blok-koppen (serif, als de pagina-titels) ------- */
+.plan-block-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  line-height: 1.1;
+}
+
+.plan-block-sub {
+  margin: 6px 0 18px;
+  color: var(--color-muted);
+}
+
+/* --- Belangrijke documenten (accordion) ---------------------------------- */
+.plan-docs {
+  width: min(100%, 1120px);
+}
+
+.plan-doc-accordion {
+  display: grid;
+  gap: 12px;
+}
+
+.plan-doc {
+  border: 2px solid var(--color-border-soft);
+  border-radius: 8px;
+  background: var(--color-panel);
+  overflow: hidden;
+}
+
+.plan-doc[open] {
+  border-color: var(--color-border);
+}
+
+.plan-doc-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 22px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-blue);
+}
+
+.plan-doc-head::-webkit-details-marker {
+  display: none;
+}
+
+.plan-doc:hover .plan-doc-head {
+  background: var(--color-hover);
+}
+
+.plan-doc-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.plan-doc-text {
+  display: grid;
+  gap: 2px;
+}
+
+.plan-doc-text strong {
+  font-size: 1.15rem;
+}
+
+.plan-doc-text small {
+  color: var(--color-muted);
+  font-size: 0.98rem;
+}
+
+.plan-doc-chevron {
+  color: var(--color-muted);
+  font-size: 1.5rem;
+  transition: transform 0.15s ease;
+}
+
+.plan-doc[open] .plan-doc-chevron {
+  transform: rotate(90deg);
+}
+
+.plan-doc-body {
+  padding: 4px 22px 22px 66px;
+}
+
+.plan-doc-body p {
+  margin: 0 0 10px;
+}
+
+.plan-doc-body p:last-child {
+  margin-bottom: 0;
+}
+
+.plan-doc-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.plan-doc-list li {
+  margin-bottom: 8px;
+}
+
+.plan-doc-faq p {
+  margin-bottom: 14px;
+}
+
+.plan-doc-links {
+  display: grid;
+}
+
+.plan-doc-links a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-soft);
+  color: var(--color-blue);
+  text-decoration: none;
+}
+
+.plan-doc-links a:last-child {
+  border-bottom: 0;
+}
+
+.plan-doc-links a:hover span {
+  text-decoration: underline;
+}
+
+.plan-doc-links small {
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* --- Wat komt er nog aan (tijdlijn) -------------------------------------- */
+.plan-timeline {
+  position: relative;
+  width: min(100%, 1120px);
+}
+
+.plan-timeline-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 6px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.plan-timeline-head::-webkit-details-marker {
+  display: none;
+}
+
+.plan-timeline-chevron {
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  transition: transform 0.15s ease;
+}
+
+.plan-timeline:not([open]) .plan-timeline-chevron {
+  transform: rotate(180deg);
+}
+
+.plan-timeline-full {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.plan-timeline-body {
+  margin-top: 16px;
+}
+
+.plan-tl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-bottom: 20px;
+  color: var(--color-muted);
+  font-size: 0.98rem;
+}
+
+.plan-tl-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-tl-track {
+  margin-left: 6px;
+  padding-left: 26px;
+  border-left: 2px solid var(--color-border-soft);
+}
+
+.plan-tl-month {
+  margin: 22px 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.plan-tl-month:first-child {
+  margin-top: 0;
+}
+
+.plan-tl-item {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: 8px 0 14px;
+  color: var(--color-blue);
+  text-decoration: none;
+}
+
+.plan-tl-item strong {
+  font-size: 1.1rem;
+}
+
+.plan-tl-item small {
+  color: var(--color-muted);
+}
+
+.plan-tl-item:hover strong {
+  text-decoration: underline;
+}
+
+.plan-tl-days-urgent {
+  color: var(--warn-fg);
+  font-weight: 700;
+}
+
+.plan-tl-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--color-muted);
+}
+
+.plan-tl-item .plan-tl-dot {
+  position: absolute;
+  left: -33px;
+  top: 12px;
+  box-shadow: 0 0 0 4px var(--color-page);
+}
+
+.plan-tl-urgent.plan-tl-dot,
+.plan-tl-urgent .plan-tl-dot {
+  background: var(--alert);
+}
+
+.plan-tl-soon.plan-tl-dot,
+.plan-tl-soon .plan-tl-dot {
+  background: var(--flag-border);
+}
+
+.plan-tl-later.plan-tl-dot,
+.plan-tl-later .plan-tl-dot {
+  background: var(--color-muted);
 }
 
 /* --- Home: prominente ingang naar het Nabestaandendossier ----------------- */

@@ -1693,6 +1693,194 @@ function orgNaam(id) {
   return organisaties[id]?.naam ?? id;
 }
 
+// Hele dagen tot de deadline (negatief = verlopen); null als er geen deadline is.
+function planDaysUntil(task) {
+  const ts = planDeadlineTs(task);
+  if (!Number.isFinite(ts)) return null;
+  return Math.ceil((ts - Date.now()) / (24 * 60 * 60 * 1000));
+}
+
+function planDagenTekst(days) {
+  if (days < 0) return `${-days} ${-days === 1 ? "dag" : "dagen"} te laat`;
+  if (days === 0) return "vandaag";
+  return `over ${days} ${days === 1 ? "dag" : "dagen"}`;
+}
+
+// Korte datum zonder jaar ("16 juni") voor de tijdlijn/featured.
+function planShortDate(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("nl-NL", { day: "numeric", month: "long" });
+}
+
+// 1 uitgelichte taak: de open actie met de kortste deadline.
+function planFeaturedTask() {
+  return planOpenActions()
+    .filter((t) => Number.isFinite(planDeadlineTs(t)))
+    .sort((a, b) => planDeadlineTs(a) - planDeadlineTs(b))[0] ?? null;
+}
+
+// Uitgelichte taak als prominente, klikbare callout bovenaan.
+function renderPlanFeatured() {
+  const task = planFeaturedTask();
+  if (!task) return "";
+  const days = planDaysUntil(task);
+  const org = orgNaam(task.organisatie ?? "overig");
+  let kop;
+  if (days < 0) kop = "1 taak is verlopen — pak deze met voorrang op";
+  else if (days <= 7) kop = "1 taak moet u deze week oppakken";
+  else if (days <= 14) kop = "1 taak verloopt binnen twee weken";
+  else kop = "1 taak vraagt als eerste uw aandacht";
+  const detail = `${task.titel?.nl ?? ""} (${org}, vóór ${planFormatDate(task.deadline)} — ${planDagenTekst(days)}).`;
+  return `
+    <a class="plan-featured" href="#plannen/${encodeURIComponent(task.uuid)}">
+      <span class="plan-featured-icon" aria-hidden="true">⚠</span>
+      <span class="plan-featured-body">
+        <strong>${escapeHtml(kop)}</strong>
+        <span>${escapeHtml(detail)}</span>
+      </span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>`;
+}
+
+// "Belangrijke documenten" — accordion met informatie en stukken rond het
+// overlijden. De eerste rij vouwt de informatieve berichten (geen actie) uit;
+// de rest is uitleg/FAQ.
+function renderPlanDocumenten() {
+  const infoBerichten = planSource()
+    .filter((t) => !planActionable(t) && t.status !== "afgerond")
+    .sort(planByUrgency);
+
+  const berichtenBody = infoBerichten.length
+    ? `<div class="plan-doc-links">${infoBerichten
+        .map(
+          (t) =>
+            `<a href="#plannen/${encodeURIComponent(t.uuid)}"><span>${escapeHtml(t.titel?.nl ?? "")}</span><small>${escapeHtml(orgNaam(t.organisatie ?? "overig"))}</small></a>`,
+        )
+        .join("")}</div>`
+    : `<p>Er zijn op dit moment geen informatieve berichten.</p>`;
+
+  const items = [
+    {
+      icon: "icon-mail",
+      titel: "Condoleanceberichten van organisaties",
+      sub: "Berichten die geen actie vragen, ter informatie",
+      body: berichtenBody,
+    },
+    {
+      icon: "icon-folder",
+      titel: "Akte van overlijden en verklaring van erfrecht",
+      sub: "Officiële documenten om te bewaren en te delen",
+      body: `
+        <p>De <strong>akte van overlijden</strong> krijgt u van de gemeente waar Cees is overleden. U heeft deze nodig om het overlijden door te geven aan banken, verzekeraars en pensioenfondsen.</p>
+        <p>Een <strong>verklaring van erfrecht</strong> vraagt u aan bij een notaris. Daarmee toont u aan dat u de erfgenaam bent en mag u bankzaken regelen namens de nalatenschap.</p>`,
+    },
+    {
+      icon: "icon-euro",
+      titel: "Waar heb ik mogelijk recht op?",
+      sub: "Nabestaandenuitkering (Anw), pensioen, toeslagen",
+      body: `
+        <ul class="plan-doc-list">
+          <li><strong>Anw-nabestaandenuitkering (SVB)</strong> — als u aan de voorwaarden voldoet, bijvoorbeeld een kind onder de 18 of arbeidsongeschiktheid.</li>
+          <li><strong>Nabestaandenpensioen</strong> — via het pensioenfonds of de verzekeraar van Cees.</li>
+          <li><strong>Toeslagen</strong> — uw recht op zorg- of huurtoeslag kan veranderen nu uw situatie wijzigt.</li>
+        </ul>`,
+    },
+    {
+      icon: "icon-clipboard",
+      titel: "Veelgestelde vragen",
+      sub: "Antwoorden op veelvoorkomende vragen na een overlijden",
+      body: `
+        <div class="plan-doc-faq">
+          <p><strong>Moet ik alles meteen regelen?</strong><br>Nee. Veel zaken regelt de overheid automatisch. Pak eerst de taken met een deadline op; de rest heeft de tijd.</p>
+          <p><strong>Waarom staan sommige brieven op naam van Cees of ‘de erven’?</strong><br>Organisaties weten nog niet altijd wie de contactpersoon is. Geeft u dit door, dan komt de post op uw naam.</p>
+        </div>`,
+    },
+  ];
+
+  return `
+    <section class="plan-docs">
+      <h2 class="plan-block-title">Belangrijke documenten</h2>
+      <p class="plan-block-sub">Informatie en stukken rondom het overlijden van Cees.</p>
+      <div class="plan-doc-accordion">
+        ${items
+          .map(
+            (it) => `
+          <details class="plan-doc">
+            <summary class="plan-doc-head">
+              <svg class="icon plan-doc-icon" aria-hidden="true"><use href="#${it.icon}"></use></svg>
+              <span class="plan-doc-text"><strong>${escapeHtml(it.titel)}</strong><small>${escapeHtml(it.sub)}</small></span>
+              <span class="plan-doc-chevron" aria-hidden="true">›</span>
+            </summary>
+            <div class="plan-doc-body">${it.body}</div>
+          </details>`,
+          )
+          .join("")}
+      </div>
+    </section>`;
+}
+
+// Urgentieniveau voor de tijdlijn-stip/legenda.
+function planUrgencyLevel(days) {
+  if (days === null) return "later";
+  if (days <= 14) return "urgent";
+  if (days <= 60) return "soon";
+  return "later";
+}
+
+// "Wat komt er nog aan" — inklapbare tijdlijn van openstaande acties met een
+// deadline, gegroepeerd per maand en gesorteerd op datum.
+function renderPlanTimeline() {
+  const items = planSource()
+    .filter((t) => planActionable(t) && t.status !== "afgerond" && Number.isFinite(planDeadlineTs(t)))
+    .sort((a, b) => planDeadlineTs(a) - planDeadlineTs(b));
+  if (!items.length) return "";
+
+  const now = new Date();
+  const curKey = `${now.getFullYear()}-${now.getMonth()}`;
+  let lastKey = "";
+  const rows = items
+    .map((t) => {
+      const d = new Date(t.deadline);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const days = planDaysUntil(t);
+      const level = planUrgencyLevel(days);
+      let head = "";
+      if (key !== lastKey) {
+        lastKey = key;
+        const maand = d.toLocaleDateString("nl-NL", { month: "long", year: "numeric" });
+        head = `<p class="plan-tl-month">${escapeHtml(key === curKey ? `Deze maand · ${maand}` : maand)}</p>`;
+      }
+      const org = orgNaam(t.organisatie ?? "overig");
+      const dagenCls = level === "urgent" ? ' class="plan-tl-days-urgent"' : "";
+      return `
+        ${head}
+        <a class="plan-tl-item plan-tl-${level}" href="#plannen/${encodeURIComponent(t.uuid)}">
+          <span class="plan-tl-dot" aria-hidden="true"></span>
+          <strong>${escapeHtml(t.titel?.nl ?? "")}</strong>
+          <small>${escapeHtml(org)} · vóór ${escapeHtml(planShortDate(t.deadline))} · <span${dagenCls}>${escapeHtml(planDagenTekst(days))}</span></small>
+        </a>`;
+    })
+    .join("");
+
+  return `
+    <details class="plan-timeline" open>
+      <summary class="plan-timeline-head">
+        <span class="plan-block-title">Wat komt er nog aan</span>
+        <span class="plan-timeline-chevron" aria-hidden="true">⌃</span>
+      </summary>
+      <a class="secondary-button plan-timeline-full" href="#taken">Volledig overzicht <span aria-hidden="true">→</span></a>
+      <div class="plan-timeline-body">
+        <div class="plan-tl-legend">
+          <span><i class="plan-tl-dot plan-tl-urgent"></i> Urgent</span>
+          <span><i class="plan-tl-dot plan-tl-soon"></i> Belangrijk, tijd genoeg</span>
+          <span><i class="plan-tl-dot plan-tl-later"></i> Geen haast</span>
+        </div>
+        <div class="plan-tl-track">${rows}</div>
+      </div>
+    </details>`;
+}
+
 function renderPlannen() {
   const apiMode = planApiEnabled();
   const apiLabel = planApiBase() || location.origin;
@@ -1730,12 +1918,18 @@ function renderPlannen() {
   `;
 
   let body;
+  let featured = "";
+  let docs = "";
+  let timeline = "";
   if (apiMode && planFetchState === "loading" && !total) {
     body = `<p class="empty-line">Taken laden van ${escapeHtml(apiLabel)} …</p>`;
   } else if (apiMode && planFetchState === "error") {
     body = `<div class="empty-state"><h2>Kon de API niet bereiken</h2><p>Geen verbinding met <code>${escapeHtml(apiLabel)}</code>. Controleer of de server en tunnel draaien.</p></div>`;
   } else {
     body = sections;
+    featured = renderPlanFeatured();
+    docs = renderPlanDocumenten();
+    timeline = renderPlanTimeline();
   }
 
   app.innerHTML = `
@@ -1754,7 +1948,13 @@ function renderPlannen() {
         ${autoCount ? `<p class="plannen-progress-note">✓ ${autoCount} ${autoCount === 1 ? "zaak is" : "zaken zijn"} al automatisch voor u geregeld door de overheid</p>` : ""}
       </section>
 
+      ${featured}
+
+      ${docs}
+
       <section>${body}</section>
+
+      ${timeline}
     </article>
   `;
 }
