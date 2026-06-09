@@ -1,0 +1,30 @@
+# Fly.io-config voor de Nabestaandendossier-demo.
+# Deploy:  fly deploy
+# (eenmalig eerst:  fly auth login  &&  fly launch --no-deploy --copy-config)
+app = "onegov-nabestaanden"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8787"
+  STATE_FILE = "/data/taken-state.json"
+
+# Persistente opslag voor de live taken-state (overleeft herstart/deploy).
+[[mounts]]
+  source = "demo_state"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8787
+  force_https = true
+  # Niet naar 0 schalen: anders verliest SSE de verbinding en is er cold start.
+  # Eén kleine machine die blijft draaien past ruim in de gratis tier.
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

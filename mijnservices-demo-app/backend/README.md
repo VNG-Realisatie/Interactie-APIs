@@ -1,9 +1,9 @@
 # MijnTaken demo-server
 
 Een **super kleine, stateful, niet-productie** backend + host voor de MijnServices
-demo-app. Implementeert het [MijnTaken-contract](../../apis/rest/taken/next.yaml) plus
+demo-app. Implementeert het [MijnTaken-contract](https://github.com/vng-realisatie/mijn-taken-api) plus
 een paar mutatie-endpoints, zodat hackathon-deelnemers echt taken voor een burger
-kunnen aanmaken en bewerken die meteen in de demo-app (`MijnPlannen`) verschijnen.
+kunnen aanmaken en bewerken die meteen in de demo-app (het Nabestaandendossier) verschijnen.
 
 - **Eén URL voor alles** — dezelfde server serveert de demo-app én de API.
 - **Geen dependencies** — alleen Node's ingebouwde modules (Node 18+).
@@ -18,9 +18,8 @@ PORT=8080 node backend/server.mjs
 ```
 
 Open dan **`http://localhost:8787/#plannen`**. De server serveert de app en koppelt
-die automatisch same-origin aan de API — geen `?api=` en geen CORS nodig. Op de
-MijnPlannen-pagina staat "Live gekoppeld aan …" met een **Vernieuwen**-knop;
-afvinken van een taak doet een `PATCH` naar de server.
+die automatisch same-origin aan de API — geen `?api=` en geen CORS nodig. Wijzigingen
+via de API verschijnen meteen in elke open tab (zie [Live updates](#live-updates-server-sent-events)).
 
 > Hoe het werkt: bij het serveren van `index.html` injecteert de server
 > `window.MIJNPLANNEN_API = ""`. De app gebruikt dat als seintje om live (relatief)
@@ -74,11 +73,11 @@ Mutaties (demo-uitbreiding, **géén** onderdeel van een standaard):
 
 > ⚠️ **Let op — dit is geen echte Taken API.**
 > De **lees**-endpoints (`POST /context/zoek`, `GET /taken/{uuid}`) volgen het
-> [MijnTaken-contract](../../apis/rest/taken/next.yaml). De **schrijf**-endpoints
+> [MijnTaken-contract](https://github.com/vng-realisatie/mijn-taken-api). De **schrijf**-endpoints
 > hierboven zijn zelf verzonnen voor deze demo en staan **niet** in dat contract:
 > MijnTaken is bewust alleen-lezen voor het portaal; muteren hoort bij de provider.
 > Wil je contract-getrouw taken aanmaken/bewerken, kijk dan naar de
-> **OpenVTB Taken API** ([`apis/rest/openvtb-taken/v0.1.0.yaml`](../../apis/rest/openvtb-taken/v0.1.0.yaml)),
+> **OpenVTB Taken API** ([`apis/rest/openvtb-taken/v0.1.0.yaml`](https://github.com/maykinmedia/open-vtb)),
 > die volledige CRUD per taaktype (`/betaaltaken`, `/externetaken`, `/formuliertaken`) biedt.
 
 `organisatie` is een extensieveld bovenop `TaakSamenvatting`; de demo-app groepeert

@@ -1,0 +1,74 @@
+/* ==========================================================================
+   NL Design System (Utrecht) — Rijkshuisstijl-thema + correcties
+   --------------------------------------------------------------------------
+   De NLDS/Utrecht-componenten worden gethematiseerd door de officiële
+   Rijkshuisstijl Community design tokens (vendor/nlds/rijkshuisstijl-community-
+   tokens.css), die de --utrecht-*-tokens op het echte Rijkshuisstijl-palet
+   mappen. Die tokens staan onder de class .rhc-theme; die zetten we op de
+   NLDS-pagina('s) in app.js.
+
+   Laadvolgorde (zie index.html):
+     vendor/nlds/utrecht-design-tokens.css         (Utrecht defaults)
+     vendor/nlds/utrecht-components.css             (component-CSS, .utrecht-*)
+     vendor/nlds/rijkshuisstijl-community-tokens.css (Rijkshuisstijl-thema)
+     styles.css                                     (onze huisstijl)
+     nlds-theme.css                                 (DIT bestand — kleine fixes)
+
+   Kleuren, typografie, padding e.d. komen dus uit de Rijkshuisstijl-tokens.
+   Hieronder alleen nog correcties die de tokens niet dekken.
+   ========================================================================== */
+
+/* Utrecht-knop is een <a>: geen link-underline, en houd op hover de tekstkleur
+   uit de tokens (anders pakt de globale a:hover de donkere linkkleur). */
+.utrecht-button,
+.utrecht-button:hover,
+.utrecht-button:focus {
+  text-decoration: none;
+}
+
+.utrecht-button--primary-action:hover,
+.utrecht-button--primary-action:focus {
+  color: var(--utrecht-button-primary-action-color, #ffffff);
+}
+
+.utrecht-button--secondary-action:hover,
+.utrecht-button--secondary-action:focus {
+  color: var(--utrecht-button-secondary-action-color, var(--color-purple));
+}
+
+/* Data-list als nette sleutel/waarde-rijen i.p.v. ingesprongen dt/dd. */
+.utrecht-data-list--rows {
+  width: min(100%, 720px);
+}
+
+.utrecht-data-list--rows .utrecht-data-list__item {
+  display: grid;
+  grid-template-columns: minmax(170px, 240px) 1fr;
+  gap: 4px 24px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.utrecht-data-list--rows .utrecht-data-list__item:last-child {
+  border-bottom: 0;
+}
+
+.utrecht-data-list--rows .utrecht-data-list__item-key {
+  margin: 0;
+  font-weight: 700;
+}
+
+.utrecht-data-list--rows .utrecht-data-list__item-value {
+  margin: 0;
+}
+
+/* Alert: wat lucht tussen het ⚠-icoon en de tekst. */
+.utrecht-alert__icon {
+  margin-right: 8px;
+}
+
+/* Rustigere ruimte tussen de secties op de briefdetailpagina. */
+.plan-detail-page .case-section {
+  margin-top: 40px;
+}

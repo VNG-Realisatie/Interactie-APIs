@@ -47,7 +47,10 @@ const MIME = {
 // data/taken-seed.mjs. De live state wordt weggeschreven naar een JSON-bestand
 // zodat hij een serverherstart overleeft. Dat bestand is gitignored (volatiele
 // demodata hoort niet in git). Wil je resetten? Verwijder backend/taken-state.json.
-const STATE_FILE = fileURLToPath(new URL("./taken-state.json", import.meta.url));
+// Pad kan via STATE_FILE worden overschreven (bv. een gemount volume in productie).
+const STATE_FILE = process.env.STATE_FILE
+  ? process.env.STATE_FILE
+  : fileURLToPath(new URL("./taken-state.json", import.meta.url));
 
 // uuid -> taak. Laad uit het state-bestand, anders uit de seed.
 let taken;

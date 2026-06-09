@@ -1763,26 +1763,47 @@ function renderPlanDetail(rawId) {
       ? "Dit is automatisch door de overheid geregeld. U hoeft niets te doen."
       : "Deze brief is ter informatie. U hoeft niets te doen.";
 
+  // Proof-of-concept: deze pagina is opgebouwd met NL Design System-componenten
+  // (Utrecht: heading, paragraph, link, alert, button, data-list) i.p.v. eigen
+  // CSS-classes. Ze zijn via design tokens in de MijnOverheid-huisstijl gezet.
+  const buttonClass = actionable ? "utrecht-button--primary-action" : "utrecht-button--secondary-action";
   app.innerHTML = `
-    <article class="case-page plan-detail-page">
-      <a class="back-link" href="#plannen"><span aria-hidden="true">←</span> Terug naar het dossier</a>
-      <h1>${escapeHtml(task.titel?.nl ?? "Brief")}</h1>
-      <p class="page-subtitle">Brief van ${escapeHtml(org)}</p>
+    <article class="case-page plan-detail-page rhc-theme">
+      <a class="utrecht-link back-link" href="#plannen"><span aria-hidden="true">←</span> Terug naar het dossier</a>
+      <h1 class="utrecht-heading-1">${escapeHtml(task.titel?.nl ?? "Brief")}</h1>
+      <p class="utrecht-paragraph utrecht-paragraph--lead">Brief van ${escapeHtml(org)}</p>
 
       <div class="plan-detail-status">${planRowBadge(task)}</div>
 
-      ${flags.length ? `<div class="plan-detail-flag">${flags.map((f) => `<p>⚠ ${escapeHtml(f)}</p>`).join("")}</div>` : ""}
+      ${
+        flags.length
+          ? `<div class="utrecht-alert utrecht-alert--warning" role="alert">
+               <span class="utrecht-alert__icon" aria-hidden="true">⚠</span>
+               <div class="utrecht-alert__content">
+                 ${flags.map((f) => `<p class="utrecht-alert__message utrecht-paragraph">${escapeHtml(f)}</p>`).join("")}
+               </div>
+             </div>`
+          : ""
+      }
 
       <section class="case-section">
-        <h1>Wat wordt er gevraagd?</h1>
-        <p>${escapeHtml(watGevraagd)}</p>
-        ${url ? `<a class="primary-button" href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(actionable ? `Regel dit bij ${org}` : `Bekijk bij ${org}`)} <span aria-hidden="true">→</span></a>` : ""}
+        <h2 class="utrecht-heading-2">Wat wordt er gevraagd?</h2>
+        <p class="utrecht-paragraph">${escapeHtml(watGevraagd)}</p>
+        ${url ? `<p><a class="utrecht-button ${buttonClass}" href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(actionable ? `Regel dit bij ${org}` : `Bekijk bij ${org}`)}</a></p>` : ""}
       </section>
 
       <section class="case-section">
-        <h1>Over deze brief</h1>
-        <dl class="case-detail-list">
-          ${rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join("")}
+        <h2 class="utrecht-heading-2">Over deze brief</h2>
+        <dl class="utrecht-data-list utrecht-data-list--rows">
+          ${rows
+            .map(
+              ([k, v]) => `
+            <div class="utrecht-data-list__item">
+              <dt class="utrecht-data-list__item-key">${escapeHtml(k)}</dt>
+              <dd class="utrecht-data-list__item-value">${escapeHtml(v)}</dd>
+            </div>`,
+            )
+            .join("")}
         </dl>
       </section>
     </article>

@@ -4,7 +4,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MijnOverheid</title>
+    <!-- NL Design System (Utrecht) — design tokens + class-based componenten,
+         lokaal gevendord (no-build). Ná dit bestand themen we ze in styles.css. -->
+    <link rel="stylesheet" href="./vendor/nlds/utrecht-design-tokens.css" />
+    <link rel="stylesheet" href="./vendor/nlds/utrecht-components.css" />
+    <!-- Officiële Rijkshuisstijl Community design tokens (NLDS-thema). Themet de
+         Utrecht-componenten; gescoped onder .rhc-theme (zie nlds-theme.css). -->
+    <link rel="stylesheet" href="./vendor/nlds/rijkshuisstijl-community-tokens.css" />
     <link rel="stylesheet" href="./styles.css" />
+    <!-- Kleine NLDS-componentcorrecties die de tokens niet dekken (ná styles.css). -->
+    <link rel="stylesheet" href="./nlds-theme.css" />
   </head>
   <body>
     <svg class="icon-sprite" aria-hidden="true" focusable="false">

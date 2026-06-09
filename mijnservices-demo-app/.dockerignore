@@ -1,0 +1,9 @@
+.git
+node_modules
+screenshots
+*.zip
+backend/taken-state.json
+backend/taken-state.json.tmp
+fly.toml
+Dockerfile
+.dockerignore
