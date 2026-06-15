@@ -1969,6 +1969,8 @@ export function App() {
                 badgeCount = conversations.filter(c => c.ongelezen).length;
               } else if (n.key === 'zaken') {
                 badgeCount = cases.filter(c => c.status === 'Open' || c.status?.toLowerCase() === 'open').length;
+              } else if (n.key === 'agenda') {
+                badgeCount = appointments.length;
               }
               return (
                 <li key={n.key}>
