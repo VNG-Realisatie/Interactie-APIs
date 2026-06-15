@@ -128,6 +128,44 @@ a.table-row:active,
   width: 20px;
   height: 20px;
 }
+/* Hamburger-knop: alleen zichtbaar op smalle schermen (zie media query). */
+.masthead__menu-btn {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: none;
+  border: 0;
+  padding: 8px;
+  margin-left: -8px;
+  cursor: pointer;
+}
+.masthead__menu-bars,
+.masthead__menu-bars::before,
+.masthead__menu-bars::after {
+  display: block;
+  width: 24px;
+  height: 2.5px;
+  background: currentColor;
+  border-radius: 2px;
+}
+.masthead__menu-bars {
+  position: relative;
+}
+.masthead__menu-bars::before,
+.masthead__menu-bars::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+.masthead__menu-bars::before {
+  top: -7px;
+}
+.masthead__menu-bars::after {
+  top: 7px;
+}
 .accent-line {
   height: 3px;
   background: var(--color-primary);
@@ -155,15 +193,6 @@ a.table-row:active,
   align-items: start;
   flex: 1 0 auto; /* vult de resterende hoogte zodat de footer onderaan blijft */
 }
-@media (max-width: 820px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-  .sidenav {
-    display: none;
-  }
-}
-
 /* --- Sidebar --------------------------------------------------------- */
 .sidenav ul {
   list-style: none;
@@ -200,6 +229,131 @@ a.table-row:active,
   color: var(--color-on-accent);
   font-size: 0.8rem;
   font-weight: 700;
+}
+/* Kop met sluitknop: alleen in het fullscreen-menu op mobiel. */
+.sidenav__mobile-head {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+.sidenav__mobile-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--color-primary);
+}
+.sidenav__close {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-text);
+  background: none;
+  border: 0;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+/* Gebruikerslinks onderin het fullscreen-menu: alleen op mobiel. */
+.sidenav__mobile-foot {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  margin-top: 8px;
+  border-top: 1px solid var(--color-border-soft);
+}
+.sidenav__user {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border-radius: var(--border-radius);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+.sidenav__mobile-foot a:not(.sidenav__user) {
+  padding: 8px 14px;
+  color: var(--color-primary);
+}
+
+/* Mobiel: smalle schermen krijgen een hamburger + fullscreen-menu.
+   Dit blok staat ná de base-regels zodat de overrides winnen. */
+@media (max-width: 820px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  /* Compacte topbar: merk/logo links, hamburger rechtsboven. */
+  .masthead__inner {
+    grid-template-columns: 1fr auto;
+    min-height: 0;
+    padding: 14px 20px;
+    gap: 16px;
+  }
+  /* Beide expliciet op rij 1: de hamburger staat in de DOM vóór het merk,
+     dus zonder grid-row zou het merk (col 1) naar een tweede rij vallen. */
+  .masthead__menu-btn {
+    display: inline-flex;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    justify-self: end;
+  }
+  .masthead__brand {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    justify-self: start;
+    font-size: 1.3rem;
+    gap: 10px;
+  }
+  .masthead__mark {
+    height: 40px;
+  }
+  /* Rijkshuisstijl: het staande Rijkslint blijft gecentreerd in beeld.
+     De hamburger staat links, het merk rechts, dus het midden is vrij —
+     we maken alleen bovenin ruimte zodat het lint er netjes boven hangt. */
+  .masthead:has(.masthead__lint) .masthead__inner {
+    padding-top: 52px;
+  }
+  /* Gebruikerslinks (naam + uitloggen) staan onderin het fullscreen-menu. */
+  .masthead__links {
+    display: none;
+  }
+  /* Sidenav wordt een fullscreen-paneel dat van links inschuift. */
+  .sidenav {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--color-page);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    visibility: hidden;
+  }
+  .sidenav.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    box-shadow: 0 0 40px rgba(7, 31, 69, 0.25);
+  }
+  .sidenav__mobile-head {
+    display: flex;
+    position: sticky;
+    top: 0;
+    background: var(--color-page);
+  }
+  .sidenav__mobile-foot {
+    display: flex;
+  }
+  .sidenav ul {
+    padding: 12px 16px 8px;
+  }
+  .sidenav a {
+    min-height: 56px;
+    font-size: 1.2rem;
+  }
 }
 
 /* --- Content --------------------------------------------------------- */
@@ -281,6 +435,28 @@ a.table-row:active,
   text-decoration: none;
   white-space: nowrap;
 }
+/* Mobiel: icoon + tekst op één rij, CTA eronder over de volle breedte,
+   zodat de banner niet breder wordt dan het scherm. */
+@media (max-width: 820px) {
+  .dossier {
+    grid-template-columns: auto 1fr;
+    gap: 16px 20px;
+    padding: 24px 20px;
+  }
+  /* Laat de tekstkolom krimpen en lange woorden afbreken zodat de banner
+     niet breder wordt dan het scherm. */
+  .dossier > span {
+    min-width: 0;
+  }
+  .dossier__title {
+    font-size: 1.25rem;
+    overflow-wrap: anywhere;
+  }
+  .dossier__cta {
+    grid-column: 1 / -1;
+    white-space: normal;
+  }
+}
 
 /* --- Takenlijst ------------------------------------------------------ */
 .task {
@@ -337,6 +513,32 @@ a.task:hover .task__title {
 .task__arrow .icon {
   width: 22px;
   height: 22px;
+}
+/* Smalle schermen: de deadline past niet meer naast de titel, dus zetten we
+   de deadline onder de titel en de pijl rechts ernaast. */
+@media (max-width: 560px) {
+  .task {
+    grid-template-columns: 1fr auto;
+    gap: 4px 16px;
+  }
+  .task__main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .task__deadline,
+  .task__info {
+    grid-column: 1;
+    grid-row: 2;
+    white-space: normal;
+  }
+  .task__arrow {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+  .task__title {
+    overflow-wrap: anywhere;
+  }
 }
 
 /* --- Zaak-kaarten ---------------------------------------------------- */
@@ -1507,6 +1709,56 @@ a.table-row:hover .bericht__subject {
 .demo-toolbar__btn:focus-visible {
   outline: 2px solid var(--vng-blue);
   outline-offset: 2px;
+}
+
+/* De terug-knop toont standaard alleen de pijl en klapt op hover/focus uit
+   tot een pill met het label "API lab". Staat ná de base .demo-toolbar__btn
+   zodat de breedte-override wint. */
+.demo-toolbar__btn--back {
+  width: auto;
+  min-width: 40px;
+  overflow: hidden;
+  transition:
+    padding 0.3s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.demo-toolbar__btn-text {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  transition:
+    max-width 0.3s ease,
+    opacity 0.25s ease 0.05s,
+    margin 0.3s ease;
+}
+
+.demo-toolbar__btn--back:hover,
+.demo-toolbar__btn--back:focus-visible {
+  padding: 0 14px;
+}
+
+.demo-toolbar__btn--back:hover .demo-toolbar__btn-text,
+.demo-toolbar__btn--back:focus-visible .demo-toolbar__btn-text {
+  max-width: 80px;
+  opacity: 1;
+  margin-left: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-toolbar__btn--back,
+  .demo-toolbar__btn-text {
+    transition: none;
+  }
 }
 
 .demo-toolbar__btn .icon {

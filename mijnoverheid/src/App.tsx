@@ -1672,7 +1672,21 @@ function Footer({ brand }: { brand: Brand }) {
 export function App() {
   const [theme, setTheme] = useState('rijk');
   const [page, go] = useHashRoute();
-  
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Voorkom scrollen van de achtergrond zolang het fullscreen-menu open is.
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
+  // Sluit het menu bij navigeren naar een andere pagina.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [page]);
+
   const [tasksOpen, setTasksOpen] = useState<Taak[]>(takenOpenDefault);
   const [tasksDone, setTasksDone] = useState<Taak[]>(takenDoneDefault);
   const [products, setProducts] = useState<any[]>(productenDefault);
@@ -1950,6 +1964,17 @@ export function App() {
           </span>
         )}
         <div className="masthead__inner">
+          <button
+            type="button"
+            className="masthead__menu-btn"
+            aria-label="Menu openen"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setMenuOpen(true)}
+          >
+            <span className="masthead__menu-bars" aria-hidden="true" />
+            Menu
+          </button>
           <a className="masthead__brand" href="#/home" onClick={navLink(go, 'home')}>
             {brand.mark && <img className="masthead__mark" src={brand.mark} alt="" />}
             {brand.name}
@@ -1978,7 +2003,22 @@ export function App() {
       </nav>
 
       <div className="layout">
-        <aside className="sidenav" aria-label="Mijn omgeving">
+        <aside
+          id="mobile-menu"
+          className={`sidenav${menuOpen ? ' is-open' : ''}`}
+          aria-label="Mijn omgeving"
+        >
+          <div className="sidenav__mobile-head">
+            <span className="sidenav__mobile-title">Menu</span>
+            <button
+              type="button"
+              className="sidenav__close"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Menu sluiten"
+            >
+              &times;
+            </button>
+          </div>
           <ul>
             {nav.map((n) => {
               let badgeCount = n.badge;
@@ -1995,7 +2035,11 @@ export function App() {
                     href={`#/${n.key}`}
                     aria-current={page === n.key ? 'page' : undefined}
                     className={page === n.key ? 'is-current' : ''}
-                    onClick={navLink(go, n.key)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      go(n.key);
+                      setMenuOpen(false);
+                    }}
                   >
                     <Icon id={n.icon} />
                     <span>{n.label}</span>
@@ -2005,6 +2049,21 @@ export function App() {
               );
             })}
           </ul>
+          <div className="sidenav__mobile-foot">
+            <a
+              className="sidenav__user"
+              href="#/gegevens"
+              onClick={(e) => {
+                e.preventDefault();
+                go('gegevens');
+                setMenuOpen(false);
+              }}
+            >
+              <Icon id="icon-user" />
+              <span>Jeroen van Drouwen</span>
+            </a>
+            <a href="/">Uitloggen</a>
+          </div>
         </aside>
 
         <main className="shell" id="main">
@@ -2194,11 +2253,12 @@ export function App() {
           <span className="demo-toolbar__divider" aria-hidden="true" />
           <a
             href="/"
-            className="demo-toolbar__btn"
+            className="demo-toolbar__btn demo-toolbar__btn--back"
             title="Terug naar API lab"
             aria-label="Terug naar API lab"
           >
             <Icon id="icon-arrow-left" />
+            <span className="demo-toolbar__btn-text">API lab</span>
           </a>
           <button
             type="button"
