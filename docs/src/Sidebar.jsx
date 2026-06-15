@@ -33,6 +33,9 @@ export default function Sidebar({ data, params, navigate }) {
           API lab
         </a>
       </h2>
+      <a className="sidebar-demo-button" href="/mijn-omgeving/">
+        MijnOmgeving demo
+      </a>
       <nav>
         <div className="nav-section">
           <ul>

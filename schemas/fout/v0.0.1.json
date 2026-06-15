@@ -3,12 +3,12 @@
   "$defs": {
     "Fout": {
       "type": "object",
-      "description": "Problem Details-object voor HTTP 4xx- en 5xx-fouten conform RFC 7807. De standaardleden zijn optioneel volgens de RFC; aanvullende leden, zoals code, kunnen worden gebruikt voor API-specifieke machineleesbare informatie.",
+      "description": "Problem Details-object voor HTTP 4xx- en 5xx-fouten conform RFC 9457 (voorheen RFC 7807). De standaardleden zijn optioneel volgens de RFC; aanvullende leden, zoals code, kunnen worden gebruikt voor API-specifieke machineleesbare informatie.",
       "properties": {
         "type": {
           "type": "string",
           "format": "uri-reference",
-          "description": "URI-referentie die het type fout identificeert. Als dit veld ontbreekt, geldt volgens RFC 7807 impliciet about:blank.",
+          "description": "URI-referentie die het type fout identificeert. Als dit veld ontbreekt, geldt volgens RFC 9457 (voorheen RFC 7807) impliciet about:blank.",
           "title": "type"
         },
         "code": {

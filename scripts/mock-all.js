@@ -95,7 +95,7 @@ async function startMocks() {
     );
     res.header(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, Accept",
+      "Content-Type, Authorization, Accept, Prefer, prefer",
     );
     if (req.method === "OPTIONS") {
       return res.sendStatus(204);

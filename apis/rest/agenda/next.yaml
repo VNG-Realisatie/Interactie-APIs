@@ -293,34 +293,54 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AfspraakDetails"
-              example:
-                afspraakIdentificatie: "afspr-2026-001-xyz"
-                afspraakSoort: fysiek
-                onderwerp: "Gesprek re-integratie"
-                geplandAanvangsmoment: "2026-03-15T08:00:00Z"
-                geplandEindmoment: "2026-03-15T09:00:00Z"
-                aanmeldkenmerkAlfanumeriek: "BALIE-204-A"
-                aanmeldkenmerkQrCode: "https://example.nl/qr/afspr-2026-001-xyz"
-                aanmeldkenmerkMobiel: "wallet://afspraken/afspr-2026-001-xyz"
-                afspraakLocatie:
-                  naam: "Stadskantoor Rotterdam, ingang Coolsingel"
-                  bezoekadres:
-                    adresregel1: "Coolsingel 40"
-                    adresregel2: "3011 AD Rotterdam"
-                activiteiten:
-                  - naamActiviteitsoort: "Paspoort verlengen"
-                    aantal: 1
-                    aanduidingWatMeeTeNemen: "Neem een geldig identiteitsbewijs en een recente pasfoto mee."
-                  - naamActiviteitsoort: "Rijbewijs aanvragen"
-                    aantal: 1
-                    aanduidingWatMeeTeNemen: "Neem je huidige rijbewijs mee."
-                contactInformatie:
-                  naam: "Loketmedewerkers Paspoorten"
-                  emailadres: "paspoorten@gemeente.nl"
-                  telefoonnummer: "+31101234567"
-                  adres:
-                    adresregel1: "Stadhuis, afdeling Paspoorten"
-                    adresregel2: "3011 AD Rotterdam"
+              examples:
+                fysiekeAfspraak:
+                  summary: Fysieke afspraak op locatie
+                  value:
+                    afspraakIdentificatie: "afspr-2026-001-xyz"
+                    afspraakSoort: fysiek
+                    onderwerp: "Gesprek re-integratie"
+                    geplandAanvangsmoment: "2026-03-15T08:00:00Z"
+                    geplandEindmoment: "2026-03-15T09:00:00Z"
+                    aanmeldkenmerkAlfanumeriek: "BALIE-204-A"
+                    aanmeldkenmerkQrCode: "https://example.nl/qr/afspr-2026-001-xyz"
+                    aanmeldkenmerkMobiel: "wallet://afspraken/afspr-2026-001-xyz"
+                    afspraakLocatie:
+                      naam: "Stadskantoor Rotterdam, ingang Coolsingel"
+                      bezoekadres:
+                        adresregel1: "Coolsingel 40"
+                        adresregel2: "3011 AD Rotterdam"
+                    activiteiten:
+                      - naamActiviteitsoort: "Paspoort verlengen"
+                        aantal: 1
+                        aanduidingWatMeeTeNemen: "Neem een geldig identiteitsbewijs en een recente pasfoto mee."
+                      - naamActiviteitsoort: "Rijbewijs aanvragen"
+                        aantal: 1
+                        aanduidingWatMeeTeNemen: "Neem je huidige rijbewijs mee."
+                    contactInformatie:
+                      naam: "Loketmedewerkers Paspoorten"
+                      emailadres: "paspoorten@gemeente.nl"
+                      telefoonnummer: "+31101234567"
+                      adres:
+                        adresregel1: "Stadhuis, afdeling Paspoorten"
+                        adresregel2: "3011 AD Rotterdam"
+                onlineAfspraak:
+                  summary: Online afspraak via Teams
+                  value:
+                    afspraakIdentificatie: "afspr-2026-002-abc"
+                    afspraakSoort: online
+                    onderwerp: "Videogesprek schuldhulpverlening"
+                    geplandAanvangsmoment: "2026-07-15T12:30:00Z"
+                    geplandEindmoment: "2026-07-15T13:00:00Z"
+                    onlineAdres: "https://teams.example.nl/meet/afspr-2026-002-abc"
+                    activiteiten:
+                      - naamActiviteitsoort: "Intake schuldhulpverlening"
+                        aantal: 1
+                        aanduidingWatMeeTeNemen: "Houd je DigiD bij de hand en leg je inkomsten- en uitgavenbewijzen klaar."
+                    contactInformatie:
+                      naam: "Consulent Schuldhulp"
+                      emailadres: "schuldhulp@gemeente.nl"
+                      telefoonnummer: "+31101234567"
         "400":
           description: Ongeldige afspraakidentificatie (bijv. illegale tekens of te lange waarde).
           content:

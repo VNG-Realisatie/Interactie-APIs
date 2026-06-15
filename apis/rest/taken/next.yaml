@@ -99,6 +99,65 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ContextResultaat"
+              example:
+                taken:
+                  - uuid: "550e8400-e29b-41d4-a716-446655440000"
+                    titel:
+                      nl: "Kentekenbewijs uploaden"
+                      en: "Upload driving licence"
+                    toelichting:
+                      nl: "Upload een kopie van uw kentekenbewijs voor uw parkeervergunningsaanvraag."
+                      en: "Upload a copy of your driving licence for your parking permit application."
+                    status: "open"
+                    deadline: "2026-12-12T23:59:59+01:00"
+                    context:
+                      urn: "urn:nl:gemeenten:zaak:2026-00042"
+                      canonicalUrl: "https://portaal.gemeente.nl/zaken/2026-00042"
+                    uitvoering:
+                      type: "upload"
+                      canonicalUrl: "https://portaal.gemeente.nl/taken/550e8400/uitvoeren?returnUrl=https%3A%2F%2Fmijnoverheid.nl%2Ftaken%2Fcontext%2Fzaak-2026-00042"
+                  - uuid: "6fa870d4-a212-4f18-912c-3b9542a12999"
+                    titel:
+                      nl: "Aanslag waterschapsbelasting betalen"
+                      en: "Pay water tax assessment"
+                    toelichting:
+                      nl: "Gelieve de jaarlijkse aanslag voor waterschapsbelasting te voldoen."
+                      en: "Please pay the annual water tax assessment."
+                    status: "open"
+                    deadline: "2026-08-31T23:59:59+02:00"
+                    context:
+                      urn: "urn:nl:gemeenten:belasting:2026-waterschap"
+                      canonicalUrl: "https://portaal.waterschap.nl/belastingen"
+                    uitvoering:
+                      type: "formulier"
+                      canonicalUrl: "https://portaal.waterschap.nl/taken/6fa870d4/uitvoeren"
+                  - uuid: "9a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+                    titel:
+                      nl: "Aangifte erfbelasting indienen"
+                      en: "Submit inheritance tax return"
+                    toelichting:
+                      nl: "Dien de aangifte erfbelasting in voor de nalatenschap."
+                      en: "Submit the inheritance tax return for the estate."
+                    status: "open"
+                    deadline: "2027-04-28T23:59:59+02:00"
+                    context:
+                      urn: "urn:nl:belastingdienst:erfbelasting:2026-nalatenschap"
+                    uitvoering:
+                      type: "formulier"
+                      canonicalUrl: "https://www.belastingdienst.nl/erfbelasting"
+                  - uuid: "2f3e4d5c-6b7a-8d9e-0f1a-2b3c4d5e6f7a"
+                    titel:
+                      nl: "Overlijdensuitkering AOW"
+                      en: "AOW death benefit"
+                    toelichting:
+                      nl: "Informatie over de afhandeling van de AOW-uitkering na overlijden."
+                      en: "Information about the handling of the AOW benefit after death."
+                    status: "ter-info"
+                    context:
+                      urn: "urn:nl:svb:aow:2026-overlijden"
+                    uitvoering:
+                      type: "formulier"
+                      canonicalUrl: "https://www.svb.nl"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -465,18 +524,39 @@ components:
         application/problem+json:
           schema:
             $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
+          example:
+            type: about:blank
+            code: ONGELDIGE_AANVRAAG
+            title: Ongeldige aanvraag
+            status: 400
+            detail: "Veld 'klantId' is verplicht."
+            instance: /context/zoek
     Unauthorized:
       description: Authenticatie vereist
       content:
         application/problem+json:
           schema:
             $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
+          example:
+            type: about:blank
+            code: NIET_GEAUTHENTICEERD
+            title: Authenticatie vereist
+            status: 401
+            detail: "Geen geldige toegangstoken meegestuurd."
+            instance: /context/zoek
     NotFound:
       description: Taak niet gevonden
       content:
         application/problem+json:
           schema:
             $ref: "../../../schemas/fout/v0.0.1.json#/$defs/Fout"
+          example:
+            type: about:blank
+            code: TAAK_NIET_GEVONDEN
+            title: Taak niet gevonden
+            status: 404
+            detail: "Er bestaat geen taak met dit uuid."
+            instance: /taken/00000000-0000-4000-8000-000000000000
 
   securitySchemes:
     bearerAuth:
