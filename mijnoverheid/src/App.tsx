@@ -12,6 +12,62 @@ const themes = createListCollection({
   ],
 });
 
+const API_BASE_STORAGE_KEY = 'mijnoverheid-api-base';
+
+function getDefaultApiBase() {
+  if (typeof window === 'undefined') return 'https://vng-interactie-mocks.fly.dev';
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:41837'
+    : 'https://vng-interactie-mocks.fly.dev';
+}
+
+function readStoredApiBase() {
+  if (typeof window === 'undefined') return getDefaultApiBase();
+  return localStorage.getItem(API_BASE_STORAGE_KEY) || getDefaultApiBase();
+}
+
+function normalizeApiBase(value: string) {
+  return value.trim().replace(/\/$/, '');
+}
+
+function resolveApiUrl(base: string, pathOrUrl: string) {
+  const trimmed = pathOrUrl.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const baseNorm = normalizeApiBase(base);
+  const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return `${baseNorm}${path}`;
+}
+
+function formatLogUrl(fullUrl: string, base: string) {
+  const baseNorm = normalizeApiBase(base);
+  if (fullUrl.startsWith(baseNorm)) return fullUrl.slice(baseNorm.length) || '/';
+  try {
+    const u = new URL(fullUrl);
+    return `${u.pathname}${u.search}`;
+  } catch {
+    return fullUrl;
+  }
+}
+
+const defaultMockHeaders = {
+  Authorization: 'Bearer dummy-token',
+  'Content-Type': 'application/json',
+  Prefer: 'code=200',
+};
+
+const customRequestDefaults = {
+  method: 'POST',
+  path: '/apis/rest/taken/next/context/zoek',
+  body: JSON.stringify(
+    {
+      klantId: 'a8f3c1d2-7e44-4b1a-9c0f-123456789abc',
+      include: ['taken'],
+    },
+    null,
+    2,
+  ),
+};
+
 type PageKey =
   | 'home'
   | 'dossier'
@@ -1629,21 +1685,23 @@ export function App() {
 
   const [apiLogs, setApiLogs] = useState<any[]>([]);
   const [showInspector, setShowInspector] = useState(false);
+  const [apiBaseUrl, setApiBaseUrl] = useState(readStoredApiBase);
+  const [gatewayInput, setGatewayInput] = useState(readStoredApiBase);
+  const [customMethod, setCustomMethod] = useState(customRequestDefaults.method);
+  const [customPath, setCustomPath] = useState(customRequestDefaults.path);
+  const [customBody, setCustomBody] = useState(customRequestDefaults.body);
+  const [customSending, setCustomSending] = useState(false);
+  const [customError, setCustomError] = useState<string | null>(null);
 
   function applyTheme(value: string) {
     setTheme(value);
     document.documentElement.dataset.theme = value;
   }
 
-  const apiBaseUrl = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:41837'
-    : 'https://vng-interactie-mocks.fly.dev';
-
-  const trackedFetch = async (url: string, options?: RequestInit) => {
+  const trackedFetch = useCallback(async (url: string, options?: RequestInit) => {
     const method = options?.method || 'GET';
     const id = Math.random().toString(36).substring(7);
-    const shortUrl = url.replace(apiBaseUrl, '');
+    const shortUrl = formatLogUrl(url, apiBaseUrl);
     const newLog = {
       id,
       url: shortUrl,
@@ -1663,15 +1721,59 @@ export function App() {
       setApiLogs(prev => prev.map(item => item.id === id ? { ...item, pending: false, statusText: err.message || 'Error' } : item));
       throw err;
     }
-  };
+  }, [apiBaseUrl]);
+
+  function applyGateway() {
+    const normalized = normalizeApiBase(gatewayInput);
+    if (!normalized) return;
+    setApiBaseUrl(normalized);
+    localStorage.setItem(API_BASE_STORAGE_KEY, normalized);
+  }
+
+  function resetGateway() {
+    localStorage.removeItem(API_BASE_STORAGE_KEY);
+    const defaultBase = getDefaultApiBase();
+    setApiBaseUrl(defaultBase);
+    setGatewayInput(defaultBase);
+  }
+
+  async function sendCustomRequest() {
+    setCustomError(null);
+    const url = resolveApiUrl(apiBaseUrl, customPath);
+    const options: RequestInit = {
+      method: customMethod,
+      headers: { ...defaultMockHeaders },
+    };
+
+    if (customMethod !== 'GET' && customMethod !== 'DELETE') {
+      if (!customBody.trim()) {
+        setCustomError('Body is verplicht voor dit verzoek.');
+        return;
+      }
+      try {
+        JSON.parse(customBody);
+      } catch {
+        setCustomError('Ongeldige JSON in body.');
+        return;
+      }
+      options.body = customBody;
+    }
+
+    setCustomSending(true);
+    try {
+      await trackedFetch(url, options);
+    } catch {
+      // Fout staat al in het log-overzicht.
+    } finally {
+      setCustomSending(false);
+    }
+  }
+
+  const isDefaultGateway = apiBaseUrl === getDefaultApiBase();
 
   useEffect(() => {
     const fetchAllData = async () => {
-      const headers = {
-        'Authorization': 'Bearer dummy-token',
-        'Content-Type': 'application/json',
-        'Prefer': 'code=200',
-      };
+      const headers = { ...defaultMockHeaders };
       
       try {
         // 1. Fetch Taken from taken/next mock
@@ -1799,7 +1901,7 @@ export function App() {
     };
     
     fetchAllData();
-  }, []);
+  }, [apiBaseUrl, trackedFetch]);
 
   const handleTaakClick = (t: Taak) => {
     setSelectedTask(t);
@@ -1809,10 +1911,7 @@ export function App() {
   const handleCaseClick = async (uuid: string) => {
     try {
       const res = await trackedFetch(`${apiBaseUrl}/apis/rest/zaken/next/zaken/${uuid}`, {
-        headers: {
-          'Authorization': 'Bearer dummy-token',
-          'Content-Type': 'application/json'
-        }
+        headers: defaultMockHeaders,
       });
       if (res.ok) {
         const data = await res.json();
@@ -1957,6 +2056,85 @@ export function App() {
               </div>
             </div>
 
+            <div className="api-inspector__panel">
+              <div className="api-inspector__section">
+                <label className="api-inspector__label" htmlFor="api-gateway">
+                  Mock gateway
+                </label>
+                <input
+                  id="api-gateway"
+                  className="api-inspector__input"
+                  type="url"
+                  value={gatewayInput}
+                  onChange={(e) => setGatewayInput(e.target.value)}
+                  placeholder="https://vng-interactie-mocks.fly.dev"
+                />
+                <div className="api-inspector__row">
+                  <button type="button" className="api-inspector__button" onClick={applyGateway}>
+                    Toepassen
+                  </button>
+                  {!isDefaultGateway && (
+                    <button
+                      type="button"
+                      className="api-inspector__button api-inspector__button--ghost"
+                      onClick={resetGateway}
+                    >
+                      Standaard
+                    </button>
+                  )}
+                </div>
+                <p className="api-inspector__hint">
+                  Pad relatief aan gateway, of volledige URL voor een andere host.
+                </p>
+              </div>
+
+              <div className="api-inspector__section">
+                <span className="api-inspector__label">Handmatig verzoek</span>
+                <div className="api-inspector__row api-inspector__row--method">
+                  <select
+                    className="api-inspector__select"
+                    value={customMethod}
+                    onChange={(e) => setCustomMethod(e.target.value)}
+                    aria-label="HTTP-methode"
+                  >
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PATCH">PATCH</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                  </select>
+                  <input
+                    className="api-inspector__input"
+                    type="text"
+                    value={customPath}
+                    onChange={(e) => setCustomPath(e.target.value)}
+                    placeholder="/apis/rest/taken/next/context/zoek"
+                    aria-label="Pad of URL"
+                  />
+                </div>
+                {customMethod !== 'GET' && customMethod !== 'DELETE' && (
+                  <textarea
+                    className="api-inspector__textarea"
+                    value={customBody}
+                    onChange={(e) => setCustomBody(e.target.value)}
+                    rows={5}
+                    spellCheck={false}
+                    aria-label="Request body (JSON)"
+                  />
+                )}
+                {customError && <p className="api-inspector__error">{customError}</p>}
+                <button
+                  type="button"
+                  className="api-inspector__button api-inspector__button--primary"
+                  onClick={sendCustomRequest}
+                  disabled={customSending}
+                >
+                  {customSending ? 'Versturen…' : 'Versturen'}
+                </button>
+              </div>
+
+              <div className="api-inspector__section">
+                <span className="api-inspector__label">Verzoeken</span>
             <div className="api-inspector__list">
               {apiLogs.length === 0 ? (
                 <div className="api-inspector__empty">
@@ -1978,7 +2156,7 @@ export function App() {
                     <div key={log.id} className="api-inspector__item">
                       <div className="api-inspector__item-head">
                         <span
-                          className={`api-inspector__method api-inspector__method--${log.method === 'POST' ? 'post' : 'get'}`}
+                          className={`api-inspector__method api-inspector__method--${log.method === 'POST' ? 'post' : log.method === 'GET' ? 'get' : 'other'}`}
                         >
                           {log.method}
                         </span>
@@ -1996,8 +2174,10 @@ export function App() {
                 })
               )}
             </div>
+              </div>
+            </div>
             <div className="api-inspector__footer">
-              Verbonden met local mock gateway (port 41837)
+              Gateway: {apiBaseUrl}
             </div>
           </div>
         )}
