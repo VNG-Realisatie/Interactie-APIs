@@ -2,13 +2,11 @@ import React, { useState, useEffect } from "react";
 import { marked } from "marked";
 import BpmnViewer from "bpmn-js/lib/Viewer";
 
-/** Voegt bovenaan een servicedocument een link naar de interactieve demo toe. */
-function injectDemoLink(markdown, demoPath, title) {
+/** Voegt bovenaan een servicedocument een knop naar de interactieve demo toe. */
+function injectDemoLink(markdown, demoPath) {
   const block = [
     "",
-    "## Interactieve demo",
-    "",
-    `<a class="demo-cta" href="${demoPath}" target="_blank" rel="noopener noreferrer">Open de MijnOverheid-demo voor ${title} in een nieuw tabblad &rarr;</a>`,
+    `<a class="demo-cta" href="${demoPath}" target="_blank" rel="noopener noreferrer">Bekijk in Demo &rarr;</a>`,
     "",
   ].join("\n");
 
@@ -31,7 +29,7 @@ export default function MarkdownView({ path, portalData }) {
       .then((text) => {
         let md = text;
         if (path.startsWith("services/") && serviceMeta?.demoPath) {
-          md = injectDemoLink(text, serviceMeta.demoPath, serviceMeta.title || "deze service");
+          md = injectDemoLink(text, serviceMeta.demoPath);
         }
         setHtml(marked.parse(md));
       })
@@ -171,11 +169,13 @@ export default function MarkdownView({ path, portalData }) {
       return (
         <section className="service-overview" aria-labelledby="services-heading">
           <h2 id="services-heading">{title}</h2>
-          <p style={{ color: "var(--text-muted)", lineHeight: "1.6", marginBottom: "1.5em" }}>
-            Elke service is doorklikbaar in de{" "}
-            <a href="/mijnoverheid/">MijnOverheid-demo</a> — live gekoppeld aan de mock-API&apos;s in
-            dit lab.
+          <p style={{ lineHeight: "1.6", marginBottom: "1em" }}>
+            Elke service is doorklikbaar in de MijnOverheid-demo — live gekoppeld aan de
+            mock-API&apos;s in dit lab.
           </p>
+          <a className="demo-cta" href="/mijnoverheid/" style={{ marginBottom: "1.5em" }}>
+            Bekijk in Demo &rarr;
+          </a>
           <div className="service-card-grid">
             {items.map((item, i) => (
               <a key={i} className="service-card" href={"/?doc=" + item.doc}>

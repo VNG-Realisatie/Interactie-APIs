@@ -24,6 +24,7 @@ export default function Sidebar({ data, params, navigate }) {
           }}
         >
           <img
+            className="portal-logo"
             src={vngLogo}
             alt="VNG Logo"
             width="96"
