@@ -1908,6 +1908,12 @@ export function App() {
   const searchQ = searchQuery.trim().toLowerCase();
   const searchResults = searchQ
     ? [
+        ...nav.map((n) => ({
+          group: 'Pagina',
+          title: n.label,
+          sub: '',
+          run: () => go(n.key),
+        })),
         ...[...tasksOpen, ...tasksDone].map((t) => ({
           group: 'Taken',
           title: t.titel,
