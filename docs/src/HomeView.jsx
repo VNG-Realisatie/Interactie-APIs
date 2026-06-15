@@ -22,17 +22,6 @@ export default function HomeView({ data, navigate }) {
         zijn er om de verschillende API's van VNG samen te presenteren en te harmoniseren.
       </p>
 
-      <a className="service-demo-card" href="/mijnoverheid/" style={{ marginBottom: "2em" }}>
-        <span className="service-card-kicker">Demo</span>
-        <h3>MijnOverheid demo</h3>
-        <p>
-          Doorklikbare MijnOverheid-omgeving met taken, zaken, berichten, producten en agenda —
-          live gekoppeld aan de mock-API&apos;s in dit lab. Wissel huisstijl en bekijk API-verzoeken
-          in de inspector.
-        </p>
-        <span className="service-card-link">Open demo</span>
-      </a>
-
       <h2>Over het VNG API Lab</h2>
       <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
         <li>
@@ -63,6 +52,13 @@ export default function HomeView({ data, navigate }) {
           reageren.
         </li>
       </ul>
+
+      <h2>MijnOverheid demo</h2>
+      <p style={{ color: "var(--text-muted)", lineHeight: "1.6", marginBottom: "2em" }}>
+        Een doorklikbare MijnOverheid-omgeving met taken, zaken, berichten, producten en agenda —
+        live gekoppeld aan de mock-API&apos;s in dit lab. Wissel huisstijl en bekijk API-verzoeken in
+        de inspector. <a href="/mijnoverheid/">Open de demo →</a>
+      </p>
 
       <div
         style={{

@@ -12,18 +12,11 @@ const themes = createListCollection({
   ],
 });
 
-const API_BASE_STORAGE_KEY = 'mijnoverheid-api-base';
-
 function getDefaultApiBase() {
   if (typeof window === 'undefined') return 'https://vng-interactie-mocks.fly.dev';
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:41837'
     : 'https://vng-interactie-mocks.fly.dev';
-}
-
-function readStoredApiBase() {
-  if (typeof window === 'undefined') return getDefaultApiBase();
-  return localStorage.getItem(API_BASE_STORAGE_KEY) || getDefaultApiBase();
 }
 
 function normalizeApiBase(value: string) {
