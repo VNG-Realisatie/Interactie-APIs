@@ -40,7 +40,8 @@ mock-gereedheid, inconsistenties, onnodige complexiteit en geprioriteerde fixes.
    voegen) komen overal voor. In OpenAPI 3.1 mag `$ref` + sibling `description`
    direct → wrappers overbodig.
 9. **CORS-blokkade op `Prefer` / `prefer` header.** Voor lokale mock-integratie stuurt de frontend vaak `Prefer: code=200` of `Prefer: dynamic=true` mee om Prism-gedrag te sturen. Als de gateway/mock-server deze headers niet expliciet toestaat in `Access-Control-Allow-Headers`, blokkeert de browser de preflight (OPTIONS) request.
-   → Opgelost in de lokale mock-gateway (`scripts/mock-all.js`). Dit is een belangrijk aandachtspunt voor eventuele andere mock-omgevingen/proxies.
+   → Opgelost in de lokale mock-gateway (`scripts/mock-all.js`). **Let op:** de gedéployde mock (`vng-interactie-mocks.fly.dev`) staat `Prefer` nog NIET toe — preflight geeft `Access-Control-Allow-Headers: Content-Type, Authorization, Accept` (geverifieerd). Een browser-app die cross-origin met `Prefer` praat, krijgt daar dus 0 responses. → Voeg `Prefer` toe aan de CORS-config van de deploy.
+10. **List-responses hebben vier verschillende envelopes.** Bij het uitlezen van de zoek-/lijst-endpoints retourneert elke API een andere vorm: **producten** en **zaken** geven een kale array; **taken** wrapt in `{ taken: […] }`; **agenda** in `{ afspraken: […] }`; **gesprekken** in een generieke `{ results: […] }`. Een client moet dus per API anders uitpakken. → Kies één envelope-conventie (bv. altijd `{ results: […] }` met paginering-metadata ernaast, zie #5, óf altijd een kale array — maar niet door elkaar).
 
 ---
 
@@ -110,6 +111,9 @@ static examples correct (UTC `Z`). **Maar:** alleen een **`fysiek`-voorbeeld**; 
 - Voorbeeld-`afspraakIdentificatie` is sprekend (`afspr-2026-001-xyz`) terwijl de
   spec zegt dat het *opaque* is — ondermijnt de eigen regel.
 - `instance` in foutvoorbeelden matcht niet met de server-base.
+- Tag-casing wijkt af: agenda's enige tag is `afspraken` (lowercase), terwijl de
+  andere API's PascalCase-tags gebruiken (`Taken`, `Zaken`, `Producten`,
+  `Gesprekken`, `Context`). Raakt docs-navigatie en deep-link-ankers.
 
 **Onnodige complexiteit**
 - `oneOf` + discriminator voor fysiek/online die feitelijk in één veld verschillen.

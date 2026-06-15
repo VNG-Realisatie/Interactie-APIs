@@ -43,14 +43,14 @@ a {
 a.task:active,
 a.table-row:active,
 .card:active,
-.faq [data-scope='accordion'][data-part='item-trigger']:active,
-[data-scope='accordion'][data-part='item-trigger']:active,
+.faq [data-scope="accordion"][data-part="item-trigger"]:active,
+[data-scope="accordion"][data-part="item-trigger"]:active,
 .pill:active,
 .pagination button:active,
 .button-primary:active,
 .button:active,
 .dossier:active,
-[data-scope='tabs'][data-part='trigger']:active {
+[data-scope="tabs"][data-part="trigger"]:active {
   box-shadow: inset 0 0 0 100vmax rgba(0, 0, 0, 0.08);
 }
 .icon {
@@ -187,7 +187,7 @@ a.table-row:active,
 }
 .masthead__menu-bars::before,
 .masthead__menu-bars::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
 }
@@ -300,7 +300,6 @@ a.table-row:active,
   padding: 8px 14px;
   color: var(--color-primary);
 }
-
 
 /* --- Content --------------------------------------------------------- */
 .shell {
@@ -453,7 +452,7 @@ a.task:hover .task__title {
   color: var(--color-text);
 }
 .card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -14px;
   left: -1px;
@@ -514,7 +513,7 @@ a.task:hover .task__title {
   border-bottom: 2px solid var(--color-border-soft);
   margin-bottom: 8px;
 }
-[data-scope='tabs'][data-part='trigger'] {
+[data-scope="tabs"][data-part="trigger"] {
   font: inherit;
   font-weight: 700;
   background: none;
@@ -523,11 +522,11 @@ a.task:hover .task__title {
   cursor: pointer;
   color: var(--color-text);
 }
-[data-scope='tabs'][data-part='trigger']:hover {
+[data-scope="tabs"][data-part="trigger"]:hover {
   color: var(--color-primary);
   background: var(--color-hover);
 }
-[data-scope='tabs'][data-part='trigger'][data-selected] {
+[data-scope="tabs"][data-part="trigger"][data-selected] {
   color: var(--color-primary);
 }
 .tabs__indicator {
@@ -538,7 +537,7 @@ a.task:hover .task__title {
 .tab-count {
   margin-left: 6px;
 }
-[data-scope='tabs'][data-part='trigger'][data-selected] .tab-count {
+[data-scope="tabs"][data-part="trigger"][data-selected] .tab-count {
   background: var(--color-primary);
   color: var(--color-on-primary);
 }
@@ -597,10 +596,10 @@ a.task:hover .task__title {
   margin-top: 8px;
   max-width: 760px;
 }
-[data-scope='accordion'][data-part='item'] + [data-part='item'] {
+[data-scope="accordion"][data-part="item"] + [data-part="item"] {
   border-top: 1px solid var(--color-border-soft);
 }
-[data-scope='accordion'][data-part='item-trigger'] {
+[data-scope="accordion"][data-part="item-trigger"] {
   font: inherit;
   font-size: 1.05rem;
   font-weight: 700;
@@ -616,18 +615,18 @@ a.task:hover .task__title {
   border: none;
   cursor: pointer;
 }
-[data-scope='accordion'][data-part='item-trigger']:hover {
+[data-scope="accordion"][data-part="item-trigger"]:hover {
   background: var(--color-hover);
 }
-[data-scope='accordion'][data-part='item-content'] {
+[data-scope="accordion"][data-part="item-content"] {
   padding: 6px 18px 18px;
   background: var(--color-panel);
 }
-[data-scope='accordion'][data-part='item-indicator'] {
+[data-scope="accordion"][data-part="item-indicator"] {
   transition: transform 0.15s ease;
   color: var(--color-primary);
 }
-[data-scope='accordion'][data-part='item-indicator'][data-state='open'] {
+[data-scope="accordion"][data-part="item-indicator"][data-state="open"] {
   transform: rotate(180deg);
 }
 
@@ -782,7 +781,7 @@ a.table-row:hover .bericht__subject {
   color: var(--color-secondary);
   cursor: pointer;
 }
-.pagination button[aria-current='true'] {
+.pagination button[aria-current="true"] {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-on-primary);
@@ -854,28 +853,28 @@ a.table-row:hover .bericht__subject {
   gap: 12px;
 }
 /* Overschrijf de globale accordion-stijl binnen de FAQ (specificiteit met .faq). */
-.faq [data-scope='accordion'][data-part='item'] + [data-part='item'] {
+.faq [data-scope="accordion"][data-part="item"] + [data-part="item"] {
   border-top: 0;
 }
-.faq [data-scope='accordion'][data-part='item-trigger'] {
+.faq [data-scope="accordion"][data-part="item-trigger"] {
   justify-content: flex-start;
   gap: 14px;
   background: var(--color-page);
   border-radius: var(--border-radius);
   font-size: 1.05rem;
 }
-.faq [data-scope='accordion'][data-part='item-trigger']:hover {
+.faq [data-scope="accordion"][data-part="item-trigger"]:hover {
   background: var(--color-hover);
 }
-.faq [data-scope='accordion'][data-part='item-indicator'] {
+.faq [data-scope="accordion"][data-part="item-indicator"] {
   font-size: 1.2rem;
   line-height: 1;
   transition: transform 0.15s ease;
 }
-.faq [data-scope='accordion'][data-part='item-indicator'][data-state='open'] {
+.faq [data-scope="accordion"][data-part="item-indicator"][data-state="open"] {
   transform: rotate(90deg);
 }
-.faq [data-scope='accordion'][data-part='item-content'] {
+.faq [data-scope="accordion"][data-part="item-content"] {
   padding: 14px 18px 18px 46px;
   background: var(--color-panel);
   max-width: 760px;
@@ -937,7 +936,7 @@ a.table-row:hover .bericht__subject {
   display: block;
   margin-bottom: 2px;
 }
-[data-scope='select'][data-part='trigger'] {
+[data-scope="select"][data-part="trigger"] {
   font: inherit;
   display: inline-flex;
   align-items: center;
@@ -951,7 +950,7 @@ a.table-row:hover .bericht__subject {
   border-radius: var(--border-radius);
   cursor: pointer;
 }
-[data-scope='select'][data-part='content'] {
+[data-scope="select"][data-part="content"] {
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
@@ -960,7 +959,7 @@ a.table-row:hover .bericht__subject {
   min-width: 200px;
   z-index: 10;
 }
-[data-scope='select'][data-part='item'] {
+[data-scope="select"][data-part="item"] {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -969,11 +968,11 @@ a.table-row:hover .bericht__subject {
   border-radius: var(--border-radius);
   cursor: pointer;
 }
-[data-scope='select'][data-part='item'][data-highlighted] {
+[data-scope="select"][data-part="item"][data-highlighted] {
   background: var(--color-primary);
   color: var(--color-on-primary);
 }
-[data-scope='select'][data-part='item'][data-state='checked'] {
+[data-scope="select"][data-part="item"][data-state="checked"] {
   font-weight: 700;
 }
 
@@ -1087,7 +1086,6 @@ a.table-row:hover .bericht__subject {
   font-weight: 600;
 }
 
-
 .plan-preview-all {
   font-size: 0.95rem;
   color: var(--color-secondary);
@@ -1101,7 +1099,6 @@ a.table-row:hover .bericht__subject {
 .plan-preview-list {
   display: flex;
   flex-direction: column;
-  padding: 2px 0;
   flex-grow: 1;
 }
 
@@ -1226,7 +1223,7 @@ a.table-row:hover .bericht__subject {
   overflow: hidden;
 }
 
-.plan-doc[data-state='open'] {
+.plan-doc[data-state="open"] {
   border-color: var(--color-border);
 }
 
@@ -1277,7 +1274,7 @@ a.table-row:hover .bericht__subject {
   transition: transform 0.15s ease;
 }
 
-.plan-doc[data-state='open'] .plan-doc-chevron {
+.plan-doc[data-state="open"] .plan-doc-chevron {
   transform: rotate(90deg);
 }
 
@@ -1530,7 +1527,11 @@ a.table-row:hover .bericht__subject {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
   text-decoration: none;
   position: relative;
   padding: 0;
@@ -1664,18 +1665,14 @@ a.table-row:hover .bericht__subject {
   gap: 12px;
   min-height: 0;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .api-inspector__section {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.api-inspector__section:last-child {
-  flex: 1;
-  min-height: 0;
 }
 
 .api-inspector__label {
@@ -1722,6 +1719,29 @@ a.table-row:hover .bericht__subject {
 
 .api-inspector__row--method {
   align-items: stretch;
+}
+
+/* Endpoint-per-API: naam links, input rechts. */
+.api-inspector__endpoints {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.api-inspector__endpoint {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.api-inspector__endpoint-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vng-dark-blue);
+  white-space: nowrap;
+}
+.api-inspector__endpoint .api-inspector__input {
+  font-size: 11px;
+  padding: 6px 8px;
 }
 
 .api-inspector__select {
@@ -1805,7 +1825,35 @@ a.table-row:hover .bericht__subject {
 
 .api-inspector__actions {
   display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+/* Tandwiel-knop: toont/verbergt de endpoint-configuratie. */
+.api-inspector__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+.api-inspector__icon-btn .icon {
+  width: 16px;
+  height: 16px;
+}
+.api-inspector__icon-btn:hover {
+  background: var(--vng-light-blue);
+  color: var(--vng-blue);
+}
+.api-inspector__icon-btn.is-active {
+  background: var(--vng-light-blue);
+  color: var(--vng-blue);
 }
 
 .api-inspector__action {
@@ -1836,9 +1884,6 @@ a.table-row:hover .bericht__subject {
 }
 
 .api-inspector__list {
-  overflow-y: auto;
-  flex: 1;
-  padding-right: 4px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1922,8 +1967,19 @@ a.table-row:hover .bericht__subject {
 .api-inspector__meta {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   color: #6b7280;
   font-size: 9px;
+}
+.api-inspector__docs-link {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--vng-blue);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.api-inspector__docs-link:hover {
+  text-decoration: underline;
 }
 
 .api-inspector__footer {
@@ -1935,7 +1991,6 @@ a.table-row:hover .bericht__subject {
   text-align: center;
   word-break: break-all;
 }
-
 
 /* --- Gedeelde helpers ------------------------------------------------ */
 /* Lege-staat regel in een wit paneel (was 4× herhaald als inline-stijl). */

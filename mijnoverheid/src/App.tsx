@@ -30,12 +30,62 @@ function normalizeApiBase(value: string) {
   return value.trim().replace(/\/$/, '');
 }
 
-function resolveApiUrl(base: string, pathOrUrl: string) {
-  const trimmed = pathOrUrl.trim();
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  const baseNorm = normalizeApiBase(base);
-  const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-  return `${baseNorm}${path}`;
+const API_BASES_STORAGE_KEY = 'mijnoverheid-api-bases';
+
+// De API's waarvoor je in de inspector een eigen endpoint kunt instellen.
+const apiEndpoints: { key: string; label: string }[] = [
+  { key: 'taken', label: 'MijnTaken' },
+  { key: 'zaken', label: 'MijnZaken' },
+  { key: 'producten', label: 'MijnProducten' },
+  { key: 'agenda', label: 'MijnAgenda' },
+  { key: 'gesprekken', label: 'MijnGesprekken' },
+];
+
+function readStoredApiBases(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const parsed = JSON.parse(localStorage.getItem(API_BASES_STORAGE_KEY) || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+// Haalt de API-naam uit een pad als /apis/rest/{api}/...
+function apiFromPath(path: string): string {
+  const m = path.match(/\/apis\/rest\/([^/?#]+)/);
+  return m ? m[1] : '';
+}
+
+// Het standaard-endpoint voor een API (t/m versie); dient als placeholder en
+// als basis wanneer er geen eigen endpoint is ingesteld.
+function defaultApiEndpoint(api: string): string {
+  return `${getDefaultApiBase()}/apis/rest/${api}/next`;
+}
+
+// Leidt uit een call (/apis/rest/{api}/{versie}/{operatie}) de docs-URL af naar
+// de juiste OpenAPI-spec in het API lab, inclusief Scalar-deeplink naar de
+// specifieke operatie: #tag/{tag}/{METHODE}/{operatiepad}. De tag is bij deze
+// API's gelijk aan het eerste pad-segment (Scalar slugificeert naar lowercase).
+// De docs-app draait op de root (/) terwijl MijnOverheid op /mijnoverheid/ staat,
+// dus een absoluut pad werkt in dev én prod.
+function docsUrlForCall(method: string, pathOrUrl: string): string | null {
+  const match = pathOrUrl.match(/\/apis\/rest\/([^/?#]+)\/([^/?#]+)(\/[^?#]*)?/);
+  if (!match) return null;
+  const [, api, version, restRaw] = match;
+  const base = `/?url=/docs/bundled/apis_rest_${api}_${version}.yaml`;
+
+  const rest = (restRaw || '').replace(/^\/+|\/+$/g, '');
+  if (!rest) return base;
+
+  // Concrete UUID's terugvertalen naar de path-parameter zodat het anker matcht.
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const opPath = rest
+    .split('/')
+    .map((seg) => (uuidRe.test(seg) ? '{uuid}' : seg))
+    .join('/');
+  const tag = opPath.split('/')[0].toLowerCase();
+  return `${base}#tag/${tag}/${method.toUpperCase()}/${opPath}`;
 }
 
 function formatLogUrl(fullUrl: string, base: string) {
@@ -1573,8 +1623,10 @@ export function App() {
 
   const [apiLogs, setApiLogs] = useState<any[]>([]);
   const [showInspector, setShowInspector] = useState(false);
-  const [apiBaseUrl, setApiBaseUrl] = useState(readStoredApiBase);
-  const [gatewayInput, setGatewayInput] = useState(readStoredApiBase);
+  const [showEndpoints, setShowEndpoints] = useState(false);
+  // Per-API endpoint-overrides: applied (apiBases) + bewerkbare concepten (drafts).
+  const [apiBases, setApiBases] = useState<Record<string, string>>(readStoredApiBases);
+  const [apiBaseDrafts, setApiBaseDrafts] = useState<Record<string, string>>(readStoredApiBases);
   const [customMethod, setCustomMethod] = useState(customRequestDefaults.method);
   const [customPath, setCustomPath] = useState(customRequestDefaults.path);
   const [customBody, setCustomBody] = useState(customRequestDefaults.body);
@@ -1589,7 +1641,7 @@ export function App() {
   const trackedFetch = useCallback(async (url: string, options?: RequestInit) => {
     const method = options?.method || 'GET';
     const id = Math.random().toString(36).substring(7);
-    const shortUrl = formatLogUrl(url, apiBaseUrl);
+    const shortUrl = formatLogUrl(url, getDefaultApiBase());
     const newLog = {
       id,
       url: shortUrl,
@@ -1600,7 +1652,8 @@ export function App() {
       status: undefined,
       statusText: undefined,
     };
-    setApiLogs(prev => [...prev, newLog]);
+    // Nieuwste bovenaan, zodat een verstuurd verzoek direct zichtbaar is.
+    setApiLogs(prev => [newLog, ...prev]);
     try {
       const res = await fetch(url, options);
       setApiLogs(prev => prev.map(item => item.id === id ? { ...item, pending: false, status: res.status, statusText: res.statusText } : item));
@@ -1609,25 +1662,40 @@ export function App() {
       setApiLogs(prev => prev.map(item => item.id === id ? { ...item, pending: false, statusText: err.message || 'Error' } : item));
       throw err;
     }
-  }, [apiBaseUrl]);
+  }, []);
 
-  function applyGateway() {
-    const normalized = normalizeApiBase(gatewayInput);
-    if (!normalized) return;
-    setApiBaseUrl(normalized);
-    localStorage.setItem(API_BASE_STORAGE_KEY, normalized);
-  }
+  // Bouwt de volledige URL voor een call. Heeft de API een eigen endpoint, dan
+  // vervangt dat het standaarddeel t/m de versie (…/apis/rest/{api}/{versie});
+  // anders wordt het standaard-endpoint gebruikt.
+  const buildUrl = useCallback(
+    (pathOrUrl: string) => {
+      const trimmed = pathOrUrl.trim();
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+      const override = normalizeApiBase(apiBases[apiFromPath(path)] || '');
+      if (override) {
+        const prefix = path.match(/^\/apis\/rest\/[^/]+\/[^/]+/)?.[0] ?? '';
+        return `${override}${path.slice(prefix.length)}`;
+      }
+      return `${getDefaultApiBase()}${path}`;
+    },
+    [apiBases],
+  );
 
-  function resetGateway() {
-    localStorage.removeItem(API_BASE_STORAGE_KEY);
-    const defaultBase = getDefaultApiBase();
-    setApiBaseUrl(defaultBase);
-    setGatewayInput(defaultBase);
+  function applyApiBases() {
+    const next: Record<string, string> = {};
+    for (const { key } of apiEndpoints) {
+      const normalized = normalizeApiBase(apiBaseDrafts[key] || '');
+      if (normalized) next[key] = normalized;
+    }
+    setApiBases(next);
+    setApiBaseDrafts(next);
+    localStorage.setItem(API_BASES_STORAGE_KEY, JSON.stringify(next));
   }
 
   async function sendCustomRequest() {
     setCustomError(null);
-    const url = resolveApiUrl(apiBaseUrl, customPath);
+    const url = buildUrl(customPath);
     const options: RequestInit = {
       method: customMethod,
       headers: { ...defaultMockHeaders },
@@ -1657,7 +1725,6 @@ export function App() {
     }
   }
 
-  const isDefaultGateway = apiBaseUrl === getDefaultApiBase();
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -1665,7 +1732,7 @@ export function App() {
       
       try {
         // 1. Fetch Taken from taken/next mock
-        const takenRes = await trackedFetch(`${apiBaseUrl}/apis/rest/taken/next/context/zoek`, {
+        const takenRes = await trackedFetch(buildUrl(`/apis/rest/taken/next/context/zoek`), {
           method: 'POST',
           headers,
           body: JSON.stringify({
@@ -1699,7 +1766,7 @@ export function App() {
         }
         
         // 2. Fetch Producten from producten/next mock
-        const prodRes = await trackedFetch(`${apiBaseUrl}/apis/rest/producten/next/producten/zoek`, {
+        const prodRes = await trackedFetch(buildUrl(`/apis/rest/producten/next/producten/zoek`), {
           method: 'POST',
           headers,
           body: JSON.stringify({
@@ -1721,7 +1788,7 @@ export function App() {
         }
         
         // 3. Fetch Agenda from agenda/next mock
-        const agendaRes = await trackedFetch(`${apiBaseUrl}/apis/rest/agenda/next/afspraken/opvragen`, {
+        const agendaRes = await trackedFetch(buildUrl(`/apis/rest/agenda/next/afspraken/opvragen`), {
           method: 'POST',
           headers,
           body: JSON.stringify({
@@ -1748,7 +1815,7 @@ export function App() {
         }
         
         // 4. Fetch Gesprekken from gesprekken/next mock
-        const gespRes = await trackedFetch(`${apiBaseUrl}/apis/rest/gesprekken/next/gesprekken`, {
+        const gespRes = await trackedFetch(buildUrl(`/apis/rest/gesprekken/next/gesprekken`), {
           method: 'GET',
           headers
         });
@@ -1768,7 +1835,7 @@ export function App() {
         }
 
         // 5. Fetch Zaken from zaken/next mock
-        const zakenRes = await trackedFetch(`${apiBaseUrl}/apis/rest/zaken/next/zaken/zoek`, {
+        const zakenRes = await trackedFetch(buildUrl(`/apis/rest/zaken/next/zaken/zoek`), {
           method: 'POST',
           headers,
           body: JSON.stringify({
@@ -1789,7 +1856,7 @@ export function App() {
     };
     
     fetchAllData();
-  }, [apiBaseUrl, trackedFetch]);
+  }, [buildUrl, trackedFetch]);
 
   const handleTaakClick = (t: Taak) => {
     setSelectedTask(t);
@@ -1798,7 +1865,7 @@ export function App() {
 
   const handleCaseClick = async (uuid: string) => {
     try {
-      const res = await trackedFetch(`${apiBaseUrl}/apis/rest/zaken/next/zaken/${uuid}`, {
+      const res = await trackedFetch(buildUrl(`/apis/rest/zaken/next/zaken/${uuid}`), {
         headers: defaultMockHeaders,
       });
       if (res.ok) {
@@ -1973,6 +2040,16 @@ export function App() {
               <div className="api-inspector__actions">
                 <button
                   type="button"
+                  className={`api-inspector__icon-btn${showEndpoints ? ' is-active' : ''}`}
+                  onClick={() => setShowEndpoints((v) => !v)}
+                  aria-label="Endpoints instellen"
+                  aria-pressed={showEndpoints}
+                  title="Endpoint per API instellen"
+                >
+                  <Icon id="icon-settings" />
+                </button>
+                <button
+                  type="button"
                   className="api-inspector__action"
                   onClick={() => setApiLogs([])}
                 >
@@ -1990,36 +2067,37 @@ export function App() {
             </div>
 
             <div className="api-inspector__panel">
-              <div className="api-inspector__section">
-                <label className="api-inspector__label" htmlFor="api-gateway">
-                  Mock gateway
-                </label>
-                <input
-                  id="api-gateway"
-                  className="api-inspector__input"
-                  type="url"
-                  value={gatewayInput}
-                  onChange={(e) => setGatewayInput(e.target.value)}
-                  placeholder="https://vng-interactie-mocks.fly.dev"
-                />
-                <div className="api-inspector__row">
-                  <button type="button" className="api-inspector__button" onClick={applyGateway}>
-                    Toepassen
-                  </button>
-                  {!isDefaultGateway && (
-                    <button
-                      type="button"
-                      className="api-inspector__button api-inspector__button--ghost"
-                      onClick={resetGateway}
-                    >
-                      Standaard
+              {showEndpoints && (
+                <div className="api-inspector__section">
+                  <span className="api-inspector__label">Endpoint per API</span>
+                  <div className="api-inspector__endpoints">
+                    {apiEndpoints.map(({ key, label }) => (
+                      <div className="api-inspector__endpoint" key={key}>
+                        <span className="api-inspector__endpoint-name">{label}</span>
+                        <input
+                          className="api-inspector__input"
+                          type="url"
+                          value={apiBaseDrafts[key] || ''}
+                          onChange={(e) =>
+                            setApiBaseDrafts((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                          placeholder={defaultApiEndpoint(key)}
+                          aria-label={`Endpoint voor ${label}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="api-inspector__row">
+                    <button type="button" className="api-inspector__button" onClick={applyApiBases}>
+                      Toepassen
                     </button>
-                  )}
+                  </div>
+                  <p className="api-inspector__hint">
+                    Laat leeg voor het standaard-endpoint. Een eigen endpoint geldt alleen voor
+                    die API.
+                  </p>
                 </div>
-                <p className="api-inspector__hint">
-                  Pad relatief aan gateway, of volledige URL voor een andere host.
-                </p>
-              </div>
+              )}
 
               <div className="api-inspector__section">
                 <span className="api-inspector__label">Handmatig verzoek</span>
@@ -2085,6 +2163,8 @@ export function App() {
                         ? 'api-inspector__status--error'
                         : 'api-inspector__status--pending';
 
+                  const docsUrl = docsUrlForCall(log.method, log.fullUrl || log.url);
+
                   return (
                     <div key={log.id} className="api-inspector__item">
                       <div className="api-inspector__item-head">
@@ -2100,7 +2180,17 @@ export function App() {
                       <div className="api-inspector__url">{log.url}</div>
                       <div className="api-inspector__meta">
                         <span>{log.timestamp}</span>
-                        <span>{log.pending ? 'Wachten...' : 'Gereed'}</span>
+                        {docsUrl && (
+                          <a
+                            className="api-inspector__docs-link"
+                            href={docsUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Open de API-documentatie voor deze call"
+                          >
+                            API-docs ↗
+                          </a>
+                        )}
                       </div>
                     </div>
                   );
@@ -2110,7 +2200,7 @@ export function App() {
               </div>
             </div>
             <div className="api-inspector__footer">
-              Gateway: {apiBaseUrl}
+              Standaard: {getDefaultApiBase()}
             </div>
           </div>
         )}
