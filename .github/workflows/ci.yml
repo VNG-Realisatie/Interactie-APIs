@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: npx pnpm@10.26.0 install --frozen-lockfile
 
-      - name: Build portal and MijnOmgeving demo
+      - name: Build portal and MijnOverheid demo
         run: npx pnpm@10.26.0 build
 
   validate-asyncapi:

@@ -199,12 +199,12 @@ export default function MarkdownView({ path, portalData }) {
       return (
         <section className="service-overview" aria-labelledby="services-heading">
           <h2 id="services-heading">{title}</h2>
-          <a className="service-demo-card" href="/mijn-omgeving/">
+          <a className="service-demo-card" href="/mijnoverheid/">
             <span className="service-card-kicker">Demo</span>
-            <h3>MijnOmgeving demo</h3>
+            <h3>MijnOverheid demo</h3>
             <p>
-              Bekijk de doorklikbare MijnOmgeving met taken, zaken, berichten, producten en
-              themas.
+              Bekijk de doorklikbare MijnOverheid-demo met taken, zaken, berichten, producten en
+              thema&apos;s.
             </p>
             <span className="service-card-link">Open demo</span>
           </a>

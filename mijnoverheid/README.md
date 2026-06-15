@@ -1,4 +1,4 @@
-# MijnOmgeving — NLDS-ARK (proof of concept)
+# MijnOverheid demo — NLDS-ARK (proof of concept)
 
 Een MijnOmgeving-shell op **Ark UI** (framework-agnostische headless componenten op
 Zag.js state-machines), gethematiseerd via een **lichtgewicht NLDS-token-contract**,
@@ -33,7 +33,7 @@ src/App.tsx               MijnOmgeving-shell: Ark UI Select (switcher) + Accordi
 
 ```sh
 pnpm install
-pnpm dev    # http://localhost:5180
+pnpm dev    # http://localhost:5180 — of via het API lab op /mijnoverheid/
 ```
 
 (Node 24 aanbevolen; werkt ook op nieuwere.)

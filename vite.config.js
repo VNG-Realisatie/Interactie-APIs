@@ -83,53 +83,8 @@ function serveYamlAsUtf8() {
   };
 }
 
-function serveMijnServicesDemo() {
-  const demoRoot = resolve("mijnservices-demo-app");
-  const contentTypes = {
-    ".css": "text/css; charset=utf-8",
-    ".html": "text/html; charset=utf-8",
-    ".js": "text/javascript; charset=utf-8",
-    ".mjs": "text/javascript; charset=utf-8",
-    ".json": "application/json; charset=utf-8",
-    ".png": "image/png",
-    ".txt": "text/plain; charset=utf-8",
-  };
-
-  return {
-    name: "serve-mijnservices-demo",
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
-        if (pathname === "/demo") {
-          res.statusCode = 302;
-          res.setHeader("Location", "/demo/");
-          res.end();
-          return;
-        }
-        if (!pathname.startsWith("/demo/")) {
-          next();
-          return;
-        }
-
-        const relPath = decodeURIComponent(pathname.slice("/demo/".length)) || "index.html";
-        const filePath = resolve(demoRoot, relPath);
-        if (!filePath.startsWith(demoRoot)) {
-          res.statusCode = 403;
-          res.end("Forbidden");
-          return;
-        }
-
-        const stream = createReadStream(filePath);
-        stream.on("error", next);
-        res.setHeader("Content-Type", contentTypes[extname(filePath)] ?? "application/octet-stream");
-        stream.pipe(res);
-      });
-    },
-  };
-}
-
-function serveMijnOmgevingDemo() {
-  const demoRoot = resolve("mijn-omgeving");
+function serveMijnOverheidDemo() {
+  const demoRoot = resolve("mijnoverheid");
   const publicRoot = resolve(demoRoot, "public");
   const contentTypes = {
     ".svg": "image/svg+xml; charset=utf-8",
@@ -140,28 +95,34 @@ function serveMijnOmgevingDemo() {
   };
 
   return {
-    name: "serve-mijn-omgeving-demo",
+    name: "serve-mijnoverheid-demo",
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
-        if (pathname === "/mijn-omgeving") {
+        if (pathname === "/mijnoverheid") {
           res.statusCode = 302;
-          res.setHeader("Location", "/mijn-omgeving/");
+          res.setHeader("Location", "/mijnoverheid/");
           res.end();
           return;
         }
-        if (!pathname.startsWith("/mijn-omgeving/")) {
+        if (pathname === "/mijn-omgeving" || pathname === "/mijn-omgeving/") {
+          res.statusCode = 302;
+          res.setHeader("Location", "/mijnoverheid/");
+          res.end();
+          return;
+        }
+        if (!pathname.startsWith("/mijnoverheid/")) {
           next();
           return;
         }
 
-        const relPath = decodeURIComponent(pathname.slice("/mijn-omgeving/".length));
+        const relPath = decodeURIComponent(pathname.slice("/mijnoverheid/".length));
         if (!relPath || relPath === "index.html") {
           try {
             const htmlPath = resolve(demoRoot, "index.html");
             const rawHtml = await readFile(htmlPath, "utf8");
-            const html = rawHtml.replace('src="/src/main.tsx"', 'src="/mijn-omgeving/src/main.tsx"');
-            const transformed = await server.transformIndexHtml("/mijn-omgeving/", html);
+            const html = rawHtml.replace('src="/src/main.tsx"', 'src="/mijnoverheid/src/main.tsx"');
+            const transformed = await server.transformIndexHtml("/mijnoverheid/", html);
             res.setHeader("Content-Type", "text/html; charset=utf-8");
             res.end(transformed);
           } catch (error) {
@@ -192,7 +153,7 @@ function serveMijnOmgevingDemo() {
 }
 
 export default defineConfig({
-  plugins: [react(), logServerUrl(), watchApiFiles(), serveYamlAsUtf8(), serveMijnServicesDemo(), serveMijnOmgevingDemo()],
+  plugins: [react(), logServerUrl(), watchApiFiles(), serveYamlAsUtf8(), serveMijnOverheidDemo()],
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
     "process.env": JSON.stringify({}),

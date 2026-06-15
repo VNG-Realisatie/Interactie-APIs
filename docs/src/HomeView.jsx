@@ -14,13 +14,24 @@ export default function HomeView({ data, navigate }) {
         style={{
           fontSize: "1.1em",
           color: "var(--text-muted)",
-          marginBottom: "2em",
+          marginBottom: "1.5em",
           lineHeight: "1.6",
         }}
       >
         Deze website en <a href="https://github.com/vng-realisatie/interactie-apis">repository</a>{" "}
         zijn er om de verschillende API's van VNG samen te presenteren en te harmoniseren.
       </p>
+
+      <a className="service-demo-card" href="/mijnoverheid/" style={{ marginBottom: "2em" }}>
+        <span className="service-card-kicker">Demo</span>
+        <h3>MijnOverheid demo</h3>
+        <p>
+          Doorklikbare MijnOverheid-omgeving met taken, zaken, berichten, producten en agenda —
+          live gekoppeld aan de mock-API&apos;s in dit lab. Wissel huisstijl en bekijk API-verzoeken
+          in de inspector.
+        </p>
+        <span className="service-card-link">Open demo</span>
+      </a>
 
       <h2>Over het VNG API Lab</h2>
       <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
