@@ -1,0 +1,2 @@
+/mijn-omgeving /mijnoverheid/ 301
+/mijn-omgeving/* /mijnoverheid/:splat 301
