@@ -30,6 +30,8 @@ export default function MarkdownView({ path, portalData }) {
         let md = text;
         if (path.startsWith("services/") && serviceMeta?.demoPath) {
           md = injectDemoLink(text, serviceMeta.demoPath);
+        } else if (path === "docs/services.md") {
+          md = injectDemoLink(text, "/mijnoverheid/");
         }
         setHtml(marked.parse(md));
       })
@@ -169,13 +171,6 @@ export default function MarkdownView({ path, portalData }) {
       return (
         <section className="service-overview" aria-labelledby="services-heading">
           <h2 id="services-heading">{title}</h2>
-          <p style={{ lineHeight: "1.6", marginBottom: "1em" }}>
-            Elke service is doorklikbaar in de MijnOverheid-demo — live gekoppeld aan de
-            mock-API&apos;s in dit lab.
-          </p>
-          <a className="demo-cta" href="/mijnoverheid/" style={{ marginBottom: "1.5em" }}>
-            Bekijk in Demo &rarr;
-          </a>
           <div className="service-card-grid">
             {items.map((item, i) => (
               <a key={i} className="service-card" href={"/?doc=" + item.doc}>
