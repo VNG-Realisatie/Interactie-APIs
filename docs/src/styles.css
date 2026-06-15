@@ -405,200 +405,6 @@ a {
   fill: var(--vng-blue) !important;
 }
 
-.figma-embed-host {
-  margin: 16px 0 22px;
-}
-
-.figma-prototype {
-  margin: 0 0 22px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  background: var(--bg-white);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.figma-prototype-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-surface);
-  flex-shrink: 0;
-}
-
-.figma-prototype-title {
-  font-weight: 700;
-  font-size: 0.95em;
-  color: var(--vng-dark-blue);
-}
-
-.figma-prototype-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.figma-prototype-action-btn {
-  border: 1px solid var(--border-color);
-  background: var(--bg-white);
-  color: var(--vng-dark-blue);
-  font: inherit;
-  font-weight: 600;
-  font-size: 0.88em;
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-}
-
-.figma-prototype-action-btn:hover {
-  border-color: var(--vng-blue);
-  color: var(--vng-blue);
-}
-
-
-.figma-prototype-open {
-  font-size: 0.88em;
-  font-weight: 600;
-  color: var(--vng-blue);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.figma-prototype-open:hover {
-  text-decoration: underline;
-}
-
-.figma-prototype-viewport {
-  position: relative;
-  height: min(260px, 32vh);
-  overflow: hidden;
-  background: var(--bg-white);
-}
-
-.figma-prototype.is-fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-white);
-}
-
-.figma-prototype.is-fullscreen .figma-prototype-header {
-  background: var(--bg-surface);
-  border-bottom-color: var(--border-color);
-}
-
-.figma-prototype.is-fullscreen .figma-prototype-title {
-  color: var(--vng-dark-blue);
-}
-
-.figma-prototype.is-fullscreen .figma-prototype-viewport {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  min-height: 0;
-  overflow: hidden;
-  padding: 0;
-  background: var(--bg-white);
-}
-
-.figma-prototype-scaler--preview {
-  position: absolute;
-  inset: -6% -4%;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.figma-prototype-scaler--preview .figma-prototype-frame {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 118%;
-  min-height: 480px;
-}
-
-.figma-prototype-scaler--fullscreen {
-  position: relative;
-  flex: 1;
-  align-self: stretch;
-  width: 100%;
-  max-width: var(--figma-frame-width, 1280px);
-  height: calc(100dvh - var(--figma-header-height, 49px));
-  min-height: 0;
-  margin: 0 auto;
-  overflow: hidden;
-  pointer-events: auto;
-  background: var(--bg-white);
-}
-
-.figma-prototype-scaler--fullscreen .figma-prototype-frame {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: var(--bg-white);
-  color-scheme: light;
-}
-
-.figma-prototype-frame {
-  display: block;
-  border: none;
-  background: transparent;
-}
-
-.figma-prototype-preview-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border: none;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.figma-prototype-preview-overlay:hover {
-  background: rgba(26, 86, 219, 0.04);
-}
-
-.figma-prototype-preview-overlay:focus-visible {
-  outline: 2px solid var(--vng-blue);
-  outline-offset: -2px;
-}
-
-.figma-prototype-preview-btn {
-  border: 1px solid var(--vng-blue);
-  background: var(--vng-blue);
-  color: #fff;
-  font: inherit;
-  font-weight: 600;
-  font-size: 0.95em;
-  padding: 12px 22px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  pointer-events: none;
-}
-
-.figma-prototype-preview-overlay:hover .figma-prototype-preview-btn {
-  filter: brightness(1.06);
-}
-
 .service-overview {
   margin-top: 28px;
 }
@@ -608,38 +414,6 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 14px;
-}
-
-.service-demo-card {
-  display: block;
-  padding: 22px 24px;
-  border: 1px solid rgba(26, 86, 219, 0.24);
-  border-left: 5px solid var(--vng-blue);
-  border-radius: 8px;
-  background: #f8fbff;
-  color: var(--text-color);
-  box-shadow: var(--shadow-sm);
-  text-decoration: none;
-}
-
-.service-demo-card:hover {
-  border-color: rgba(26, 86, 219, 0.42);
-  border-left-color: var(--vng-blue);
-  box-shadow: var(--shadow-md);
-  text-decoration: none;
-}
-
-.service-demo-card h3 {
-  margin: 8px 0;
-  color: var(--vng-dark-blue);
-  font-size: 1.35em;
-}
-
-.service-demo-card p {
-  max-width: 780px;
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.55;
 }
 
 .service-card {
@@ -687,6 +461,22 @@ a {
   color: var(--vng-blue);
   font-weight: 700;
   font-size: 0.9em;
+}
+
+/* CTA-link naar de interactieve demo, bovenaan een servicedocument. */
+.demo-cta {
+  display: inline-block;
+  margin: 4px 0 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--vng-blue);
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.demo-cta:hover {
+  background: var(--vng-dark-blue);
+  text-decoration: none;
 }
 
 .api-view {

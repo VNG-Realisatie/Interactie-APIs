@@ -4,16 +4,6 @@ Dit document beschrijft de functionele en technische richting van **MijnZaken**:
 persoonsgebonden zaakinformatie binnen een MijnOmgeving. Het dient als servicebeschrijving in
 lijn met de VNG MijnServices standaarden, en is bedoeld voor publicatie op Developer.overheid.nl.
 
-## Prototype
-
-Startpunt: [MijnZaken-overzicht in Figma](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9427-21196&starting-point-node-id=9448%3A758053).
-
-<div class="figma-embed"
-  data-figma-title="Interactief prototype — MijnZaken"
-  data-figma-src="https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9427-21196&starting-point-node-id=9448%3A758053"
-  data-figma-width="1280"
-  data-figma-height="2600"></div>
-
 ## Status
 
 Verkennend — dit document beschrijft de **huidige stand van zaken** en volgt de GitHub-issue
@@ -28,7 +18,6 @@ herontwerp van een API, maar een afgebakende selectie uit een bestaande standaar
 
 - ZGW API's 1.6 (basis): [GEMMA Zaakgericht werken — standaard](https://vng-realisatie.github.io/gemma-zaken/standaard/)
 - Gedeelde foutafhandeling (RFC 7807): [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
-- Figma: [Prototype (MijnZaken)](#prototype)
 
 ## Inleiding
 

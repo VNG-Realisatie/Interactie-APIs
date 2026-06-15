@@ -125,6 +125,10 @@ a.table-row:active,
   width: auto;
   display: block;
 }
+/* Den Haag-wapen is bijna vierkant; geef het meer hoogte zodat het niet klein oogt. */
+[data-theme='denhaag'] .masthead__mark {
+  height: 76px;
+}
 .site-footer__mark {
   height: 48px;
   width: auto;
@@ -1615,13 +1619,11 @@ a.table-row:hover .bericht__subject {
   background: var(--vng-blue);
   border-color: var(--vng-blue);
   color: #ffffff;
-  transform: rotate(90deg);
 }
 
 .demo-toolbar__btn--api.is-open:hover {
   background: var(--vng-dark-blue);
   border-color: var(--vng-dark-blue);
-  transform: rotate(90deg) translateY(-1px);
 }
 
 .demo-toolbar__badge {
@@ -2376,6 +2378,9 @@ a.table-row:hover .bericht__subject {
   }
   .masthead__mark {
     height: 40px;
+  }
+  [data-theme='denhaag'] .masthead__mark {
+    height: 52px;
   }
   /* Rijkshuisstijl: het staande Rijkslint blijft gecentreerd in beeld.
      De hamburger staat links, het merk rechts, dus het midden is vrij —

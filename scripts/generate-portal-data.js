@@ -306,6 +306,14 @@ async function generatePortalData() {
   }
 
   // 4. Scan servicebeschrijvingen (Service beschrijving docs in services/)
+  // Elke service is doorklikbaar in de MijnOverheid-demo (vervangt de oude Figma-prototypes).
+  const DEMO_ROUTES = {
+    mijntaken: "/mijnoverheid/#/taken",
+    mijnzaken: "/mijnoverheid/#/zaken",
+    mijnproducten: "/mijnoverheid/#/producten",
+    mijnagenda: "/mijnoverheid/#/agenda",
+    mijngesprekken: "/mijnoverheid/#/berichten",
+  };
   const serviceFiles = await fg("services/*.md");
   for (const file of serviceFiles) {
     try {
@@ -323,17 +331,8 @@ async function generatePortalData() {
       const entry = { title, doc: file };
       const description = extractIntroDescription(content);
       if (description) entry.description = description;
-      const figmaEmbed = content.match(/data-figma-src="([^"]+)"/);
-      const figmaProtoSection = content.match(/^## Prototype\s*\n([\s\S]*?)(?=\n## |\s*$)/m);
-      const figmaLinksSection = content.match(/^## Links\s*\n([\s\S]*?)(?=\n## |\s*$)/m);
-      let figmaUrl = figmaEmbed?.[1];
-      if (!figmaUrl && figmaProtoSection) {
-        figmaUrl = figmaProtoSection[1].match(/https:\/\/www\.figma\.com\/proto\/[^\s)"']+/)?.[0];
-      }
-      if (!figmaUrl && figmaLinksSection) {
-        figmaUrl = figmaLinksSection[1].match(/https:\/\/www\.figma\.com\/proto\/[^\s)"']+/)?.[0];
-      }
-      if (figmaUrl) entry.figmaUrl = figmaUrl;
+      const demoPath = DEMO_ROUTES[path.basename(file, ".md")];
+      if (demoPath) entry.demoPath = demoPath;
       data.services.push(entry);
     } catch (e) {
       console.error(`❌ Fout bij verwerken servicebeschrijving ${file}: ${e.message}`);
