@@ -2,6 +2,7 @@
   "name": "vng-api-lab",
   "version": "1.0.0",
   "description": "VNG API lab — APIs, Schemas en Patterns",
+  "packageManager": "pnpm@10.26.0",
   "author": {
     "name": "Joep Meindertsma"
   },
