@@ -1,0 +1,63 @@
+/* ==========================================================================
+   Huisstijl-thema's. Switchen = data-theme op <html> wisselen.
+   Rijk / Utrecht / Den Haag zetten de lichtgewicht --brand-*.
+   "Gemeente Veenendaal (NLDS Basis)" zet ALLEEN --basis-* — bewijst interop:
+   een officieel NLDS-thema stuurt dezelfde componenten zonder --brand-*.
+   ========================================================================== */
+
+/* Rijksoverheid / MijnOverheid — donkerblauw, magenta badge, grijze pagina */
+[data-theme='rijk'] {
+  --brand-font-body: 'Rijksoverheid Sans', system-ui, sans-serif;
+  --brand-font-heading: 'Rijksoverheid Sans', system-ui, sans-serif;
+  --brand-primary: #154273;
+  --brand-primary-dark: #0b3060;
+  --brand-secondary: #154273;
+  --brand-accent: #d74085;
+  --brand-soft: #e5eff7;
+  --brand-page: #f3f3f3;
+  --brand-footer: #535353;
+  --brand-border-radius: 2px;
+}
+
+/* Gemeente Utrecht — rood, blauwe links, scherpe hoeken */
+[data-theme='utrecht'] {
+  --brand-primary: #cc0100;
+  --brand-primary-dark: #9c0000;
+  --brand-secondary: #24578f;
+  --brand-accent: #ffcb00; /* Utrecht-geel als pop-kleur */
+  --brand-on-accent: #1a1a1a; /* donkere tekst op geel */
+  --brand-soft: #fdeaea;
+  --brand-page: #f5f3f2;
+  --brand-footer: #1a1a1a;
+  --brand-border-radius: 0;
+}
+
+/* Gemeente Den Haag — groen, ronde hoeken, huisstijl-font TheSans */
+[data-theme='denhaag'] {
+  --brand-font-body: 'TheSans', system-ui, sans-serif;
+  --brand-font-heading: 'TheSans', system-ui, sans-serif;
+  --brand-primary: #008542;
+  --brand-primary-dark: #00632f;
+  --brand-secondary: #007a98;
+  --brand-accent: #ffb611; /* Den Haag-geel als pop-kleur */
+  --brand-on-accent: #1a1a1a; /* donkere tekst op geel */
+  --brand-soft: #e6f3ec;
+  --brand-page: #f1f5f2;
+  --brand-footer: #00401f;
+  --brand-border-radius: 8px;
+}
+
+/* "Gemeente Veenendaal" levert een officieel NLDS Basis-thema (alleen --basis-*) */
+[data-theme='basis'] {
+  --basis-text-font-family-default: 'Trebuchet MS', system-ui, sans-serif;
+  --basis-heading-font-family: 'Trebuchet MS', system-ui, sans-serif;
+  --basis-color-action-1-bg-default: #762f8e;
+  --basis-color-action-1-bg-hover: #5a2370;
+  --basis-color-action-2-bg-default: #762f8e;
+  --basis-color-default-bg-default: #f5f0f7;
+  --basis-color-default-border-default: #cbb3d6;
+  --basis-border-radius-md: 14px;
+  --brand-accent: #f5a623; /* amber als contrasterende pop op paars */
+  --brand-on-accent: #1a1a1a;
+  --brand-soft: #f0e3f6;
+}

@@ -169,6 +169,36 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProductSamenvatting"
+              example:
+                - uuid: "550e8400-e29b-41d4-a716-446655440000"
+                  producttype:
+                    code: "parkeervergunning"
+                    naam: "Parkeervergunning"
+                    omschrijving: "Een vergunning om te parkeren in een aangewezen gebied."
+                    uniformeProductNaam: "parkeervergunning"
+                  naam: "Parkeervergunning bewoners"
+                  status: "actief"
+                  startDatum: "2026-01-01"
+                  eindDatum: "2026-12-31"
+                - uuid: "7c12fbf6-e8ad-4c33-8e9c-095be615a8ad"
+                  producttype:
+                    code: "bezoekersregeling"
+                    naam: "Bezoekersregeling parkeren"
+                    omschrijving: "Regeling om bezoekers goedkoper te laten parkeren."
+                    uniformeProductNaam: "bezoekersregeling"
+                  naam: "Bezoekersvergunning Utrecht Oost"
+                  status: "actief"
+                  startDatum: "2026-02-15"
+                  eindDatum: "2027-02-14"
+                - uuid: "3b9542a1-a212-4f18-912c-6fa870d42999"
+                  producttype:
+                    code: "afvalpas"
+                    naam: "Afvalpas"
+                    omschrijving: "Toegangspas voor de ondergrondse restafvalcontainers."
+                    uniformeProductNaam: "afvalpas"
+                  naam: "Milieupas restafval"
+                  status: "actief"
+                  startDatum: "2025-06-01"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -354,7 +384,7 @@ components:
         naam:
           type: string
           description: Vast attribuut — naam van het product.
-          example: Containervergunning Dorpsstraat 12
+          example: Parkeervergunning bewoners
         status:
           $ref: "#/components/schemas/ProductStatus"
         startDatum:

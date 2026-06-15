@@ -24,6 +24,7 @@ export default function Sidebar({ data, params, navigate }) {
           }}
         >
           <img
+            className="portal-logo"
             src={vngLogo}
             alt="VNG Logo"
             width="96"
@@ -33,6 +34,9 @@ export default function Sidebar({ data, params, navigate }) {
           API lab
         </a>
       </h2>
+      <a className="sidebar-demo-button" href="/mijnoverheid/">
+        MijnOverheid demo
+      </a>
       <nav>
         <div className="nav-section">
           <ul>

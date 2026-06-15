@@ -4,16 +4,6 @@ Dit document beschrijft de functionele en technische specificaties van de **Mijn
 Het dient als servicebeschrijving voor implementatie en integratie van producten binnen een
 MijnOmgeving, in lijn met de VNG MijnServices standaarden.
 
-## Prototype
-
-Startpunt: [MijnProducten-overzicht in Figma](https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9510-17599&starting-point-node-id=9448%3A758053).
-
-<div class="figma-embed"
-  data-figma-title="Interactief prototype — MijnProducten"
-  data-figma-src="https://www.figma.com/proto/O3Wzm9ANIRHQTK98X0ljYs/VNG-mijn-services-prototype?node-id=9510-17599&starting-point-node-id=9448%3A758053"
-  data-figma-width="1280"
-  data-figma-height="2600"></div>
-
 ## Status
 
 Verkennend — een eerste werkversie van het contract staat in deze repo als `next`.
@@ -36,7 +26,6 @@ Verkennend — een eerste werkversie van het contract staat in deze repo als `ne
 **Overig:**
 
 - Gedeelde foutafhandeling (RFC 7807): [schemas/fout/v0.0.1.json](/?file=schemas/fout/v0.0.1.json)
-- Figma: [Prototype (MijnProducten)](#prototype)
 
 ## Inleiding
 

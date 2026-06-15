@@ -9,6 +9,14 @@ Deze repository bevat de API-standaarden, gedeelde schemas en patronen van het V
 Bekijk op [vng-api-lab.netlify.app](https://vng-api-lab.netlify.app).
 Issues / suggesties / verbeteringen op [Github Issues](https://github.com/VNG-Realisatie/Interactie-APIs/issues).
 
+## MijnOverheid demo
+
+Doorklikbare demo van een MijnOverheid-omgeving met taken, zaken, berichten, producten en agenda — gekoppeld aan de mock-API's in dit lab. Inclusief huisstijl-switcher (Rijk, Utrecht, Den Haag, NLDS Basis) en API-inspector.
+
+- **Online:** [vng-api-lab.netlify.app/mijnoverheid/](https://vng-api-lab.netlify.app/mijnoverheid/)
+- **Lokaal:** na `pnpm dev` op `http://127.0.0.1:31837/mijnoverheid/` (poort via `VITE_PORT`)
+- **Broncode:** [`mijnoverheid/`](mijnoverheid/)
+
 ## Status: Pre-alfa
 
 Dit project is nog in ontwikkeling, de API's en schema's vertegenwoordigen nog geen officiële standaarden.
@@ -20,6 +28,7 @@ Dit project is nog in ontwikkeling, de API's en schema's vertegenwoordigen nog g
 - **JSON Schemas**. Dit beschrijft hoe de datamodellen er uit zien. Deze kunnen worden hergebruikt tussen API specificaties.
 - **Patterns**. Dit zijn manieren waarop APIs zijn ontworpen
 - **Versiebeheer**. Van alle schemas, APIs en patterns worden versies bijgehouden.
+- **MijnOverheid demo**. Doorklikbare portaal-demo (`mijnoverheid/`) die de MijnServices-API's tegen de mocks toont.
 
 ## Structuur
 
@@ -31,6 +40,7 @@ Dit project is nog in ontwikkeling, de API's en schema's vertegenwoordigen nog g
 - `patterns/`: Herbruikbare API-fragmenten (bijv. paginering).
 - `docs/`: Governance, Design Principes en Architectural Decision Records (ADRs).
   - `respec/`: Automatisch gegenereerde ReSpec HTML specificaties en PDF versies hiervan.
+- `mijnoverheid/`: MijnOverheid demo-app (React, NLDS-ARK).
 - `archive/`: Gearchiveerde versies (zie [Sunsetting Policy](docs/governance/sunsetting.md)).
 
 ## Governance & Bijdragen
@@ -61,6 +71,7 @@ Om de API-specificaties lokaal te bekijken of te testen:
 
     Dit start automatisch:
 - Het **API lab portaal** op `http://127.0.0.1:${VITE_PORT}` (default: 31837)
+- De **MijnOverheid demo** op `http://127.0.0.1:${VITE_PORT}/mijnoverheid/`
 - De **Mock Servers (Gateway)** op `http://127.0.0.1:${MOCK_GATEWAY_PORT}` (default: 41837)
     - De **ReSpec Generatie** (HTML en PDF bestanden landen in `docs/respec/`)
 

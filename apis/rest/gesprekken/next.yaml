@@ -1093,20 +1093,54 @@ components:
         count:
           type: integer
           description: Totaal aantal resultaten.
+          example: 1
         next:
           type: string
           format: uri
           nullable: true
           description: URL van de volgende pagina.
+          example: null
         previous:
           type: string
           format: uri
           nullable: true
           description: URL van de vorige pagina.
+          example: null
         results:
           type: array
           items:
             $ref: "#/components/schemas/Gesprek"
+      example:
+        count: 3
+        next: null
+        previous: null
+        results:
+          - uuid: "095be615-a8ad-4c33-8e9c-c7612fbf6c9f"
+            url: "https://gesprekken.example.com/api/v1/gesprekken/095be615-a8ad-4c33-8e9c-c7612fbf6c9f"
+            referentie: "2026-GEM-00123"
+            aanvangsmomentGesprek: "2026-03-11T10:00:00Z"
+            momentEindeGesprek: "2026-03-11T10:45:00Z"
+            gespreksonderwerp: "Aanvraag bijstandsuitkering"
+            contactmoment: "https://klantinteracties.example.com/api/v1/contactmomenten/abc123"
+            aanleidingZaak: "https://zaken.example.com/api/v1/zaken/def456"
+            aanleidingThema: "https://klantinteracties.example.com/api/v1/themas/ghi789"
+            aanleidingProductDienst: "https://productencatalogus.example.com/api/v1/producten/jkl012"
+            aanleidingAgendaAfspraak: "https://agenda.example.com/api/v1/afspraken/mno345"
+          - uuid: "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+            url: "https://gesprekken.example.com/api/v1/gesprekken/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+            referentie: "2026-GEM-00124"
+            aanvangsmomentGesprek: "2026-04-15T14:00:00Z"
+            momentEindeGesprek: "2026-04-15T14:30:00Z"
+            gespreksonderwerp: "Voortgang schuldhulp"
+            contactmoment: "https://klantinteracties.example.com/api/v1/contactmomenten/xyz789"
+            aanleidingZaak: "https://zaken.example.com/api/v1/zaken/uvw012"
+          - uuid: "2f3e4d5c-6b7a-8d9e-0f1a-2b3c4d5e6f7a"
+            url: "https://gesprekken.example.com/api/v1/gesprekken/2f3e4d5c-6b7a-8d9e-0f1a-2b3c4d5e6f7a"
+            referentie: "2026-GEM-00125"
+            aanvangsmomentGesprek: "2026-05-20T09:15:00Z"
+            momentEindeGesprek: "2026-05-20T09:45:00Z"
+            gespreksonderwerp: "Vraag over parkeervergunning"
+            contactmoment: "https://klantinteracties.example.com/api/v1/contactmomenten/pas456"
 
     # ───── GESPREKSBIJDRAGE ────────────────────────────────────────────────
 

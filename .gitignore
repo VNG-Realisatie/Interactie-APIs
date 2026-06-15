@@ -11,6 +11,7 @@ scratchpad
 
 # Build artifacts
 dist
+*.tsbuildinfo
 docs/bundled/
 docs/portal-data.json
 docs/respec

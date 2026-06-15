@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { createRoot } from "react-dom/client";
 import { marked } from "marked";
 import BpmnViewer from "bpmn-js/lib/Viewer";
-import FigmaEmbedPreview from "./FigmaEmbedPreview";
-import {
-  injectPrototypeAtStart,
-  extractFigmaFromService,
-  parseFigmaEmbedAttrs,
-} from "./figmaEmbed";
+
+/** Voegt bovenaan een servicedocument een knop naar de interactieve demo toe. */
+function injectDemoLink(markdown, demoPath) {
+  const block = [
+    "",
+    `<a class="demo-cta" href="${demoPath}" target="_blank" rel="noopener noreferrer">Bekijk in Demo &rarr;</a>`,
+    "",
+  ].join("\n");
+
+  const titleBlock = markdown.match(/^#\s+.+\n+/m);
+  if (titleBlock) {
+    const pos = titleBlock.index + titleBlock[0].length;
+    return markdown.slice(0, pos) + block + markdown.slice(pos);
+  }
+  return block + markdown;
+}
 
 export default function MarkdownView({ path, portalData }) {
   const [html, setHtml] = useState("Laden...");
@@ -19,24 +28,15 @@ export default function MarkdownView({ path, portalData }) {
       .then((r) => r.text())
       .then((text) => {
         let md = text;
-        if (path.startsWith("services/")) {
-          const embedAttrs = parseFigmaEmbedAttrs(text);
-          const figmaUrl = embedAttrs?.src || serviceMeta?.figmaUrl || extractFigmaFromService(text);
-          const title =
-            serviceMeta?.title ||
-            text
-              .match(/^#\s+(.+)$/m)?.[1]
-              ?.replace(/^Service\s?beschrijving\s*[—–-]\s*/i, "")
-              .trim() ||
-            path.replace(/^services\//, "").replace(/\.md$/, "");
-          if (figmaUrl && !embedAttrs?.src) {
-            md = injectPrototypeAtStart(text, figmaUrl, title);
-          }
+        if (path.startsWith("services/") && serviceMeta?.demoPath) {
+          md = injectDemoLink(text, serviceMeta.demoPath);
+        } else if (path === "docs/services.md") {
+          md = injectDemoLink(text, "/mijnoverheid/");
         }
         setHtml(marked.parse(md));
       })
       .catch((e) => setHtml("Fout bij laden document: " + e.message));
-  }, [path, serviceMeta?.figmaUrl, serviceMeta?.title]);
+  }, [path, serviceMeta?.demoPath, serviceMeta?.title]);
 
   useEffect(() => {
     const roots = Array.from(document.querySelectorAll("[data-bpmn-src]"));
@@ -137,34 +137,6 @@ export default function MarkdownView({ path, portalData }) {
     };
   }, [html]);
 
-  useEffect(() => {
-    const hosts = Array.from(document.querySelectorAll("[data-figma-src]"));
-    if (hosts.length === 0) return undefined;
-
-    const instances = hosts.map((host) => {
-      const src = host.getAttribute("data-figma-src");
-      const title = host.getAttribute("data-figma-title") || "Interactief prototype (Figma)";
-      const frameWidth = Number(host.getAttribute("data-figma-width"));
-      const frameHeight = Number(host.getAttribute("data-figma-height"));
-      host.classList.add("figma-embed-host");
-      const root = createRoot(host);
-      root.render(
-        <FigmaEmbedPreview
-          src={src}
-          title={title}
-          frameWidth={Number.isFinite(frameWidth) ? frameWidth : undefined}
-          frameHeight={Number.isFinite(frameHeight) ? frameHeight : undefined}
-        />,
-      );
-      return { host, root };
-    });
-
-    return () => {
-      instances.forEach(({ root }) => {
-        root.unmount();
-      });
-    };
-  }, [html]);
 
   const renderDataList = () => {
     if (!portalData) return null;
@@ -199,15 +171,6 @@ export default function MarkdownView({ path, portalData }) {
       return (
         <section className="service-overview" aria-labelledby="services-heading">
           <h2 id="services-heading">{title}</h2>
-          <a className="service-demo-card" href="/demo/">
-            <span className="service-card-kicker">Demo</span>
-            <h3>MijnServices demo</h3>
-            <p>
-              Bekijk de doorklikbare MijnOmgeving met taken, zaken, berichten, producten en
-              themas.
-            </p>
-            <span className="service-card-link">Open demo</span>
-          </a>
           <div className="service-card-grid">
             {items.map((item, i) => (
               <a key={i} className="service-card" href={"/?doc=" + item.doc}>
@@ -216,7 +179,7 @@ export default function MarkdownView({ path, portalData }) {
                 {item.description && <p>{item.description}</p>}
                 <span className="service-card-link">
                   Bekijk servicebeschrijving
-                  {item.figmaUrl ? " en prototype" : ""}
+                  {item.demoPath ? " en demo" : ""}
                 </span>
               </a>
             ))}

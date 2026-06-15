@@ -1,0 +1,8 @@
+node_modules
+dist
+*.local
+.DS_Store
+
+# Lettertype-bestanden niet in de repo (licentie): RO Sans laadt via CDN,
+# TheSans (Den Haag, trial) voeg je zelf toe. Zie FONTS.md.
+public/fonts/

@@ -14,7 +14,7 @@ export default function HomeView({ data, navigate }) {
         style={{
           fontSize: "1.1em",
           color: "var(--text-muted)",
-          marginBottom: "2em",
+          marginBottom: "1.5em",
           lineHeight: "1.6",
         }}
       >
@@ -52,6 +52,13 @@ export default function HomeView({ data, navigate }) {
           reageren.
         </li>
       </ul>
+
+      <h2>MijnOverheid demo</h2>
+      <p style={{ color: "var(--text-muted)", lineHeight: "1.6", marginBottom: "2em" }}>
+        Een doorklikbare MijnOverheid-omgeving met taken, zaken, berichten, producten en agenda —
+        live gekoppeld aan de mock-API&apos;s in dit lab. Wissel huisstijl en bekijk API-verzoeken in
+        de inspector. <a href="/mijnoverheid/">Open de demo →</a>
+      </p>
 
       <div
         style={{

@@ -23,6 +23,17 @@ jobs:
       - name: Run Spectral Linting
         run: npx pnpm@10.26.0 lint
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npx pnpm@10.26.0 install --frozen-lockfile
+
+      - name: Build portal and MijnOverheid demo
+        run: npx pnpm@10.26.0 build
+
   validate-asyncapi:
     runs-on: ubuntu-latest
     steps:

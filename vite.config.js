@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { createReadStream } from "fs";
+import { readFile } from "fs/promises";
 import { extname, resolve } from "path";
 import { exec } from "child_process";
 
@@ -82,36 +83,61 @@ function serveYamlAsUtf8() {
   };
 }
 
-function serveMijnServicesDemo() {
-  const demoRoot = resolve("mijnservices-demo-app");
+function serveMijnOverheidDemo() {
+  const demoRoot = resolve("mijnoverheid");
+  const publicRoot = resolve(demoRoot, "public");
   const contentTypes = {
-    ".css": "text/css; charset=utf-8",
-    ".html": "text/html; charset=utf-8",
-    ".js": "text/javascript; charset=utf-8",
-    ".json": "application/json; charset=utf-8",
+    ".svg": "image/svg+xml; charset=utf-8",
     ".png": "image/png",
-    ".txt": "text/plain; charset=utf-8",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
   };
 
   return {
-    name: "serve-mijnservices-demo",
+    name: "serve-mijnoverheid-demo",
     configureServer(server) {
-      server.middlewares.use((req, res, next) => {
+      server.middlewares.use(async (req, res, next) => {
         const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
-        if (pathname === "/demo") {
+        if (pathname === "/mijnoverheid") {
           res.statusCode = 302;
-          res.setHeader("Location", "/demo/");
+          res.setHeader("Location", "/mijnoverheid/");
           res.end();
           return;
         }
-        if (!pathname.startsWith("/demo/")) {
+        if (pathname === "/mijn-omgeving" || pathname === "/mijn-omgeving/") {
+          res.statusCode = 302;
+          res.setHeader("Location", "/mijnoverheid/");
+          res.end();
+          return;
+        }
+        if (!pathname.startsWith("/mijnoverheid/")) {
           next();
           return;
         }
 
-        const relPath = decodeURIComponent(pathname.slice("/demo/".length)) || "index.html";
-        const filePath = resolve(demoRoot, relPath);
-        if (!filePath.startsWith(demoRoot)) {
+        const relPath = decodeURIComponent(pathname.slice("/mijnoverheid/".length));
+        if (!relPath || relPath === "index.html") {
+          try {
+            const htmlPath = resolve(demoRoot, "index.html");
+            const rawHtml = await readFile(htmlPath, "utf8");
+            const html = rawHtml.replace('src="/src/main.tsx"', 'src="/mijnoverheid/src/main.tsx"');
+            const transformed = await server.transformIndexHtml("/mijnoverheid/", html);
+            res.setHeader("Content-Type", "text/html; charset=utf-8");
+            res.end(transformed);
+          } catch (error) {
+            next(error);
+          }
+          return;
+        }
+
+        if (relPath.startsWith("src/")) {
+          next();
+          return;
+        }
+
+        const filePath = resolve(publicRoot, relPath);
+        if (!filePath.startsWith(publicRoot)) {
           res.statusCode = 403;
           res.end("Forbidden");
           return;
@@ -127,7 +153,7 @@ function serveMijnServicesDemo() {
 }
 
 export default defineConfig({
-  plugins: [react(), logServerUrl(), watchApiFiles(), serveYamlAsUtf8(), serveMijnServicesDemo()],
+  plugins: [react(), logServerUrl(), watchApiFiles(), serveYamlAsUtf8(), serveMijnOverheidDemo()],
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
     "process.env": JSON.stringify({}),

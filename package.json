@@ -11,7 +11,7 @@
     "prep-docs": "pnpm convert-xmi && node scripts/generate-portal-data.js && pnpm respec",
     "respec": "node scripts/generate-respec.js",
     "dev": "pnpm prep-docs && concurrently \"vite\" \"pnpm mock\"",
-    "build": "pnpm prep-docs && vite build && cp -R docs apis schemas patterns services bpmn *.md dist/ && cp -R mijnservices-demo-app dist/demo",
+    "build": "pnpm prep-docs && vite build && cp -R docs apis schemas patterns services bpmn *.md dist/ && pnpm -C mijnoverheid install --frozen-lockfile && pnpm -C mijnoverheid exec tsc -b && pnpm -C mijnoverheid exec vite build --base=/mijnoverheid/ && cp -R mijnoverheid/dist dist/mijnoverheid",
     "serve": "pnpm build && npx serve dist",
     "mock": "node scripts/mock-all.js"
   },
