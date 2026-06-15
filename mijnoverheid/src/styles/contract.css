@@ -80,4 +80,16 @@
   --color-focus-bg: var(--brand-focus-bg, var(--basis-focus-background-color, #ffe600));
 
   --border-radius: var(--brand-border-radius, var(--basis-border-radius-md, 2px));
+  --radius-pill: 999px; /* volledig ronde hoeken: badges, pills, ronde knoppen */
+
+  /* Status-kleuren (MijnPlannen): informatief en bewust niet huisstijl-afhankelijk. */
+  --ok-bg: #dcf0e4;
+  --ok-fg: #1c5b34;
+  --warn-bg: #fde9db;
+  --warn-fg: #8a3d16;
+  --alert: #d53b2a;
+  --alert-bg: #fdeceb;
+  --flag-bg: #fdf1e7;
+  --flag-border: #d98a3d;
+  --color-success: #22c55e; /* afgeronde stappen in statusverloop */
 }

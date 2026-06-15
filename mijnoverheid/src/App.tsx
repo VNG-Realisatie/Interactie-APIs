@@ -496,7 +496,7 @@ function TakenPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[]; t
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
-      <button className="button-primary" type="button" style={{ marginTop: 0 }}>
+      <button className="button-primary" type="button">
         Zoeken
       </button>
     </div>
@@ -525,7 +525,7 @@ function TakenPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[]; t
             {openFiltered.length ? (
               openFiltered.map((t) => <TaakPanelRow key={t.titel} taak={t} onClick={() => onTaakClick(t)} />)
             ) : (
-              <p style={{ padding: '18px 24px', margin: 0 }}>Geen taken gevonden.</p>
+              <p className="panel-empty">Geen taken gevonden.</p>
             )}
           </div>
         </Tabs.Content>
@@ -539,7 +539,7 @@ function TakenPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[]; t
                 <TaakPanelRow key={t.titel} taak={t} onClick={() => onTaakClick(t)} />
               ))
             ) : (
-              <p style={{ padding: '18px 24px', margin: 0 }}>Geen afgeronde taken gevonden.</p>
+              <p className="panel-empty">Geen afgeronde taken gevonden.</p>
             )}
           </div>
         </Tabs.Content>
@@ -948,40 +948,30 @@ function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: s
   const openFiltered = openCases.filter(matches);
   const closedFiltered = closedCases.filter(matches);
 
-  const renderCaseRow = (z: any) => (
-    <a 
-      className="table-row" 
-      href={`#/zaken/${z.uuid}`}
-      key={z.uuid || z.naam}
-      onClick={(e) => {
-        e.preventDefault();
-        onCaseClick(z.uuid);
-      }}
-      style={{ textDecoration: 'none', color: 'inherit', display: 'grid' }}
-    >
-      <span>
-        <span style={{ color: 'var(--color-primary)', textDecoration: 'underline', fontWeight: 500 }}>
-          {z.naam}
+  const renderCaseRow = (z: any) => {
+    const isOpen = z.status?.toLowerCase() === 'open';
+    return (
+      <a
+        className="table-row zaak-row"
+        href={`#/zaken/${z.uuid}`}
+        key={z.uuid || z.naam}
+        onClick={(e) => {
+          e.preventDefault();
+          onCaseClick(z.uuid);
+        }}
+      >
+        <span>
+          <span className="zaak-link">{z.naam}</span>
         </span>
-      </span>
-      <span>{z.datumAanvraag || z.datum}</span>
-      <span>
-        <span 
-          style={{
-            display: 'inline-block',
-            padding: '2px 8px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            background: z.status?.toLowerCase() === 'open' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(148, 163, 184, 0.15)',
-            color: z.status?.toLowerCase() === 'open' ? '#22c55e' : '#64748b'
-          }}
-        >
-          {z.status}
+        <span>{z.datumAanvraag || z.datum}</span>
+        <span>
+          <span className={`status-badge ${isOpen ? 'status-badge--open' : 'status-badge--closed'}`}>
+            {z.status}
+          </span>
         </span>
-      </span>
-    </a>
-  );
+      </a>
+    );
+  };
 
   return (
     <>
@@ -1008,7 +998,7 @@ function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: s
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <button className="button-primary" type="button" style={{ marginTop: 0 }}>
+            <button className="button-primary" type="button">
               Zoeken
             </button>
           </div>
@@ -1017,7 +1007,7 @@ function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: s
             {openFiltered.length ? (
               openFiltered.map(renderCaseRow)
             ) : (
-              <p style={{ padding: '18px 24px', margin: 0 }}>Geen lopende zaken gevonden.</p>
+              <p className="panel-empty">Geen lopende zaken gevonden.</p>
             )}
           </div>
         </Tabs.Content>
@@ -1031,7 +1021,7 @@ function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: s
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <button className="button-primary" type="button" style={{ marginTop: 0 }}>
+            <button className="button-primary" type="button">
               Zoeken
             </button>
           </div>
@@ -1040,7 +1030,7 @@ function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: s
             {closedFiltered.length ? (
               closedFiltered.map(renderCaseRow)
             ) : (
-              <p style={{ padding: '18px 24px', margin: 0 }}>Geen gesloten zaken gevonden.</p>
+              <p className="panel-empty">Geen gesloten zaken gevonden.</p>
             )}
           </div>
         </Tabs.Content>
@@ -1061,103 +1051,42 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
       <h1>{selectedCase.naam}</h1>
 
       {selectedCase.openstaandeTaak && (
-        <div 
-          className="alert--warning" 
-          role="note" 
-          style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            marginBottom: '32px' 
-          }}
-        >
+        <div className="alert--warning zaak-alert" role="note">
           <div>
-            <strong style={{ display: 'block', fontSize: '15px' }}>
+            <strong className="zaak-alert__title">
               {selectedCase.openstaandeTaak.titel}
             </strong>
-            <span style={{ display: 'block', fontSize: '13px', color: '#b5641b', fontWeight: 600, marginTop: '4px' }}>
+            <span className="zaak-alert__deadline">
               ⚠ {selectedCase.openstaandeTaak.deadlineText}
             </span>
           </div>
-          <a 
-            className="button-primary"
-            href={selectedCase.openstaandeTaak.actieUrl}
-            style={{ margin: 0 }}
-          >
+          <a className="button-primary" href={selectedCase.openstaandeTaak.actieUrl}>
             Informatie geven
           </a>
         </div>
       )}
 
       {/* Status Timeline */}
-      <section className="section" style={{ marginTop: selectedCase.openstaandeTaak ? 0 : '20px' }}>
+      <section className="section">
         <h2>Statusverloop</h2>
-        <ol style={{ listStyle: 'none', padding: 0, margin: '20px 0 0' }}>
-          {selectedCase.statushistorie?.map((step: any, idx: number) => {
+        <ol className="status-timeline">
+          {selectedCase.statushistorie?.map((step: any) => {
             const isCompleted = step.status === 'voltooid';
             const isCurrent = step.status === 'lopend';
-            
-            return (
-              <li 
-                key={step.nummer}
-                style={{
-                  display: 'flex',
-                  gap: '20px',
-                  position: 'relative',
-                  paddingBottom: idx === selectedCase.statushistorie.length - 1 ? '0' : '28px'
-                }}
-              >
-                {/* Connecting Line */}
-                {idx !== selectedCase.statushistorie.length - 1 && (
-                  <div 
-                    style={{
-                      position: 'absolute',
-                      left: '15px',
-                      top: '30px',
-                      bottom: 0,
-                      width: '2px',
-                      background: isCompleted ? '#22c55e' : 'var(--color-border-soft)'
-                    }}
-                  />
-                )}
-                
-                {/* Marker */}
-                <div 
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: isCompleted ? '#22c55e' : isCurrent ? 'var(--color-primary)' : 'var(--color-panel)',
-                    border: `2px solid ${isCompleted ? '#22c55e' : isCurrent ? 'var(--color-primary)' : 'var(--color-border-soft)'}`,
-                    color: isCompleted ? '#ffffff' : isCurrent ? 'var(--color-on-primary)' : 'var(--color-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 'bold',
-                    fontSize: '14px',
-                    zIndex: 2,
-                    flexShrink: 0
-                  }}
-                >
-                  {isCompleted ? '✓' : step.nummer}
-                </div>
+            const stepClass = isCompleted
+              ? 'status-step status-step--done'
+              : isCurrent
+                ? 'status-step status-step--current'
+                : 'status-step';
 
-                {/* Content */}
-                <div style={{ paddingTop: '4px', flex: 1 }}>
-                  <strong 
-                    style={{ 
-                      display: 'block', 
-                      fontSize: '1.05rem', 
-                      color: isCurrent ? 'var(--color-primary)' : 'var(--color-text)',
-                      fontWeight: isCurrent || isCompleted ? 700 : 400
-                    }}
-                  >
-                    {step.titel}
-                  </strong>
-                  {step.toelichting && step.toelichting.map((desc: string, dIdx: number) => (
-                    <p key={dIdx} style={{ margin: '6px 0 0', fontSize: '0.95rem', color: 'var(--color-muted)', lineHeight: 1.4 }}>
-                      {desc}
-                    </p>
+            return (
+              <li key={step.nummer} className={stepClass}>
+                <span className="status-step__line" aria-hidden="true" />
+                <span className="status-step__marker">{isCompleted ? '✓' : step.nummer}</span>
+                <div className="status-step__body">
+                  <strong className="status-step__title">{step.titel}</strong>
+                  {step.toelichting?.map((desc: string, dIdx: number) => (
+                    <p key={dIdx} className="status-step__desc">{desc}</p>
                   ))}
                 </div>
               </li>
@@ -1170,58 +1099,29 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
       <section className="section">
         <h2>Details</h2>
         <dl className="datalist">
-          <div style={{ display: 'contents' }}>
-            <dt>Datum aanvraag</dt>
-            <dd>{new Date(selectedCase.datumAanvraag).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
-          </div>
-          <div style={{ display: 'contents' }}>
-            <dt>Zaaknummer</dt>
-            <dd style={{ fontFamily: 'monospace' }}>{selectedCase.zaaknummer}</dd>
-          </div>
-          <div style={{ display: 'contents' }}>
-            <dt>Status</dt>
-            <dd>{selectedCase.status}</dd>
-          </div>
+          <dt>Datum aanvraag</dt>
+          <dd>{new Date(selectedCase.datumAanvraag).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
+          <dt>Zaaknummer</dt>
+          <dd className="dd-mono">{selectedCase.zaaknummer}</dd>
+          <dt>Status</dt>
+          <dd>{selectedCase.status}</dd>
         </dl>
       </section>
 
       {/* Case Documents */}
       <section className="section">
         <h2>Documenten</h2>
-        <div className="panel" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="panel zaak-rows">
           {selectedCase.documenten?.map((doc: any, idx: number) => (
-            <div 
-              key={idx}
-              className="table-row"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 140px 180px auto',
-                gap: '16px',
-                padding: '14px 20px',
-                borderBottom: idx === selectedCase.documenten.length - 1 ? 'none' : '1px solid var(--color-border-soft)',
-                fontSize: '0.95rem'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center' }}>
-                  <Icon id="icon-clipboard" />
-                </span>
-                <span style={{ fontWeight: 700 }}>{doc.naam}</span>
-                <span style={{ color: 'var(--color-muted)', fontSize: '0.85rem' }}>
-                  ({doc.type.toUpperCase()}, {doc.grootte})
-                </span>
+            <div key={idx} className="zaak-doc">
+              <div className="zaak-doc__name">
+                <Icon id="icon-clipboard" />
+                <span>{doc.naam}</span>
+                <span className="zaak-doc__type">({doc.type.toUpperCase()}, {doc.grootte})</span>
               </div>
-              <span>
-                {new Date(doc.datum).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
-              </span>
-              <span style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>
-                {doc.bron}
-              </span>
-              <a 
-                href="#" 
-                onClick={(e) => e.preventDefault()}
-                style={{ fontWeight: 700, color: 'var(--color-primary)', textDecoration: 'none' }}
-              >
+              <span>{new Date(doc.datum).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              <span className="zaak-doc__bron">{doc.bron}</span>
+              <a className="zaak-doc__download" href="#" onClick={(e) => e.preventDefault()}>
                 Download
               </a>
             </div>
@@ -1232,40 +1132,14 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
       {/* Contact Timeline */}
       <section className="section">
         <h2>Eerdere contactmomenten</h2>
-        <div className="panel" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="panel zaak-rows">
           {selectedCase.contactmomenten?.map((contact: any, idx: number) => (
-            <div 
-              key={idx}
-              className="table-row"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '140px 100px 1fr',
-                gap: '16px',
-                padding: '14px 20px',
-                borderBottom: idx === selectedCase.contactmomenten.length - 1 ? 'none' : '1px solid var(--color-border-soft)',
-                fontSize: '0.95rem'
-              }}
-            >
-              <span style={{ color: 'var(--color-muted)' }}>
+            <div key={idx} className="zaak-contact">
+              <span className="zaak-contact__date">
                 {new Date(contact.datum).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
               <span>
-                <span 
-                  style={{
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: 'var(--border-radius)',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    background: 'var(--color-soft)',
-                    color: 'var(--color-primary)',
-                    textAlign: 'center',
-                    width: '100%'
-                  }}
-                >
-                  {contact.kanaal}
-                </span>
+                <span className="zaak-contact__channel">{contact.kanaal}</span>
               </span>
               <span>{contact.tekst}</span>
             </div>
