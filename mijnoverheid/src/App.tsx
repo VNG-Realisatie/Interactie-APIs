@@ -1624,6 +1624,9 @@ export function App() {
   const [apiLogs, setApiLogs] = useState<any[]>([]);
   const [showInspector, setShowInspector] = useState(false);
   const [showEndpoints, setShowEndpoints] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchActive, setSearchActive] = useState(0);
   // Per-API endpoint-overrides: applied (apiBases) + bewerkbare concepten (drafts).
   const [apiBases, setApiBases] = useState<Record<string, string>>(readStoredApiBases);
   const [apiBaseDrafts, setApiBaseDrafts] = useState<Record<string, string>>(readStoredApiBases);
@@ -1878,6 +1881,66 @@ export function App() {
     }
   };
 
+  // Esc sluit de zoek-overlay.
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSearchOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [searchOpen]);
+
+  const openSearch = () => {
+    setMenuOpen(false);
+    setSearchOpen(true);
+  };
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery('');
+  };
+  const runSearchResult = (run: () => void) => {
+    run();
+    closeSearch();
+  };
+
+  // App-brede zoekindex over alle geladen data (één bron: de App-state).
+  const searchQ = searchQuery.trim().toLowerCase();
+  const searchResults = searchQ
+    ? [
+        ...[...tasksOpen, ...tasksDone].map((t) => ({
+          group: 'Taken',
+          title: t.titel,
+          sub: t.org,
+          run: () => handleTaakClick(t),
+        })),
+        ...cases.map((z) => ({
+          group: 'Zaken',
+          title: z.naam,
+          sub: z.zaaknummer || z.status || '',
+          run: () => (z.uuid ? handleCaseClick(z.uuid) : go('zaken')),
+        })),
+        ...conversations.map((c) => ({
+          group: 'Berichten',
+          title: c.titel,
+          sub: c.org,
+          run: () => go('berichten'),
+        })),
+        ...products.map((p) => ({
+          group: 'Producten',
+          title: p.titel,
+          sub: p.sub,
+          run: () => go('producten'),
+        })),
+        ...appointments.map((a) => ({
+          group: 'Afspraken',
+          title: a.titel,
+          sub: a.wanneer,
+          run: () => go('agenda'),
+        })),
+      ].filter((r) => `${r.title} ${r.sub ?? ''} ${r.group}`.toLowerCase().includes(searchQ))
+    : [];
+
   const built = [
     'home',
     'dossier',
@@ -1921,6 +1984,10 @@ export function App() {
             {brand.name}
           </a>
           <div className="masthead__links">
+            <button type="button" className="masthead__search" onClick={openSearch}>
+              <Icon id="icon-search" />
+              <span>Zoeken</span>
+            </button>
             <a className="masthead__user" href="#/gegevens" onClick={navLink(go, 'gegevens')}>
               <Icon id="icon-user" />
               Jeroen van Drouwen
@@ -1960,6 +2027,10 @@ export function App() {
               &times;
             </button>
           </div>
+          <button type="button" className="sidenav__search" onClick={openSearch}>
+            <Icon id="icon-search" />
+            <span>Zoeken</span>
+          </button>
           <ul>
             {nav.map((n) => {
               let badgeCount = n.badge;
@@ -2030,6 +2101,82 @@ export function App() {
       </div>
 
       <Footer brand={brand} />
+
+      {searchOpen && (
+        <div className="search-overlay" onClick={closeSearch}>
+          <div
+            className="search-box"
+            role="dialog"
+            aria-label="Zoeken"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="search-box__head">
+              <Icon id="icon-search" />
+              <input
+                className="search-box__input"
+                type="text"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchActive(0);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setSearchActive((i) => Math.min(i + 1, searchResults.length - 1));
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setSearchActive((i) => Math.max(i - 1, 0));
+                  } else if (e.key === 'Enter') {
+                    const r = searchResults[searchActive];
+                    if (r) runSearchResult(r.run);
+                  }
+                }}
+                placeholder="Zoek in taken, zaken, berichten, producten…"
+                aria-label="Zoekterm"
+              />
+              <button
+                type="button"
+                className="search-box__close"
+                onClick={closeSearch}
+                aria-label="Sluiten"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="search-box__results">
+              {searchQ === '' ? (
+                <p className="search-box__hint">
+                  Typ om te zoeken in al uw taken, zaken, berichten, producten en afspraken.
+                </p>
+              ) : searchResults.length === 0 ? (
+                <p className="search-box__hint">Geen resultaten voor “{searchQuery}”.</p>
+              ) : (
+                searchResults.map((r, i) => (
+                  <button
+                    type="button"
+                    className={`search-result${i === searchActive ? ' is-active' : ''}`}
+                    key={`${r.group}-${r.title}-${i}`}
+                    aria-selected={i === searchActive}
+                    ref={(el) => {
+                      if (i === searchActive && el) el.scrollIntoView({ block: 'nearest' });
+                    }}
+                    onMouseEnter={() => setSearchActive(i)}
+                    onClick={() => runSearchResult(r.run)}
+                  >
+                    <span className="search-result__main">
+                      <span className="search-result__title">{r.title}</span>
+                      {r.sub && <span className="search-result__sub">{r.sub}</span>}
+                    </span>
+                    <span className="search-result__group">{r.group}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="demo-toolbar">
         {showInspector && (

@@ -2188,6 +2188,159 @@ a.table-row:hover .bericht__subject {
   color: var(--color-primary);
 }
 
+/* --- App-brede zoekfunctie ------------------------------------------- */
+/* Trigger in de masthead (desktop). */
+.masthead__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  background: var(--color-soft);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  padding: 7px 16px;
+  cursor: pointer;
+}
+.masthead__search:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+.masthead__search .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Trigger bovenin het fullscreen-menu (mobiel) — verborgen op desktop. */
+.sidenav__search {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 16px 0;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: var(--color-soft);
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+.sidenav__search .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Overlay + zoekvenster. */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12vh 20px 20px;
+  background: rgba(7, 31, 69, 0.45);
+}
+.search-box {
+  width: 100%;
+  max-width: 600px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-panel);
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 50px rgba(7, 31, 69, 0.3);
+  overflow: hidden;
+}
+.search-box__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+.search-box__head .icon {
+  width: 22px;
+  height: 22px;
+  color: var(--color-muted);
+  flex: none;
+}
+.search-box__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: 1.15rem;
+  color: var(--color-text);
+}
+.search-box__close {
+  border: none;
+  background: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0 4px;
+}
+.search-box__results {
+  overflow-y: auto;
+}
+.search-box__hint {
+  margin: 0;
+  padding: 24px 18px;
+  color: var(--color-muted);
+}
+.search-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 18px;
+  border: none;
+  border-bottom: 1px solid var(--color-border-soft);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.search-result:last-child {
+  border-bottom: none;
+}
+.search-result:hover,
+.search-result.is-active {
+  background: var(--color-hover);
+}
+.search-result.is-active {
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+.search-result__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.search-result__title {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.search-result__sub {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.search-result__group {
+  flex: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+}
+
 /* ==========================================================================
    Responsive — mobiele overrides
    Gebundeld aan het einde zodat ze ná alle base-regels komen (gelijke
@@ -2258,6 +2411,9 @@ a.table-row:hover .bericht__subject {
     background: var(--color-page);
   }
   .sidenav__mobile-foot {
+    display: flex;
+  }
+  .sidenav__search {
     display: flex;
   }
   .sidenav ul {
