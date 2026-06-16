@@ -1,8 +1,8 @@
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN corepack enable && pnpm install --frozen-lockfile
+RUN corepack enable && corepack prepare pnpm@10.26.0 --activate && pnpm install --frozen-lockfile
 
 COPY apis ./apis
 COPY schemas ./schemas

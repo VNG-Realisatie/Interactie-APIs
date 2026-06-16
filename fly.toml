@@ -6,6 +6,12 @@
 app = 'vng-interactie-mocks'
 primary_region = 'ams'
 
+[env]
+  MOCK_GATEWAY_PORT = '4010'
+  # Fly: alleen actieve next-specs — 17 parallelle Prism-processen past niet op 1 GB.
+  MOCK_SPEC_GLOB = 'apis/**/next.yaml'
+  MOCK_READY_TIMEOUT_MS = '120000'
+
 [build]
 
 [http_service]
@@ -15,6 +21,14 @@ primary_region = 'ams'
   auto_start_machines = true
   min_machines_running = 1
 
+  [[http_service.checks]]
+    grace_period = "45s"
+    interval = "15s"
+    method = "GET"
+    path = "/health"
+    timeout = "5s"
+
 [[vm]]
   size = 'shared-cpu-1x'
-  memory = '1gb'
+  memory = '2gb'
+  count = 1

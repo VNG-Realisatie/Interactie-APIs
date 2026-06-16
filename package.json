@@ -40,5 +40,12 @@
     "serve": "^14.2.0",
     "vite": "^5.0.0",
     "widdershins": "^4.0.1"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "core-js",
+      "esbuild",
+      "puppeteer"
+    ]
   }
 }

@@ -31,7 +31,7 @@ VNG API lab: OpenAPI specs (`apis/`), shared JSON schemas (`schemas/`), reusable
 - Code: `scripts/mock-all.js` — Express gateway that proxies `/apis/<spec-path>` to a Prism subprocess per spec.
 - Container: `Dockerfile` (node:20-alpine). Must `COPY apis schemas patterns` because specs `$ref` into all three.
 - Config: `fly.toml`. `min_machines_running = 1` (always-on). Do not flip back to auto-stop — Prism's cold start (~10s) exceeds Fly proxy's reachability timeout (~8s), causing the first request after idle to fail.
-- Readiness: `mock-all.js` waits for every Prism port to bind before `app.listen`. If you add a new spec, it auto-picks up.
+- Fly env (`fly.toml`): `MOCK_GATEWAY_PORT=4010`, `MOCK_SPEC_GLOB=apis/**/next.yaml`. Gateway bindt meteen op `0.0.0.0:4010` met `/health`; Prism start daarna op de achtergrond.
 - Deploy: pushes to `main` trigger `.github/workflows/fly-deploy.yml`. Manual: `fly deploy`. Logs: `fly logs`.
 
 ## Local dev

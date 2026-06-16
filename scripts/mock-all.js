@@ -4,8 +4,6 @@ const fg = require("fast-glob");
 const { spawn } = require("child_process");
 const path = require("path");
 const net = require("net");
-
-const yaml = require("js-yaml");
 const fs = require("fs");
 
 // Load local dev env vars for Node scripts
@@ -62,14 +60,10 @@ async function allocatePorts(count, { basePort, host }) {
   const ports = [];
   let port = basePort;
   while (ports.length < count) {
-    // Skip already selected ports (shouldn't happen, but safe)
     if (ports.includes(port)) {
       port += 1;
       continue;
     }
-
-    // Only allocate if actually available
-    // (avoids EADDRINUSE when a dev stack is already running)
     // eslint-disable-next-line no-await-in-loop
     const ok = await isPortAvailable(port, host);
     if (ok) {
@@ -80,13 +74,28 @@ async function allocatePorts(count, { basePort, host }) {
   return ports;
 }
 
+function listenGateway(app, port) {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port, "0.0.0.0", () => {
+      console.log(`✅ Gateway luistert op 0.0.0.0:${port}`);
+      resolve(server);
+    });
+    server.on("error", reject);
+  });
+}
+
 async function startMocks() {
   const app = express();
   const mainPort = getEnvInt("MOCK_GATEWAY_PORT", 4010);
   const prismHost = process.env.PRISM_HOST || "127.0.0.1";
   const prismBasePort = getEnvInt("PRISM_BASE_PORT", 5000);
+  const specGlob = process.env.MOCK_SPEC_GLOB || "apis/**/*.{yaml,yml}";
+  const readyTimeoutMs = getEnvInt("MOCK_READY_TIMEOUT_MS", 60000);
 
-  // CORS headers toestaan voor lokale ontwikkeling (Vite op :{VITE_PORT})
+  let specFiles = [];
+  const ready = [];
+  const prisms = [];
+
   app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
@@ -103,96 +112,134 @@ async function startMocks() {
     next();
   });
 
-  // Zoek alle OpenAPI bestanden (flat file structure: apis/rest/demo/v1.0.0.yaml)
-  const specFiles = await fg("apis/**/*.{yaml,yml}");
+  app.get("/health", (_req, res) => {
+    const readyCount = ready.filter(Boolean).length;
+    res.status(200).json({
+      ok: true,
+      gateway: `0.0.0.0:${mainPort}`,
+      mocks: { ready: readyCount, total: specFiles.length },
+    });
+  });
 
+  app.get("/", (_req, res) => {
+    res.json({
+      service: "vng-interactie-mocks",
+      health: "/health",
+      mocks: { ready: ready.filter(Boolean).length, total: specFiles.length },
+    });
+  });
+
+  // Fly-proxy moet poort 4010 meteen kunnen bereiken — vóór glob/Prism-start.
+  await listenGateway(app, mainPort);
+
+  specFiles = (await fg(specGlob)).sort();
   if (specFiles.length === 0) {
-    console.error("❌ Geen OpenAPI specificaties gevonden in apis/");
+    console.error(`❌ Geen OpenAPI specificaties gevonden voor glob: ${specGlob}`);
     process.exit(1);
   }
 
-  console.log(`\n🔍 Gevonden API specificaties: ${specFiles.length}`);
+  console.log(`\n🔍 Gevonden API specificaties: ${specFiles.length} (${specGlob})`);
 
   const prismPorts = await allocatePorts(specFiles.length, {
     basePort: prismBasePort,
     host: prismHost,
   });
 
-  const prisms = [];
-
-  specFiles.forEach((spec, index) => {
+  for (let index = 0; index < specFiles.length; index++) {
+    ready[index] = false;
+    const spec = specFiles[index];
     const prismPort = prismPorts[index];
-
-    // Forceer het base path gebaseerd op het bestandspad (bijv. /apis/rest/resources/v0.0.1)
-    // Dit zorgt voor consistentie met de UI die dit pad ook dynamisch berekent.
     const apiPath = "/" + spec.replace(path.extname(spec), "");
 
-    console.log(
-      `🚀 Start Prism voor ${spec} op localhost:${prismPort} (gateway path: ${apiPath})`,
-    );
-
-    // Start Prism in de achtergrond. Direct binair pad i.p.v. `npx` zodat het in
-    // minimalistische containers (alpine) zonder shell-resolution werkt.
-    // Stderr wordt doorgezet zodat eventuele Prism-fouten in de logs belanden.
-    const prism = spawn(
-      "./node_modules/.bin/prism",
-      ["mock", spec, "-p", prismPort.toString(), "-h", prismHost],
-      {
-        stdio: ["ignore", "ignore", "inherit"],
-      },
-    );
-    prisms.push(prism);
-
-    prism.on("error", (err) => {
-      console.error(`❌ Fout bij starten Prism voor ${spec}:`, err);
-    });
-
-    prism.on("exit", (code, signal) => {
-      if (code !== 0 && signal !== "SIGTERM") {
-        console.error(`❌ Prism voor ${spec} gestopt (code=${code}, signal=${signal})`);
-      }
-    });
-
-    // Configureer de proxy van Gateway -> Prism
     app.use(
       apiPath,
+      (req, res, next) => {
+        if (!ready[index]) {
+          res
+            .status(503)
+            .set("Retry-After", "5")
+            .json({ error: `Mock voor ${spec} start nog op, probeer zo opnieuw.` });
+          return;
+        }
+        next();
+      },
       createProxyMiddleware({
         target: `http://${prismHost}:${prismPort}`,
         pathRewrite: {
-          [`^${apiPath}`]: "", // Strip de base path voordat het naar Prism gaat
+          [`^${apiPath}`]: "",
         },
         logLevel: "error",
+        onError: (_err, _req, res) => {
+          if (!res.headersSent) {
+            res
+              .status(502)
+              .set("Retry-After", "5")
+              .json({ error: `Mock voor ${spec} is tijdelijk niet bereikbaar.` });
+          }
+        },
       }),
     );
+  }
+
+  console.log("");
+  console.log("  ╔═══════════════════════════════════════════════╗");
+  console.log("  ║  🎭 Mock Gateway endpoints:                 ║");
+  console.log(`  ║     http://0.0.0.0:${mainPort.toString().padEnd(33)}║`);
+  console.log("  ╚═══════════════════════════════════════════════╝");
+  console.log("");
+  specFiles.forEach((spec) => {
+    const endpoint = spec.replace(path.extname(spec), "");
+    console.log(`    • http://0.0.0.0:${mainPort}/${endpoint}/`);
   });
+  console.log("");
 
-  // Wacht tot alle Prism processen luisteren voordat we de gateway openstellen.
-  // Zonder deze gate krijg je "proxy error" responses tijdens de cold-start op Fly.io.
-  console.log("⏳ Wachten tot alle Prism mocks luisteren...");
-  await Promise.all(prismPorts.map((p) => waitForPort(p, prismHost)));
-  console.log("✅ Alle Prism mocks zijn klaar.");
+  (async () => {
+    for (let index = 0; index < specFiles.length; index++) {
+      const spec = specFiles[index];
+      const prismPort = prismPorts[index];
+      const apiPath = "/" + spec.replace(path.extname(spec), "");
 
-  // Start de gateway (0.0.0.0 zodat het ook werkt in containers/Fly)
-  app.listen(mainPort, "0.0.0.0", () => {
-    console.log("");
-    console.log("  ╔═══════════════════════════════════════════════╗");
-    console.log("  ║  🎭 Mock Gateway draait op:                 ║");
-    console.log(`  ║     http://localhost:${mainPort.toString().padEnd(33)}║`);
-    console.log("  ╚═══════════════════════════════════════════════╝");
-    console.log("");
-    console.log("  Beschikbare API endpoints:");
-    specFiles.forEach((spec) => {
-      const endpoint = spec.replace(path.extname(spec), "");
-      console.log(`    • http://localhost:${mainPort}/${endpoint}/`);
-    });
-    console.log("");
-    const devPort = getEnvInt("VITE_PORT", 3000);
-    console.log(`  ➜  Dev server: http://localhost:${devPort}`);
-    console.log("");
-    console.log("  Gebruik CTRL+C om te stoppen.\n");
-  });
+      console.log(
+        `🚀 Start Prism voor ${spec} op ${prismHost}:${prismPort} (gateway path: ${apiPath})`,
+      );
 
-  // Zorg dat bij CTRL+C alle sub-processen ook stoppen (best effort)
+      const prism = spawn(
+        "./node_modules/.bin/prism",
+        ["mock", spec, "-p", prismPort.toString(), "-h", prismHost],
+        {
+          stdio: ["ignore", "ignore", "inherit"],
+        },
+      );
+      prisms.push(prism);
+
+      prism.on("error", (err) => {
+        console.error(`❌ Fout bij starten Prism voor ${spec}:`, err);
+      });
+
+      prism.on("exit", (code, signal) => {
+        ready[index] = false;
+        if (code !== 0 && signal !== "SIGTERM") {
+          console.error(`❌ Prism voor ${spec} gestopt (code=${code}, signal=${signal})`);
+        }
+      });
+
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await waitForPort(prismPort, prismHost, readyTimeoutMs);
+        ready[index] = true;
+        console.log(`✅ Prism voor ${spec} luistert op poort ${prismPort}.`);
+      } catch (err) {
+        console.error(
+          `⚠️  Prism voor ${spec} (poort ${prismPort}) start niet binnen ${readyTimeoutMs}ms — overgeslagen.`,
+          err.message || err,
+        );
+      }
+    }
+
+    const readyCount = ready.filter(Boolean).length;
+    console.log(`✅ ${readyCount}/${specFiles.length} Prism mocks zijn klaar.`);
+  })();
+
   const shutdown = () => {
     prisms.forEach((child) => {
       try {
@@ -201,12 +248,8 @@ async function startMocks() {
     });
     process.exit();
   };
-  process.on("SIGINT", () => {
-    shutdown();
-  });
-  process.on("SIGTERM", () => {
-    shutdown();
-  });
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 startMocks().catch((err) => {
