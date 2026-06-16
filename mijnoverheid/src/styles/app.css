@@ -433,6 +433,15 @@ a.task:hover .task__title {
   width: 22px;
   height: 22px;
 }
+/* Meta-kolom met meerdere items (bijv. datum + status-badge) die rechts uitlijnen,
+   net vóór het pijltje. */
+.task__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  white-space: nowrap;
+}
 
 /* --- Zaak-kaarten ---------------------------------------------------- */
 .cards {
@@ -579,7 +588,7 @@ a.task:hover .task__title {
 }
 
 /* Taken in wit paneel (zelfde stijl als berichten/zaken) */
-.taken-panel .task {
+.panel .task {
   padding: 18px 24px;
 }
 .task__info {
@@ -2461,10 +2470,12 @@ a.table-row:hover .bericht__subject {
     grid-row: 1;
   }
   .task__deadline,
-  .task__info {
+  .task__info,
+  .task__meta {
     grid-column: 1;
     grid-row: 2;
     white-space: normal;
+    justify-content: flex-start;
   }
   .task__arrow {
     grid-column: 2;

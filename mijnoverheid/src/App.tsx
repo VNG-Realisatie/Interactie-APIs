@@ -1012,15 +1012,18 @@ function BerichtenPage({ go, conversations, onRetry }: { go: (p: PageKey) => voi
         <div className="panel berichten">
           {berichten.length ? (
             berichten.map((b) => (
-              <a className="table-row" href="#/brief" key={b.titel} onClick={navLink(go, 'brief')}>
-                <span>
-                  <span className="bericht__org">{b.org}</span>
-                  <span className="bericht__subject">
+              <a className="task" href="#/brief" key={b.titel} onClick={navLink(go, 'brief')}>
+                <span className="task__main">
+                  <span className="task__title">
                     {b.ongelezen && <span className="bericht__dot" aria-label="Ongelezen" />}
                     {b.titel}
                   </span>
+                  <span className="task__org">{b.org}</span>
                 </span>
-                <span className="bericht__date">{b.datum}</span>
+                <span className="task__deadline">{b.datum}</span>
+                <span className="task__arrow">
+                  <Icon id="icon-arrow" />
+                </span>
               </a>
             ))
           ) : (
@@ -1050,7 +1053,7 @@ function ZakenPage({ cases: casesState, onCaseClick, onRetry }: { cases: Loadabl
     const isOpen = z.status?.toLowerCase() === 'open';
     return (
       <a
-        className="table-row zaak-row"
+        className="task"
         href={`#/zaken/${z.uuid}`}
         key={z.uuid || z.naam}
         onClick={(e) => {
@@ -1058,14 +1061,17 @@ function ZakenPage({ cases: casesState, onCaseClick, onRetry }: { cases: Loadabl
           onCaseClick(z.uuid);
         }}
       >
-        <span>
-          <span className="zaak-link">{z.naam}</span>
+        <span className="task__main">
+          <span className="task__title">{z.naam}</span>
         </span>
-        <span>{z.datumAanvraag || z.datum}</span>
-        <span>
+        <span className="task__meta">
+          <span className="task__deadline">{z.datumAanvraag || z.datum}</span>
           <span className={`status-badge ${isOpen ? 'status-badge--open' : 'status-badge--closed'}`}>
             {z.status}
           </span>
+        </span>
+        <span className="task__arrow">
+          <Icon id="icon-arrow" />
         </span>
       </a>
     );
@@ -1485,14 +1491,15 @@ function ProductenPage({ products, onRetry }: { products: Loadable<any[]>; onRet
         <div className="panel berichten">
           {producten.length ? (
             producten.map((p) => (
-              <a className="table-row" href="#" key={p.titel}>
-                <span>
-                  <span className="bericht__subject" style={{ marginTop: 0 }}>
-                    {p.titel}
-                  </span>
-                  <span className="bericht__org">{p.sub}</span>
+              <a className="task" href="#" key={p.titel}>
+                <span className="task__main">
+                  <span className="task__title">{p.titel}</span>
+                  <span className="task__org">{p.sub}</span>
                 </span>
                 <span className="task__deadline">{p.groep}</span>
+                <span className="task__arrow">
+                  <Icon id="icon-arrow" />
+                </span>
               </a>
             ))
           ) : (
