@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Accordion } from '@ark-ui/react/accordion';
 import { Select, createListCollection } from '@ark-ui/react/select';
 import { Tabs } from '@ark-ui/react/tabs';
@@ -412,6 +412,21 @@ function DataBoundary({
     );
   }
   return <>{children}</>;
+}
+
+// Subtiele markering voor pagina's die (nog) niet aan een API hangen: de
+// getoonde gegevens zijn voorbeelddata. Alleen zichtbaar als de API-inspector
+// openstaat — dan is de markering relevant voor wie de koppelingen bekijkt.
+const InspectorOpenContext = createContext(false);
+
+function DemoBadge() {
+  const inspectorOpen = useContext(InspectorOpenContext);
+  if (!inspectorOpen) return null;
+  return (
+    <span className="demo-badge" title="Deze gegevens komen nog niet uit een API — dit is voorbeelddata">
+      <span aria-hidden="true">ⓘ</span> Voorbeelddata
+    </span>
+  );
 }
 
 function HomePage({
@@ -1249,7 +1264,7 @@ function ZaakDetailPage({ selectedCase, go, onRetry }: { selectedCase: Loadable<
 function GegevensPage() {
   return (
     <>
-      <h1>Mijn gegevens</h1>
+      <h1>Mijn gegevens <DemoBadge /></h1>
       <nav className="anchor-nav" aria-label="Onderdelen op deze pagina">
         <a href="#contactgegevens">Contactgegevens</a>
         <a href="#persoonsgegevens">Persoonsgegevens</a>
@@ -1431,7 +1446,7 @@ function ItemsTable({ head, rows }: { head: [string, string, string]; rows: [str
 function ThemePage({ data }: { data: ThemeData }) {
   return (
     <>
-      <h1>{data.title}</h1>
+      <h1>{data.title} <DemoBadge /></h1>
       <section className="section">
         <h2>Wat moet ik regelen</h2>
         {data.tasks.length ? (
@@ -1492,7 +1507,7 @@ function ProductenPage({ products, onRetry }: { products: Loadable<any[]>; onRet
 function BelastingzakenPage() {
   return (
     <>
-      <h1>Belastingzaken</h1>
+      <h1>Belastingzaken <DemoBadge /></h1>
       <section className="section">
         <h2>Mijn taken</h2>
         <div className="panel taken-panel">
@@ -1560,7 +1575,7 @@ function AgendaPage({ appointments, onRetry }: { appointments: Loadable<any[]>; 
 function PlanPage() {
   return (
     <>
-      <h1>Mijn plan</h1>
+      <h1>Mijn plan <DemoBadge /></h1>
       <p className="page-sub">Overzicht van doelen, taken, afspraken en contactpersonen.</p>
       <section className="section" style={{ marginTop: 8 }}>
         <h2>Mijn doelen</h2>
@@ -2153,6 +2168,7 @@ export function App() {
         </aside>
 
         <main className="shell" id="main">
+          <InspectorOpenContext.Provider value={showInspector}>
           {page === 'home' && <HomePage go={go} taken={taken} cases={cases} onTaakClick={handleTaakClick} onRetryTaken={loadTaken} onRetryZaken={loadZaken} />}
           {page === 'dossier' && <DossierPage taken={taken} onTaakClick={handleTaakClick} onRetry={loadTaken} />}
           {page === 'taken' && <TakenPage taken={taken} onTaakClick={handleTaakClick} onRetry={loadTaken} />}
@@ -2167,6 +2183,7 @@ export function App() {
           {page === 'plan' && <PlanPage />}
           {page in themeData && <ThemePage data={themeData[page]} />}
           {!built.includes(page) && <Placeholder title={labels[page]} />}
+          </InspectorOpenContext.Provider>
 
           <Faq />
         </main>

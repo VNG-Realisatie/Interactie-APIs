@@ -2542,3 +2542,24 @@ a.table-row:hover .bericht__subject {
     animation-duration: 2s;
   }
 }
+
+/* Subtiele "voorbeelddata"-pill naast een paginatitel (alleen zichtbaar als de
+   API-inspector openstaat). */
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-surface, #f0f0f0);
+  border: 1px solid var(--color-border, #e0e0e0);
+  color: var(--color-muted, #5b5b5b);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  vertical-align: middle;
+  white-space: nowrap;
+  cursor: help;
+}
