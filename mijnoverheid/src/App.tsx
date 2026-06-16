@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, Fragment, useCallback, useContext, useEffect, useState } from 'react';
 import { Accordion } from '@ark-ui/react/accordion';
 import { Select, createListCollection } from '@ark-ui/react/select';
 import { Tabs } from '@ark-ui/react/tabs';
@@ -129,24 +129,44 @@ type PageKey =
   | 'brief'
   | 'zaak-detail';
 
-type NavItem = { label: string; icon: string; key: PageKey; badge?: number };
+type NavChild = { label: string; key: PageKey };
+type NavItem = {
+  label: string;
+  icon: string;
+  key: PageKey;
+  badge?: number;
+  children?: NavChild[];
+  dividerBefore?: boolean;
+};
 const nav: NavItem[] = [
+  // Persoonlijke / overzicht-items bovenaan.
   { label: 'Home', icon: 'icon-grid', key: 'home' },
   { label: 'Mijn taken', icon: 'icon-checks', key: 'taken' },
   { label: 'Mijn berichten', icon: 'icon-mail', key: 'berichten', badge: 9 },
   { label: 'Mijn zaken', icon: 'icon-folder', key: 'zaken' },
-  { label: 'Mijn producten', icon: 'icon-card', key: 'producten' },
-  { label: 'Belastingzaken', icon: 'icon-euro', key: 'belastingzaken' },
-  { label: 'WOZ', icon: 'icon-home', key: 'woz' },
-  { label: 'Parkeren', icon: 'icon-parking', key: 'parkeren' },
-  { label: 'Erfpacht', icon: 'icon-building', key: 'erfpacht' },
-  { label: 'Vakantieverhuur', icon: 'icon-bed', key: 'vakantieverhuur' },
   { label: 'Mijn agenda', icon: 'icon-calendar', key: 'agenda' },
   { label: 'Mijn plan', icon: 'icon-plan', key: 'plan' },
   { label: 'Mijn gegevens', icon: 'icon-user', key: 'gegevens' },
+  // Producten & diensten onderaan, visueel gescheiden.
+  { label: 'Belastingzaken', icon: 'icon-euro', key: 'belastingzaken', dividerBefore: true },
+  { label: 'WOZ', icon: 'icon-home', key: 'woz' },
+  {
+    label: 'Mijn producten',
+    icon: 'icon-card',
+    key: 'producten',
+    // Parkeren/Erfpacht/Vakantieverhuur zijn specifieke producten (vergunning/
+    // contract/melding) en staan daarom als subitems onder Mijn producten.
+    children: [
+      { label: 'Parkeren', key: 'parkeren' },
+      { label: 'Erfpacht', key: 'erfpacht' },
+      { label: 'Vakantieverhuur', key: 'vakantieverhuur' },
+    ],
+  },
 ];
+// Platte lijst (incl. subitems) voor labels, routes en zoekindex.
+const navFlat: NavChild[] = nav.flatMap((n) => [{ key: n.key, label: n.label }, ...(n.children ?? [])]);
 const labels: Record<string, string> = {
-  ...Object.fromEntries(nav.map((n) => [n.key, n.label])),
+  ...Object.fromEntries(navFlat.map((n) => [n.key, n.label])),
   // Nabestaandendossier staat niet meer in de sidebar, maar de route/breadcrumb
   // moet blijven werken (bereikbaar via Home-CTA en MijnPlan).
   dossier: 'Nabestaandendossier',
@@ -1272,12 +1292,6 @@ function GegevensPage() {
   return (
     <>
       <h1>Mijn gegevens <DemoBadge /></h1>
-      <nav className="anchor-nav" aria-label="Onderdelen op deze pagina">
-        <a href="#contactgegevens">Contactgegevens</a>
-        <a href="#persoonsgegevens">Persoonsgegevens</a>
-        <a href="#adresgegevens">Adresgegevens</a>
-        <a href="#meldingen">Meldingen</a>
-      </nav>
 
       <div className="datasection" id="contactgegevens">
         <div className="datasection__head">
@@ -1686,6 +1700,8 @@ export function App() {
   const [theme, setTheme] = useState('rijk');
   const [page, go] = useHashRoute();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Welke sidebar-groepen (bijv. Producten) zijn handmatig in-/uitgeklapt.
+  const [openNav, setOpenNav] = useState<Record<string, boolean>>({});
 
   // Voorkom scrollen van de achtergrond zolang het fullscreen-menu open is.
   useEffect(() => {
@@ -2003,7 +2019,7 @@ export function App() {
   const searchQ = searchQuery.trim().toLowerCase();
   const searchResults = searchQ
     ? [
-        ...nav.map((n) => ({
+        ...navFlat.map((n) => ({
           group: 'Pagina',
           title: n.label,
           sub: '',
@@ -2144,23 +2160,74 @@ export function App() {
               } else if (n.key === 'agenda') {
                 badgeCount = appointments.data.length;
               }
+              // "Mijn " alleen in de sidebar weglaten (en eerste letter hoofdletteren);
+              // breadcrumb/labels blijven heel.
+              const sidebarLabel = n.label.replace(/^Mijn\s+/, '').replace(/^\w/, (c) => c.toUpperCase());
+              const childKeys = (n.children ?? []).map((c) => c.key);
+              const groupOpen = openNav[n.key] ?? (page === n.key || childKeys.includes(page));
+
+              const itemLink = (
+                <a
+                  href={`#/${n.key}`}
+                  aria-current={page === n.key ? 'page' : undefined}
+                  className={page === n.key ? 'is-current' : ''}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go(n.key);
+                    setMenuOpen(false);
+                    if (n.children) setOpenNav((s) => ({ ...s, [n.key]: true }));
+                  }}
+                >
+                  <Icon id={n.icon} />
+                  <span>{sidebarLabel}</span>
+                  {!!badgeCount && <span className="sidenav__badge">{badgeCount}</span>}
+                </a>
+              );
+
               return (
-                <li key={n.key}>
-                  <a
-                    href={`#/${n.key}`}
-                    aria-current={page === n.key ? 'page' : undefined}
-                    className={page === n.key ? 'is-current' : ''}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      go(n.key);
-                      setMenuOpen(false);
-                    }}
-                  >
-                    <Icon id={n.icon} />
-                    <span>{n.label}</span>
-                    {!!badgeCount && <span className="sidenav__badge">{badgeCount}</span>}
-                  </a>
-                </li>
+                <Fragment key={n.key}>
+                  {n.dividerBefore && <li className="sidenav__divider" aria-hidden="true" />}
+                  <li className={n.children ? 'sidenav__group' : undefined}>
+                    {n.children ? (
+                      <>
+                        <div className="sidenav__group-row">
+                          {itemLink}
+                          <button
+                            type="button"
+                            className={`sidenav__toggle${groupOpen ? ' is-open' : ''}`}
+                            aria-expanded={groupOpen}
+                            aria-label={`${sidebarLabel} ${groupOpen ? 'inklappen' : 'uitklappen'}`}
+                            onClick={() => setOpenNav((s) => ({ ...s, [n.key]: !groupOpen }))}
+                          >
+                            <span aria-hidden="true">›</span>
+                          </button>
+                        </div>
+                        {groupOpen && (
+                          <ul className="sidenav__sublist">
+                            {n.children.map((c) => (
+                              <li key={c.key}>
+                                <a
+                                  href={`#/${c.key}`}
+                                  aria-current={page === c.key ? 'page' : undefined}
+                                  className={page === c.key ? 'is-current' : ''}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    go(c.key);
+                                    setMenuOpen(false);
+                                  }}
+                                >
+                                  <span>{c.label}</span>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    ) : (
+                      itemLink
+                    )}
+                  </li>
+                </Fragment>
               );
             })}
           </ul>
