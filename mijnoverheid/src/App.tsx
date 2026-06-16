@@ -155,57 +155,11 @@ const labels: Record<string, string> = {
 // Volledige takenlijst voor de Mijn taken-pagina, met categorie + status.
 type TaakCat = 'belangrijkste' | 'ingevuld' | 'geenactie';
 type Taak = { titel: string; org: string; deadline?: string; ai?: boolean; terInfo?: boolean; automatisch?: boolean; cat: TaakCat; raw?: any };
-const takenOpenDefault: Taak[] = [
-  { titel: 'Contactpersoon doorgeven aan de Belastingdienst', org: 'Belastingdienst', deadline: 'vóór 2 juli 2026', cat: 'belangrijkste' },
-  { titel: 'Aanslag waterschapsbelasting betalen', org: 'Waterschap', deadline: 'vóór 7 augustus 2026', cat: 'belangrijkste' },
-  { titel: 'Terugvordering zorgtoeslag — betalen of bezwaar', org: 'Dienst Toeslagen', deadline: 'vóór 18 juli 2026', ai: true, cat: 'ingevuld' },
-  { titel: 'Aangifte erfbelasting indienen', org: 'Belastingdienst', deadline: 'vóór 28 april 2027', ai: true, cat: 'ingevuld' },
-  { titel: 'Voertuig op naam van Cees — informatie', org: 'RDW', terInfo: true, cat: 'geenactie' },
-  { titel: 'Overlijdensuitkering AOW', org: 'Sociale Verzekeringsbank', terInfo: true, cat: 'geenactie' },
-  { titel: 'Zorgtoeslag herzien (beschikking)', org: 'Dienst Toeslagen', terInfo: true, automatisch: true, cat: 'geenactie' },
-  { titel: 'Condoleancebericht van het CAK', org: 'CAK', terInfo: true, cat: 'geenactie' },
-  { titel: 'Condoleancebericht van de gemeente', org: 'Gemeente', terInfo: true, cat: 'geenactie' },
-];
-const takenDoneDefault: Taak[] = [
-  { titel: 'WLZ-eigen bijdrage CAK stopgezet', org: 'CAK', terInfo: true, cat: 'geenactie' },
-];
 const takenFilters: { key: 'alle' | TaakCat; label: string }[] = [
   { key: 'alle', label: 'Alle' },
   { key: 'belangrijkste', label: 'Belangrijkste' },
   { key: 'ingevuld', label: 'Ingevuld door AI' },
   { key: 'geenactie', label: 'Geen actie nodig' },
-];
-
-const zaken = [
-  { titel: 'Aanvraag subsidie geluidisolatie', id: 'ZK-29124' },
-  { titel: 'WMO-melding', id: 'ZK-02612' },
-  { titel: 'Aanvraag parkeervergunning', id: 'ZK-02599' },
-];
-
-const berichtenDefault = [
-  { org: 'Belastingdienst', titel: 'Aangifte erfbelasting indienen', datum: '30 augustus 2026', ongelezen: true },
-  { org: 'Waterschap', titel: 'Aanslag waterschapsbelasting betalen', datum: '25 juni 2026', ongelezen: true },
-  { org: 'CAK', titel: 'Eindafrekening eigen bijdrage Wlz betalen', datum: '10 juni 2026' },
-  { org: 'Dienst Toeslagen', titel: 'Terugvordering zorgtoeslag — betalen of bezwaar', datum: '5 juni 2026', ongelezen: true },
-  { org: 'Belastingdienst', titel: 'Contactpersoon doorgeven aan de Belastingdienst', datum: '1 juni 2026', ongelezen: true },
-  { org: 'Dienst Toeslagen', titel: 'Zorgtoeslag herzien (beschikking)', datum: '29 mei 2026' },
-  { org: 'RDW', titel: 'Voertuig op naam van Cees — informatie', datum: '22 mei 2026' },
-  { org: 'Sociale Verzekeringsbank', titel: 'Overlijdensuitkering AOW', datum: '22 mei 2026' },
-  { org: 'CAK', titel: 'Condoleancebericht van het CAK', datum: '20 mei 2026' },
-  { org: 'Gemeente', titel: 'Condoleancebericht van de gemeente', datum: '19 mei 2026' },
-];
-
-const zakenLijst = [
-  { naam: 'Aanvraag subsidie geluidisolatie', datum: '17-10-2024', status: 'Open' },
-  { naam: 'Wmo-melding', datum: '29-9-2024', status: 'Open' },
-  { naam: 'Opzeggen parkeervergunning', datum: '5-12-2023', status: 'Open' },
-  { naam: 'Aanvraag afkoop canon Keukenlaan 133', datum: '5-12-2023', status: 'Open' },
-  { naam: 'Adres onderzoek', datum: '5-12-2023', status: 'Open' },
-  { naam: 'Bezwaar tegen waardering onroerende zaken', datum: '5-12-2023', status: 'Open' },
-  { naam: 'Aanvraag vakantieverhuur Dierenselaan 88', datum: '5-12-2023', status: 'Gesloten' },
-  { naam: 'Aanvraag mantelzorg parkeervergunning', datum: '5-12-2023', status: 'Gesloten' },
-  { naam: 'Aanvraag parkeervergunning', datum: '5-12-2023', status: 'Gesloten' },
-  { naam: 'Verhuizing doorgeven', datum: '3-11-2023', status: 'Gesloten' },
 ];
 
 const documenten = [
@@ -289,13 +243,6 @@ const themeData: Record<string, ThemeData> = {
   },
 };
 
-const productenDefault = [
-  { titel: 'Erfpachtcontract', sub: 'Keukenhoflaan 133', groep: 'Erfpacht' },
-  { titel: 'Verhuurontheffing', sub: 'Dierenselaan 88', groep: 'Vakantieverhuur' },
-  { titel: 'Parkeervergunning bewoners', sub: '34-FJT-23', groep: 'Parkeren' },
-  { titel: 'Parkeerbon', sub: '34-FJT-23', groep: 'Parkeren' },
-];
-
 const taxTasks: [string, string][] = [
   ['Betaal uw gemeentelijke belasting van € 6.982,30', 'vóór 1 maart 2026'],
   ['Betaal uw rioolrecht grootafvoer van € 211,30 (aanslagnummer 2212002751)', 'vóór 1 april 2026'],
@@ -306,11 +253,6 @@ const taxActions = [
   'Meerdere documenten in één keer downloaden',
   'Belasting gespreid betalen met automatische incasso',
   'Betalingsregeling aanvragen',
-];
-
-const afsprakenDefault = [
-  { titel: 'Keukentafelgesprek Wmo-melding', wanneer: 'Maandag 7 oktober 2026, 10.30 uur', actie: 'Wijzigen of annuleren' },
-  { titel: 'Balieafspraak identiteitskaart vernieuwen', wanneer: 'Dinsdag 22 oktober 2026, 14.15 uur', actie: 'Zet in eigen agenda' },
 ];
 
 // Helper functions for mapping mock API data
@@ -430,10 +372,66 @@ function navLink(go: (p: PageKey) => void, p: PageKey) {
   };
 }
 
+// Async-status van data uit een API-call. We tonen bewust géén hardcoded
+// fallback: bij 'loading' een laadindicator, bij 'error' een foutmelding met
+// opnieuw-knop, en alleen bij 'ready' de echte (mogelijk lege) data.
+type Loadable<T> = { status: 'loading' | 'ready' | 'error'; data: T; error?: string };
 
+// Toont laad-/foutstatus en rendert children pas als de data binnen is.
+function DataBoundary({
+  state,
+  naam,
+  onRetry,
+  children,
+}: {
+  state: Loadable<unknown>;
+  naam: string;
+  onRetry: () => void;
+  children: React.ReactNode;
+}) {
+  if (state.status === 'loading') {
+    return (
+      <div className="data-status data-status--loading" role="status" aria-live="polite">
+        <span className="data-spinner" aria-hidden="true" />
+        <span>{naam} worden geladen…</span>
+      </div>
+    );
+  }
+  if (state.status === 'error') {
+    return (
+      <div className="data-status data-status--error" role="alert">
+        <span className="data-status__icon" aria-hidden="true">⚠</span>
+        <div className="data-status__body">
+          <strong>{naam} konden niet worden geladen</strong>
+          {state.error && <span className="data-status__detail">{state.error}</span>}
+        </div>
+        <button type="button" className="button-primary" onClick={onRetry}>
+          Opnieuw proberen
+        </button>
+      </div>
+    );
+  }
+  return <>{children}</>;
+}
 
-function HomePage({ go, takenOpen, onTaakClick }: { go: (p: PageKey) => void; takenOpen: Taak[]; onTaakClick: (t: Taak) => void }) {
+function HomePage({
+  go,
+  taken,
+  cases,
+  onTaakClick,
+  onRetryTaken,
+  onRetryZaken,
+}: {
+  go: (p: PageKey) => void;
+  taken: Loadable<{ open: Taak[]; done: Taak[] }>;
+  cases: Loadable<any[]>;
+  onTaakClick: (t: Taak) => void;
+  onRetryTaken: () => void;
+  onRetryZaken: () => void;
+}) {
+  const takenOpen = taken.data.open;
   const openCount = takenOpen.filter(t => t.cat === 'belangrijkste' || t.cat === 'ingevuld').length;
+  const openZaken = cases.data.filter((z) => z.status === 'Open' || z.status?.toLowerCase() === 'open');
   return (
     <>
       <h1>Hallo Jeroen van Drouwen</h1>
@@ -460,31 +458,47 @@ function HomePage({ go, takenOpen, onTaakClick }: { go: (p: PageKey) => void; ta
 
       <section className="section">
         <h2>Mijn taken</h2>
-        <a className="section__link" href="#/taken" onClick={navLink(go, 'taken')}>
-          Bekijk alle taken ({takenOpen.length}) <Icon id="icon-arrow" />
-        </a>
-        <div className="panel taken-panel">
-          {takenOpen.slice(0, 4).map((t) => (
-            <TaakPanelRow key={t.titel} taak={t} onClick={() => onTaakClick(t)} />
-          ))}
-        </div>
+        {taken.status === 'ready' && (
+          <a className="section__link" href="#/taken" onClick={navLink(go, 'taken')}>
+            Bekijk alle taken ({takenOpen.length}) <Icon id="icon-arrow" />
+          </a>
+        )}
+        <DataBoundary state={taken} naam="Taken" onRetry={onRetryTaken}>
+          <div className="panel taken-panel">
+            {takenOpen.length ? (
+              takenOpen.slice(0, 4).map((t) => (
+                <TaakPanelRow key={t.titel} taak={t} onClick={() => onTaakClick(t)} />
+              ))
+            ) : (
+              <p className="panel-empty">Er zijn geen openstaande taken.</p>
+            )}
+          </div>
+        </DataBoundary>
       </section>
 
       <section className="section">
         <h2>Mijn lopende zaken</h2>
-        <a className="section__link" href="#/zaken" onClick={navLink(go, 'zaken')}>
-          Bekijk alle zaken (10) <Icon id="icon-arrow" />
-        </a>
-        <div className="cards">
-          {zaken.map((z) => (
-            <a className="card" href="#/zaken" key={z.id} onClick={navLink(go, 'zaken')}>
-              <span className="card__title">{z.titel}</span>
-              <span className="card__id">
-                {z.id} <Icon id="icon-arrow" />
-              </span>
-            </a>
-          ))}
-        </div>
+        {cases.status === 'ready' && (
+          <a className="section__link" href="#/zaken" onClick={navLink(go, 'zaken')}>
+            Bekijk alle zaken ({cases.data.length}) <Icon id="icon-arrow" />
+          </a>
+        )}
+        <DataBoundary state={cases} naam="Zaken" onRetry={onRetryZaken}>
+          {openZaken.length ? (
+            <div className="cards">
+              {openZaken.slice(0, 3).map((z) => (
+                <a className="card" href="#/zaken" key={z.uuid || z.naam} onClick={navLink(go, 'zaken')}>
+                  <span className="card__title">{z.naam}</span>
+                  <span className="card__id">
+                    {z.zaaknummer || z.status} <Icon id="icon-arrow" />
+                  </span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="panel-empty">Er zijn geen lopende zaken.</p>
+          )}
+        </DataBoundary>
       </section>
     </>
   );
@@ -522,8 +536,10 @@ function TabCount({ children }: { children: number }) {
   return <span className="tab-count">{children}</span>;
 }
 
-function TakenPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[]; takenDone: Taak[]; onTaakClick: (t: Taak) => void }) {
+function TakenPage({ taken, onTaakClick, onRetry }: { taken: Loadable<{ open: Taak[]; done: Taak[] }>; onTaakClick: (t: Taak) => void; onRetry: () => void }) {
   const [query, setQuery] = useState('');
+  const takenOpen = taken.data.open;
+  const takenDone = taken.data.done;
 
   const matches = (t: Taak) =>
     query.trim() === '' || `${t.titel} ${t.org}`.toLowerCase().includes(query.toLowerCase());
@@ -550,6 +566,7 @@ function TakenPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[]; t
       <h1>Mijn taken</h1>
       <p className="page-sub">Alle taken en brieven uit uw nabestaandendossier.</p>
 
+      <DataBoundary state={taken} naam="Taken" onRetry={onRetry}>
       <Tabs.Root defaultValue="open" className="tabs">
         <Tabs.List className="tabs__list">
           <Tabs.Trigger value="open">
@@ -587,6 +604,7 @@ function TakenPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[]; t
           </div>
         </Tabs.Content>
       </Tabs.Root>
+      </DataBoundary>
     </>
   );
 }
@@ -630,8 +648,22 @@ const getUrgencyLevel = (days: number | null): 'urgent' | 'soon' | 'later' => {
   return 'later';
 };
 
-function DossierPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[]; takenDone: Taak[]; onTaakClick: (t: Taak) => void }) {
+function DossierPage({ taken, onTaakClick, onRetry }: { taken: Loadable<{ open: Taak[]; done: Taak[] }>; onTaakClick: (t: Taak) => void; onRetry: () => void }) {
   const [timelineOpen, setTimelineOpen] = useState(true);
+
+  if (taken.status !== 'ready') {
+    return (
+      <article className="stacked-page plannen-page">
+        <section className="plannen-intro">
+          <h1>Nabestaandendossier</h1>
+        </section>
+        <DataBoundary state={taken} naam="Taken" onRetry={onRetry}>{null}</DataBoundary>
+      </article>
+    );
+  }
+
+  const takenOpen = taken.data.open;
+  const takenDone = taken.data.done;
 
   // 1. Calculate progress metrics
   const actionOpen = takenOpen.filter(t => !t.terInfo && !t.automatisch && t.cat !== 'geenactie');
@@ -953,33 +985,41 @@ function DossierPage({ takenOpen, takenDone, onTaakClick }: { takenOpen: Taak[];
   );
 }
 
-function BerichtenPage({ go, berichten }: { go: (p: PageKey) => void; berichten: any[] }) {
+function BerichtenPage({ go, conversations, onRetry }: { go: (p: PageKey) => void; conversations: Loadable<any[]>; onRetry: () => void }) {
+  const berichten = conversations.data;
   return (
     <>
       <h1>Mijn berichten</h1>
       <p className="page-sub">
         Post van de overheid na het overlijden van uw partner Cees, gebundeld vanuit uw Nabestaandendossier.
       </p>
-      <div className="panel berichten">
-        {berichten.map((b) => (
-          <a className="table-row" href="#/brief" key={b.titel} onClick={navLink(go, 'brief')}>
-            <span>
-              <span className="bericht__org">{b.org}</span>
-              <span className="bericht__subject">
-                {b.ongelezen && <span className="bericht__dot" aria-label="Ongelezen" />}
-                {b.titel}
-              </span>
-            </span>
-            <span className="bericht__date">{b.datum}</span>
-          </a>
-        ))}
-      </div>
+      <DataBoundary state={conversations} naam="Berichten" onRetry={onRetry}>
+        <div className="panel berichten">
+          {berichten.length ? (
+            berichten.map((b) => (
+              <a className="table-row" href="#/brief" key={b.titel} onClick={navLink(go, 'brief')}>
+                <span>
+                  <span className="bericht__org">{b.org}</span>
+                  <span className="bericht__subject">
+                    {b.ongelezen && <span className="bericht__dot" aria-label="Ongelezen" />}
+                    {b.titel}
+                  </span>
+                </span>
+                <span className="bericht__date">{b.datum}</span>
+              </a>
+            ))
+          ) : (
+            <p className="panel-empty">U heeft geen berichten.</p>
+          )}
+        </div>
+      </DataBoundary>
     </>
   );
 }
 
-function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: string) => void }) {
+function ZakenPage({ cases: casesState, onCaseClick, onRetry }: { cases: Loadable<any[]>; onCaseClick: (uuid: string) => void; onRetry: () => void }) {
   const [query, setQuery] = useState('');
+  const cases = casesState.data;
 
   const matches = (z: any) =>
     query.trim() === '' || 
@@ -1021,6 +1061,7 @@ function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: s
       <h1>Mijn zaken</h1>
       <p className="page-sub">Volg de status en geschiedenis van uw lopende en gesloten aanvragen.</p>
 
+      <DataBoundary state={casesState} naam="Zaken" onRetry={onRetry}>
       <Tabs.Root defaultValue="open" className="tabs">
         <Tabs.List className="tabs__list">
           <Tabs.Trigger value="open">
@@ -1078,12 +1119,24 @@ function ZakenPage({ cases, onCaseClick }: { cases: any[]; onCaseClick: (uuid: s
           </div>
         </Tabs.Content>
       </Tabs.Root>
+      </DataBoundary>
     </>
   );
 }
 
-function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageKey) => void }) {
+function ZaakDetailPage({ selectedCase, go, onRetry }: { selectedCase: Loadable<any> | null; go: (p: PageKey) => void; onRetry: () => void }) {
   if (!selectedCase) return <p>Geen zaak geselecteerd.</p>;
+  if (selectedCase.status !== 'ready') {
+    return (
+      <>
+        <a className="back-link" href="#/zaken" onClick={navLink(go, 'zaken')}>
+          <Icon id="icon-arrow" /> Terug naar overzicht
+        </a>
+        <DataBoundary state={selectedCase} naam="Zaak" onRetry={onRetry}>{null}</DataBoundary>
+      </>
+    );
+  }
+  const zaak = selectedCase.data;
 
   return (
     <>
@@ -1091,19 +1144,19 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
         <Icon id="icon-arrow" /> Terug naar overzicht
       </a>
       
-      <h1>{selectedCase.naam}</h1>
+      <h1>{zaak.naam}</h1>
 
-      {selectedCase.openstaandeTaak && (
+      {zaak.openstaandeTaak && (
         <div className="alert--warning zaak-alert" role="note">
           <div>
             <strong className="zaak-alert__title">
-              {selectedCase.openstaandeTaak.titel}
+              {zaak.openstaandeTaak.titel}
             </strong>
             <span className="zaak-alert__deadline">
-              ⚠ {selectedCase.openstaandeTaak.deadlineText}
+              ⚠ {zaak.openstaandeTaak.deadlineText}
             </span>
           </div>
-          <a className="button-primary" href={selectedCase.openstaandeTaak.actieUrl}>
+          <a className="button-primary" href={zaak.openstaandeTaak.actieUrl}>
             Informatie geven
           </a>
         </div>
@@ -1113,7 +1166,7 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
       <section className="section">
         <h2>Statusverloop</h2>
         <ol className="status-timeline">
-          {selectedCase.statushistorie?.map((step: any) => {
+          {zaak.statushistorie?.map((step: any) => {
             const isCompleted = step.status === 'voltooid';
             const isCurrent = step.status === 'lopend';
             const stepClass = isCompleted
@@ -1143,11 +1196,11 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
         <h2>Details</h2>
         <dl className="datalist">
           <dt>Datum aanvraag</dt>
-          <dd>{new Date(selectedCase.datumAanvraag).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
+          <dd>{new Date(zaak.datumAanvraag).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
           <dt>Zaaknummer</dt>
-          <dd className="dd-mono">{selectedCase.zaaknummer}</dd>
+          <dd className="dd-mono">{zaak.zaaknummer}</dd>
           <dt>Status</dt>
-          <dd>{selectedCase.status}</dd>
+          <dd>{zaak.status}</dd>
         </dl>
       </section>
 
@@ -1155,7 +1208,7 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
       <section className="section">
         <h2>Documenten</h2>
         <div className="panel zaak-rows">
-          {selectedCase.documenten?.map((doc: any, idx: number) => (
+          {zaak.documenten?.map((doc: any, idx: number) => (
             <div key={idx} className="zaak-doc">
               <div className="zaak-doc__name">
                 <Icon id="icon-clipboard" />
@@ -1176,7 +1229,7 @@ function ZaakDetailPage({ selectedCase, go }: { selectedCase: any; go: (p: PageK
       <section className="section">
         <h2>Eerdere contactmomenten</h2>
         <div className="panel zaak-rows">
-          {selectedCase.contactmomenten?.map((contact: any, idx: number) => (
+          {zaak.contactmomenten?.map((contact: any, idx: number) => (
             <div key={idx} className="zaak-contact">
               <span className="zaak-contact__date">
                 {new Date(contact.datum).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -1407,24 +1460,31 @@ function ThemePage({ data }: { data: ThemeData }) {
   );
 }
 
-function ProductenPage({ producten }: { producten: any[] }) {
+function ProductenPage({ products, onRetry }: { products: Loadable<any[]>; onRetry: () => void }) {
+  const producten = products.data;
   return (
     <>
       <h1>Mijn producten</h1>
       <p className="page-sub">Producten en vergunningen die u van de overheid heeft gekregen.</p>
-      <div className="panel berichten">
-        {producten.map((p) => (
-          <a className="table-row" href="#" key={p.titel}>
-            <span>
-              <span className="bericht__subject" style={{ marginTop: 0 }}>
-                {p.titel}
-              </span>
-              <span className="bericht__org">{p.sub}</span>
-            </span>
-            <span className="task__deadline">{p.groep}</span>
-          </a>
-        ))}
-      </div>
+      <DataBoundary state={products} naam="Producten" onRetry={onRetry}>
+        <div className="panel berichten">
+          {producten.length ? (
+            producten.map((p) => (
+              <a className="table-row" href="#" key={p.titel}>
+                <span>
+                  <span className="bericht__subject" style={{ marginTop: 0 }}>
+                    {p.titel}
+                  </span>
+                  <span className="bericht__org">{p.sub}</span>
+                </span>
+                <span className="task__deadline">{p.groep}</span>
+              </a>
+            ))
+          ) : (
+            <p className="panel-empty">U heeft geen producten.</p>
+          )}
+        </div>
+      </DataBoundary>
     </>
   );
 }
@@ -1465,26 +1525,33 @@ function BelastingzakenPage() {
   );
 }
 
-function AgendaPage({ afspraken }: { afspraken: any[] }) {
+function AgendaPage({ appointments, onRetry }: { appointments: Loadable<any[]>; onRetry: () => void }) {
+  const afspraken = appointments.data;
   return (
     <>
       <h1>Mijn agenda</h1>
       <p className="page-sub">Afspraken met de gemeente op één plek.</p>
       <section className="section" style={{ marginTop: 8 }}>
         <h2>Afspraken</h2>
-        <div className="panel">
-          {afspraken.map((a) => (
-            <div className="table-row" key={a.titel} style={{ gridTemplateColumns: '1fr auto' }}>
-              <span className="task__main">
-                <span className="task__title" style={{ color: 'var(--color-text)' }}>
-                  {a.titel}
-                </span>
-                <span className="task__org">{a.wanneer}</span>
-              </span>
-              <a href="#">{a.actie} →</a>
-            </div>
-          ))}
-        </div>
+        <DataBoundary state={appointments} naam="Afspraken" onRetry={onRetry}>
+          <div className="panel">
+            {afspraken.length ? (
+              afspraken.map((a) => (
+                <div className="table-row" key={a.titel} style={{ gridTemplateColumns: '1fr auto' }}>
+                  <span className="task__main">
+                    <span className="task__title" style={{ color: 'var(--color-text)' }}>
+                      {a.titel}
+                    </span>
+                    <span className="task__org">{a.wanneer}</span>
+                  </span>
+                  <a href="#">{a.actie} →</a>
+                </div>
+              ))
+            ) : (
+              <p className="panel-empty">U heeft geen afspraken.</p>
+            )}
+          </div>
+        </DataBoundary>
       </section>
     </>
   );
@@ -1604,15 +1671,14 @@ export function App() {
     setMenuOpen(false);
   }, [page]);
 
-  const [tasksOpen, setTasksOpen] = useState<Taak[]>(takenOpenDefault);
-  const [tasksDone, setTasksDone] = useState<Taak[]>(takenDoneDefault);
-  const [products, setProducts] = useState<any[]>(productenDefault);
-  const [appointments, setAppointments] = useState<any[]>(afsprakenDefault);
-  const [conversations, setConversations] = useState<any[]>(berichtenDefault);
+  const [taken, setTaken] = useState<Loadable<{ open: Taak[]; done: Taak[] }>>({ status: 'loading', data: { open: [], done: [] } });
+  const [products, setProducts] = useState<Loadable<any[]>>({ status: 'loading', data: [] });
+  const [appointments, setAppointments] = useState<Loadable<any[]>>({ status: 'loading', data: [] });
+  const [conversations, setConversations] = useState<Loadable<any[]>>({ status: 'loading', data: [] });
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
 
-  const [cases, setCases] = useState<any[]>(zakenLijst);
-  const [selectedCase, setSelectedCase] = useState<any | null>(null);
+  const [cases, setCases] = useState<Loadable<any[]>>({ status: 'loading', data: [] });
+  const [selectedCase, setSelectedCase] = useState<Loadable<any> | null>(null);
 
   const [apiLogs, setApiLogs] = useState<any[]>([]);
   const [showInspector, setShowInspector] = useState(false);
@@ -1722,156 +1788,163 @@ export function App() {
   }
 
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      const headers = { ...defaultMockHeaders };
-      
-      try {
-        // 1. Fetch Taken from taken/next mock
-        const takenRes = await trackedFetch(buildUrl(`/apis/rest/taken/next/context/zoek`), {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            klantId: 'a8f3c1d2-7e44-4b1a-9c0f-123456789abc',
-            include: ['taken']
-          })
-        });
-        
-        if (takenRes.ok) {
-          const data = await takenRes.json();
-          const mappedTaken = (data.taken || []).map((t: any) => {
-            const org = getOrgName(t);
-            const formattedDate = formatDeadline(t.deadline);
-            const isActionable = t.actieNodig !== false && t.status !== 'ter-info';
-            const isAi = t.uitvoering?.type === 'formulier' || (t.labels && t.labels.includes('ingevuld'));
-            return {
-              titel: t.titel?.nl || t.titel?.en || 'Taak',
-              org,
-              deadline: formattedDate,
-              ai: isAi,
-              terInfo: !isActionable,
-              automatisch: t.automatisch || false,
-              cat: isActionable
-                ? (isAi ? 'ingevuld' : 'belangrijkste')
-                : 'geenactie',
-              raw: t,
-            };
-          });
-          setTasksOpen(mappedTaken.filter((t: Taak) => t.cat !== 'geenactie'));
-          setTasksDone(mappedTaken.filter((t: Taak) => t.cat === 'geenactie'));
-        }
-        
-        // 2. Fetch Producten from producten/next mock
-        const prodRes = await trackedFetch(buildUrl(`/apis/rest/producten/next/producten/zoek`), {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            klantId: 'a8f3c1d2-7e44-4b1a-9c0f-123456789abc'
-          })
-        });
-        
-        if (prodRes.ok) {
-          const data = await prodRes.json();
-          const mappedProds = (data || []).map((p: any) => ({
-            titel: p.naam,
-            sub: p.producttype?.naam || p.producttype?.code || 'Product',
-            groep: p.status || 'actief',
-            raw: p
-          }));
-          if (mappedProds.length > 0) {
-            setProducts(mappedProds);
-          }
-        }
-        
-        // 3. Fetch Agenda from agenda/next mock
-        const agendaRes = await trackedFetch(buildUrl(`/apis/rest/agenda/next/afspraken/opvragen`), {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            identificaties: [
-              {
-                type: 'email',
-                waarde: 'jeroen@example.test'
-              }
-            ]
-          })
-        });
-        
-        if (agendaRes.ok) {
-          const data = await agendaRes.json();
-          const mappedAgenda = (data.afspraken || []).map((a: any) => ({
-            titel: a.onderwerp,
-            wanneer: formatAfspraakWhen(a.geplandAanvangsmoment, a.geplandEindmoment),
-            actie: 'Zet in eigen agenda',
-            raw: a
-          }));
-          if (mappedAgenda.length > 0) {
-            setAppointments(mappedAgenda);
-          }
-        }
-        
-        // 4. Fetch Gesprekken from gesprekken/next mock
-        const gespRes = await trackedFetch(buildUrl(`/apis/rest/gesprekken/next/gesprekken`), {
-          method: 'GET',
-          headers
-        });
-        
-        if (gespRes.ok) {
-          const data = await gespRes.json();
-          const mappedGesp = (data.results || []).map((g: any, idx: number) => ({
-            org: 'Gemeente',
-            titel: g.gespreksonderwerp,
-            datum: formatConversationDate(g.aanvangsmomentGesprek),
-            ongelezen: idx === 0,
-            raw: g
-          }));
-          if (mappedGesp.length > 0) {
-            setConversations(mappedGesp);
-          }
-        }
+  // Per-API loaders. Elk laadt onafhankelijk en zet zijn eigen status zodat één
+  // falende API de rest niet blokkeert en de fout zichtbaar wordt in de UI.
+  // Een !ok-response of netwerkfout leidt tot status 'error' — géén fallback
+  // naar verzonnen data.
+  const jsonOrThrow = async (res: Response) => {
+    if (!res.ok) throw new Error(`Verzoek mislukte (HTTP ${res.status} ${res.statusText || ''})`.trim());
+    return res.json();
+  };
+  const errText = (err: any) =>
+    err?.message ? String(err.message) : 'Onbekende fout bij het ophalen van gegevens.';
 
-        // 5. Fetch Zaken from zaken/next mock
-        const zakenRes = await trackedFetch(buildUrl(`/apis/rest/zaken/next/zaken/zoek`), {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            klantId: 'a8f3c1d2-7e44-4b1a-9c0f-123456789abc'
-          })
-        });
-        
-        if (zakenRes.ok) {
-          const data = await zakenRes.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setCases(data);
-          }
-        }
-        
-      } catch (err) {
-        console.error('Fout bij het laden van mock data:', err);
-      }
-    };
-    
-    fetchAllData();
+  const loadTaken = useCallback(async () => {
+    setTaken((s) => ({ ...s, status: 'loading', error: undefined }));
+    try {
+      const res = await trackedFetch(buildUrl(`/apis/rest/taken/next/context/zoek`), {
+        method: 'POST',
+        headers: { ...defaultMockHeaders },
+        body: JSON.stringify({ klantId: 'a8f3c1d2-7e44-4b1a-9c0f-123456789abc', include: ['taken'] }),
+      });
+      const data = await jsonOrThrow(res);
+      const mapped: Taak[] = (data.taken || []).map((t: any) => {
+        const isActionable = t.actieNodig !== false && t.status !== 'ter-info';
+        const isAi = t.uitvoering?.type === 'formulier' || (t.labels && t.labels.includes('ingevuld'));
+        return {
+          titel: t.titel?.nl || t.titel?.en || 'Taak',
+          org: getOrgName(t),
+          deadline: formatDeadline(t.deadline),
+          ai: isAi,
+          terInfo: !isActionable,
+          automatisch: t.automatisch || false,
+          cat: isActionable ? (isAi ? 'ingevuld' : 'belangrijkste') : 'geenactie',
+          raw: t,
+        };
+      });
+      setTaken({
+        status: 'ready',
+        data: {
+          open: mapped.filter((t) => t.cat !== 'geenactie'),
+          done: mapped.filter((t) => t.cat === 'geenactie'),
+        },
+      });
+    } catch (err) {
+      setTaken({ status: 'error', data: { open: [], done: [] }, error: errText(err) });
+    }
   }, [buildUrl, trackedFetch]);
+
+  const loadProducten = useCallback(async () => {
+    setProducts((s) => ({ ...s, status: 'loading', error: undefined }));
+    try {
+      const res = await trackedFetch(buildUrl(`/apis/rest/producten/next/producten/zoek`), {
+        method: 'POST',
+        headers: { ...defaultMockHeaders },
+        body: JSON.stringify({ klantId: 'a8f3c1d2-7e44-4b1a-9c0f-123456789abc' }),
+      });
+      const data = await jsonOrThrow(res);
+      const mapped = (data || []).map((p: any) => ({
+        titel: p.naam,
+        sub: p.producttype?.naam || p.producttype?.code || 'Product',
+        groep: p.status || 'actief',
+        raw: p,
+      }));
+      setProducts({ status: 'ready', data: mapped });
+    } catch (err) {
+      setProducts({ status: 'error', data: [], error: errText(err) });
+    }
+  }, [buildUrl, trackedFetch]);
+
+  const loadAgenda = useCallback(async () => {
+    setAppointments((s) => ({ ...s, status: 'loading', error: undefined }));
+    try {
+      const res = await trackedFetch(buildUrl(`/apis/rest/agenda/next/afspraken/opvragen`), {
+        method: 'POST',
+        headers: { ...defaultMockHeaders },
+        body: JSON.stringify({ identificaties: [{ type: 'email', waarde: 'jeroen@example.test' }] }),
+      });
+      const data = await jsonOrThrow(res);
+      const mapped = (data.afspraken || []).map((a: any) => ({
+        titel: a.onderwerp,
+        wanneer: formatAfspraakWhen(a.geplandAanvangsmoment, a.geplandEindmoment),
+        actie: 'Zet in eigen agenda',
+        raw: a,
+      }));
+      setAppointments({ status: 'ready', data: mapped });
+    } catch (err) {
+      setAppointments({ status: 'error', data: [], error: errText(err) });
+    }
+  }, [buildUrl, trackedFetch]);
+
+  const loadGesprekken = useCallback(async () => {
+    setConversations((s) => ({ ...s, status: 'loading', error: undefined }));
+    try {
+      const res = await trackedFetch(buildUrl(`/apis/rest/gesprekken/next/gesprekken`), {
+        method: 'GET',
+        headers: { ...defaultMockHeaders },
+      });
+      const data = await jsonOrThrow(res);
+      const mapped = (data.results || []).map((g: any, idx: number) => ({
+        org: 'Gemeente',
+        titel: g.gespreksonderwerp,
+        datum: formatConversationDate(g.aanvangsmomentGesprek),
+        ongelezen: idx === 0,
+        raw: g,
+      }));
+      setConversations({ status: 'ready', data: mapped });
+    } catch (err) {
+      setConversations({ status: 'error', data: [], error: errText(err) });
+    }
+  }, [buildUrl, trackedFetch]);
+
+  const loadZaken = useCallback(async () => {
+    setCases((s) => ({ ...s, status: 'loading', error: undefined }));
+    try {
+      const res = await trackedFetch(buildUrl(`/apis/rest/zaken/next/zaken/zoek`), {
+        method: 'POST',
+        headers: { ...defaultMockHeaders },
+        body: JSON.stringify({ klantId: 'a8f3c1d2-7e44-4b1a-9c0f-123456789abc' }),
+      });
+      const data = await jsonOrThrow(res);
+      setCases({ status: 'ready', data: Array.isArray(data) ? data : [] });
+    } catch (err) {
+      setCases({ status: 'error', data: [], error: errText(err) });
+    }
+  }, [buildUrl, trackedFetch]);
+
+  useEffect(() => {
+    loadTaken();
+    loadProducten();
+    loadAgenda();
+    loadGesprekken();
+    loadZaken();
+  }, [loadTaken, loadProducten, loadAgenda, loadGesprekken, loadZaken]);
 
   const handleTaakClick = (t: Taak) => {
     setSelectedTask(t);
     go('brief');
   };
 
-  const handleCaseClick = async (uuid: string) => {
+  const [lastCaseUuid, setLastCaseUuid] = useState<string | null>(null);
+
+  const loadCaseDetail = useCallback(async (uuid: string) => {
+    setLastCaseUuid(uuid);
+    setSelectedCase({ status: 'loading', data: null });
     try {
       const res = await trackedFetch(buildUrl(`/apis/rest/zaken/next/zaken/${uuid}`), {
-        headers: defaultMockHeaders,
+        headers: { ...defaultMockHeaders },
       });
-      if (res.ok) {
-        const data = await res.json();
-        setSelectedCase(data);
-        go('zaak-detail');
-      }
-    } catch (err) {
-      console.error('Fout bij ophalen zaak detail:', err);
+      if (!res.ok) throw new Error(`Verzoek mislukte (HTTP ${res.status} ${res.statusText || ''})`.trim());
+      const data = await res.json();
+      setSelectedCase({ status: 'ready', data });
+    } catch (err: any) {
+      setSelectedCase({ status: 'error', data: null, error: err?.message || 'Onbekende fout.' });
     }
+  }, [buildUrl, trackedFetch]);
+
+  const handleCaseClick = (uuid: string) => {
+    loadCaseDetail(uuid);
+    go('zaak-detail');
   };
 
   // Esc sluit de zoek-overlay.
@@ -1907,31 +1980,31 @@ export function App() {
           sub: '',
           run: () => go(n.key),
         })),
-        ...[...tasksOpen, ...tasksDone].map((t) => ({
+        ...[...taken.data.open, ...taken.data.done].map((t) => ({
           group: 'Taken',
           title: t.titel,
           sub: t.org,
           run: () => handleTaakClick(t),
         })),
-        ...cases.map((z) => ({
+        ...cases.data.map((z) => ({
           group: 'Zaken',
           title: z.naam,
           sub: z.zaaknummer || z.status || '',
           run: () => (z.uuid ? handleCaseClick(z.uuid) : go('zaken')),
         })),
-        ...conversations.map((c) => ({
+        ...conversations.data.map((c) => ({
           group: 'Berichten',
           title: c.titel,
           sub: c.org,
           run: () => go('berichten'),
         })),
-        ...products.map((p) => ({
+        ...products.data.map((p) => ({
           group: 'Producten',
           title: p.titel,
           sub: p.sub,
           run: () => go('producten'),
         })),
-        ...appointments.map((a) => ({
+        ...appointments.data.map((a) => ({
           group: 'Afspraken',
           title: a.titel,
           sub: a.wanneer,
@@ -2034,13 +2107,13 @@ export function App() {
             {nav.map((n) => {
               let badgeCount = n.badge;
               if (n.key === 'taken') {
-                badgeCount = tasksOpen.filter(t => t.cat === 'belangrijkste' || t.cat === 'ingevuld').length;
+                badgeCount = taken.data.open.filter(t => t.cat === 'belangrijkste' || t.cat === 'ingevuld').length;
               } else if (n.key === 'berichten') {
-                badgeCount = conversations.filter(c => c.ongelezen).length;
+                badgeCount = conversations.data.filter(c => c.ongelezen).length;
               } else if (n.key === 'zaken') {
-                badgeCount = cases.filter(c => c.status === 'Open' || c.status?.toLowerCase() === 'open').length;
+                badgeCount = cases.data.filter(c => c.status === 'Open' || c.status?.toLowerCase() === 'open').length;
               } else if (n.key === 'agenda') {
-                badgeCount = appointments.length;
+                badgeCount = appointments.data.length;
               }
               return (
                 <li key={n.key}>
@@ -2080,17 +2153,17 @@ export function App() {
         </aside>
 
         <main className="shell" id="main">
-          {page === 'home' && <HomePage go={go} takenOpen={tasksOpen} onTaakClick={handleTaakClick} />}
-          {page === 'dossier' && <DossierPage takenOpen={tasksOpen} takenDone={tasksDone} onTaakClick={handleTaakClick} />}
-          {page === 'taken' && <TakenPage takenOpen={tasksOpen} takenDone={tasksDone} onTaakClick={handleTaakClick} />}
-          {page === 'berichten' && <BerichtenPage go={go} berichten={conversations} />}
-          {page === 'zaken' && <ZakenPage cases={cases} onCaseClick={handleCaseClick} />}
-          {page === 'zaak-detail' && <ZaakDetailPage selectedCase={selectedCase} go={go} />}
+          {page === 'home' && <HomePage go={go} taken={taken} cases={cases} onTaakClick={handleTaakClick} onRetryTaken={loadTaken} onRetryZaken={loadZaken} />}
+          {page === 'dossier' && <DossierPage taken={taken} onTaakClick={handleTaakClick} onRetry={loadTaken} />}
+          {page === 'taken' && <TakenPage taken={taken} onTaakClick={handleTaakClick} onRetry={loadTaken} />}
+          {page === 'berichten' && <BerichtenPage go={go} conversations={conversations} onRetry={loadGesprekken} />}
+          {page === 'zaken' && <ZakenPage cases={cases} onCaseClick={handleCaseClick} onRetry={loadZaken} />}
+          {page === 'zaak-detail' && <ZaakDetailPage selectedCase={selectedCase} go={go} onRetry={() => lastCaseUuid && loadCaseDetail(lastCaseUuid)} />}
           {page === 'gegevens' && <GegevensPage />}
           {page === 'brief' && <BriefPage go={go} selectedTask={selectedTask} />}
-          {page === 'producten' && <ProductenPage producten={products} />}
+          {page === 'producten' && <ProductenPage products={products} onRetry={loadProducten} />}
           {page === 'belastingzaken' && <BelastingzakenPage />}
-          {page === 'agenda' && <AgendaPage afspraken={appointments} />}
+          {page === 'agenda' && <AgendaPage appointments={appointments} onRetry={loadAgenda} />}
           {page === 'plan' && <PlanPage />}
           {page in themeData && <ThemePage data={themeData[page]} />}
           {!built.includes(page) && <Placeholder title={labels[page]} />}

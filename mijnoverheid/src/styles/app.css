@@ -2485,3 +2485,60 @@ a.table-row:hover .bericht__subject {
     justify-self: start;
   }
 }
+
+/* Laad- en foutstatus voor data uit de API's. */
+.data-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border, #e0e0e0);
+}
+.data-status--loading {
+  color: var(--color-muted, #5b5b5b);
+  background: var(--color-surface, #f5f5f5);
+}
+.data-status--error {
+  background: var(--flag-bg, #fdf1e7);
+  border-color: var(--flag-border, #d98a3d);
+  align-items: flex-start;
+}
+.data-status__icon {
+  color: #b5641b;
+  font-size: 18px;
+  line-height: 1.4;
+}
+.data-status__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.data-status__detail {
+  color: var(--color-muted, #5b5b5b);
+  font-size: 14px;
+}
+.data-status--error .button-primary {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+.data-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: data-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes data-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .data-spinner {
+    animation-duration: 2s;
+  }
+}
