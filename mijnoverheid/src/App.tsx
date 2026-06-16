@@ -132,7 +132,6 @@ type PageKey =
 type NavItem = { label: string; icon: string; key: PageKey; badge?: number };
 const nav: NavItem[] = [
   { label: 'Home', icon: 'icon-grid', key: 'home' },
-  { label: 'Nabestaandendossier', icon: 'icon-clipboard', key: 'dossier' },
   { label: 'Mijn taken', icon: 'icon-checks', key: 'taken' },
   { label: 'Mijn berichten', icon: 'icon-mail', key: 'berichten', badge: 9 },
   { label: 'Mijn zaken', icon: 'icon-folder', key: 'zaken' },
@@ -148,6 +147,9 @@ const nav: NavItem[] = [
 ];
 const labels: Record<string, string> = {
   ...Object.fromEntries(nav.map((n) => [n.key, n.label])),
+  // Nabestaandendossier staat niet meer in de sidebar, maar de route/breadcrumb
+  // moet blijven werken (bereikbaar via Home-CTA en MijnPlan).
+  dossier: 'Nabestaandendossier',
   brief: 'Contactpersoon doorgeven aan de Belastingdienst',
   'zaak-detail': 'Zaak detail',
 };
@@ -311,7 +313,6 @@ const formatConversationDate = (isoString?: string) => {
   }
 };
 const planDoelen = [
-  { titel: 'Rust in administratie', meta: '2 open taken' },
   { titel: 'Passende ondersteuning thuis', meta: '1 afspraak gepland' },
 ];
 
@@ -1579,7 +1580,7 @@ function AgendaPage({ appointments, onRetry }: { appointments: Loadable<any[]>; 
   );
 }
 
-function PlanPage() {
+function PlanPage({ go }: { go: (p: PageKey) => void }) {
   return (
     <>
       <h1>Mijn plan <DemoBadge /></h1>
@@ -1587,6 +1588,12 @@ function PlanPage() {
       <section className="section" style={{ marginTop: 8 }}>
         <h2>Mijn doelen</h2>
         <div className="cards">
+          <a className="card" href="#/dossier" onClick={navLink(go, 'dossier')}>
+            <span className="card__title">Nabestaandendossier</span>
+            <span className="card__id">
+              Bekijk dossier <Icon id="icon-arrow" />
+            </span>
+          </a>
           {planDoelen.map((d) => (
             <div className="card" key={d.titel} style={{ cursor: 'default' }}>
               <span className="card__title">{d.titel}</span>
@@ -2187,7 +2194,7 @@ export function App() {
           {page === 'producten' && <ProductenPage products={products} onRetry={loadProducten} />}
           {page === 'belastingzaken' && <BelastingzakenPage />}
           {page === 'agenda' && <AgendaPage appointments={appointments} onRetry={loadAgenda} />}
-          {page === 'plan' && <PlanPage />}
+          {page === 'plan' && <PlanPage go={go} />}
           {page in themeData && <ThemePage data={themeData[page]} />}
           {!built.includes(page) && <Placeholder title={labels[page]} />}
           </InspectorOpenContext.Provider>

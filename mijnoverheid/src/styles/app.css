@@ -129,8 +129,10 @@ a.table-row:active,
 [data-theme='denhaag'] .masthead__mark {
   height: 76px;
 }
-.site-footer__mark {
-  height: 48px;
+/* Specifieker dan `.site-footer__brand img` (dat is voor het smalle Rijkslint),
+   anders wordt het gemeentewapen tot 34×68 vervormd en te klein. */
+.site-footer__brand .site-footer__mark {
+  height: 64px;
   width: auto;
 }
 .masthead__lint {
