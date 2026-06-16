@@ -982,6 +982,23 @@ a.table-row:hover .bericht__subject {
   color: #ffffff;
   display: block;
   margin-bottom: 12px;
+  text-decoration: none;
+}
+.site-footer a:not(.site-footer__brand):hover {
+  text-decoration: underline;
+}
+/* Demo-melding boven de footer-kolommen. */
+.site-footer__notice {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 18px 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.site-footer__notice a {
+  display: inline;
+  margin: 0;
 }
 .site-footer__brand {
   display: flex;
