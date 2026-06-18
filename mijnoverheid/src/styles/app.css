@@ -2470,6 +2470,11 @@ a.table-row:hover .bericht__subject {
 @media (max-width: 820px) {
   .layout {
     grid-template-columns: 1fr;
+    padding: 24px 24px 56px;
+    gap: 28px;
+  }
+  .breadcrumb {
+    padding: 20px 24px 0;
   }
   /* Compacte topbar: merk/logo links, hamburger rechtsboven. */
   .masthead__inner {
@@ -2571,6 +2576,16 @@ a.table-row:hover .bericht__subject {
 }
 
 @media (max-width: 560px) {
+  /* Compactere marges op telefoon zodat de content meer breedte krijgt. */
+  .layout {
+    padding: 16px 14px 48px;
+  }
+  .breadcrumb {
+    padding: 14px 14px 0;
+  }
+  .demo-banner {
+    padding: 9px 12px;
+  }
   .task {
     grid-template-columns: 1fr auto;
     gap: 4px 16px;

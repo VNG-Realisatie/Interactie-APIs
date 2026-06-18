@@ -8,7 +8,8 @@ import {
   stripMarkdown,
 } from "./voice";
 
-const SPEAK_KEY = "mijnoverheid-voice-speak";
+// v2: nieuwe sleutel zodat gesproken antwoorden voor iedereen op UIT resetten.
+const SPEAK_KEY = "mijnoverheid-voice-speak-v2";
 
 export interface VoiceApi {
   supported: boolean; // spraakherkenning (mic)

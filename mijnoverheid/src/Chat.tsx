@@ -325,17 +325,24 @@ export function ChatComposer({
         submit(chat.input);
       }}
     >
-      {voice?.supported && (
+      {voice && (
         <button
           type="button"
           className={`chat-mic${voice.recording ? " is-recording" : ""}`}
+          disabled={!voice.supported || chat.busy}
           onClick={() => {
-            if (chat.busy) return;
+            if (!voice.supported || chat.busy) return;
             if (voice.recording) voice.stopRecording(submit);
             else voice.startRecording(onInterim);
           }}
           aria-label={voice.recording ? "Opname stoppen en versturen" : "Inspreken"}
-          title={enableSpacePtt ? "Inspreken (of spatie ingedrukt houden)" : "Inspreken"}
+          title={
+            !voice.supported
+              ? "Spraakherkenning wordt niet ondersteund in deze browser (gebruik Chrome, Edge of Safari)"
+              : enableSpacePtt
+                ? "Inspreken (of spatie ingedrukt houden)"
+                : "Inspreken"
+          }
         >
           <MicIcon />
         </button>
