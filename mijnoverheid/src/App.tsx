@@ -1,9 +1,11 @@
-import { createContext, Fragment, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Accordion } from "@ark-ui/react/accordion";
 import { Select, createListCollection } from "@ark-ui/react/select";
 import { Tabs } from "@ark-ui/react/tabs";
-import { Chat, ChatThread, ChatComposer, ChatSuggestions, UnavailableNote } from "./Chat";
-import { useChat, type ChatApi } from "./chat/useChat";
+import { Chat, ChatThread, ChatComposer, SpeakerToggle, UnavailableNote } from "./Chat";
+import { useChat, SUGGESTIONS, type ChatApi } from "./chat/useChat";
+import { useStickToBottom } from "./chat/useStickToBottom";
+import { useVoice, type VoiceApi } from "./chat/useVoice";
 
 const themes = createListCollection({
   items: [
@@ -747,6 +749,7 @@ function HomePage({
   onRetryTaken,
   onRetryZaken,
   chat,
+  voice,
 }: {
   go: (p: PageKey) => void;
   taken: Loadable<{ open: Taak[]; done: Taak[] }>;
@@ -755,6 +758,7 @@ function HomePage({
   onRetryTaken: () => void;
   onRetryZaken: () => void;
   chat: ChatApi;
+  voice: VoiceApi;
 }) {
   const takenOpen = taken.data.open;
   const openZaken = cases.data.filter(
@@ -790,10 +794,11 @@ function HomePage({
           chat={chat}
           variant="hero"
           placeholder="Waarmee kan ik u helpen?"
+          rotatingPlaceholders={SUGGESTIONS}
           afterSend={startChat}
           forceNew
+          voice={voice}
         />
-        <ChatSuggestions chat={chat} afterSend={startChat} forceNew />
       </section>
 
       <section className="section">
@@ -2224,12 +2229,27 @@ function Footer({ brand }: { brand: Brand }) {
 // Gerichte chat-weergave op de /chat-route. Alleen de chat; de navigatie blijft
 // in de shell. Bereikbaar door een gesprek te starten vanaf Home (echte
 // navigatie, dus de back-knop gaat terug naar het overzicht).
-function ChatPage({ chat, go }: { chat: ChatApi; go: (p: PageKey) => void }) {
+function ChatPage({
+  chat,
+  voice,
+  go,
+}: {
+  chat: ChatApi;
+  voice: VoiceApi;
+  go: (p: PageKey) => void;
+}) {
+  const userCount = chat.convo.reduce((n, m) => (m.role === "user" ? n + 1 : n), 0);
+  useStickToBottom({
+    windowScroll: true,
+    active: true,
+    signal: `${chat.activeId ?? "new"}:${userCount}`,
+  });
   return (
     <div className="home-chat home-chat--active">
       <div className="home-chat__head">
         <h1>Assistent</h1>
         <div className="home-chat__head-actions">
+          <SpeakerToggle voice={voice} className="home-chat__icon-btn" />
           <a
             className="home-chat__new"
             href="#/assistent"
@@ -2247,7 +2267,14 @@ function ChatPage({ chat, go }: { chat: ChatApi; go: (p: PageKey) => void }) {
       </div>
       {chat.unavailable ? <UnavailableNote /> : <ChatThread chat={chat} />}
       <div className="home-chat__composer">
-        <ChatComposer chat={chat} variant="hero" placeholder="Stel een vervolgvraag…" autoFocus />
+        <ChatComposer
+          chat={chat}
+          variant="hero"
+          placeholder="Stel een vervolgvraag…"
+          autoFocus
+          voice={voice}
+          enableSpacePtt
+        />
       </div>
     </div>
   );
@@ -2487,6 +2514,28 @@ export function App() {
 
   // Eén gedeelde chat-instantie voor zowel de homepagina als het zwevende widget.
   const chat = useChat(chatApiCall);
+  // Spraak: mic-invoer (ASR) + gesproken antwoorden (TTS) via MiMo.
+  const voice = useVoice();
+
+  // Spreek een antwoord uit zodra het af is (busy: true→false) als de gebruiker
+  // gesproken antwoorden heeft aangezet.
+  const prevBusy = useRef(false);
+  const convoRef = useRef(chat.convo);
+  convoRef.current = chat.convo;
+  const speakRef = useRef(voice.speakReplies);
+  speakRef.current = voice.speakReplies;
+  const speakTextRef = useRef(voice.speakText);
+  speakTextRef.current = voice.speakText;
+  useEffect(() => {
+    const was = prevBusy.current;
+    prevBusy.current = chat.busy;
+    if (was && !chat.busy && speakRef.current) {
+      const last = [...convoRef.current]
+        .reverse()
+        .find((m) => m.role === "assistant" && m.content.trim());
+      if (last) speakTextRef.current(last.content);
+    }
+  }, [chat.busy]);
 
   function applyApiBases() {
     const next: Record<string, string> = {};
@@ -2996,9 +3045,10 @@ export function App() {
                 onRetryTaken={loadTaken}
                 onRetryZaken={loadZaken}
                 chat={chat}
+                voice={voice}
               />
             )}
-            {page === "chat" && <ChatPage chat={chat} go={go} />}
+            {page === "chat" && <ChatPage chat={chat} voice={voice} go={go} />}
             {page === "assistent" && <AssistentPage chat={chat} go={go} />}
             {page === "dossier" && (
               <DossierPage taken={taken} onTaakClick={handleTaakClick} onRetry={loadTaken} />
@@ -3035,7 +3085,7 @@ export function App() {
 
       {!homeChatActive && <Footer brand={brand} />}
 
-      <Chat chat={chat} hideLauncher={page === "home" || page === "chat"} />
+      <Chat chat={chat} voice={voice} hideLauncher={page === "home" || page === "chat"} />
 
       {searchOpen && (
         <div className="search-overlay" onClick={closeSearch}>

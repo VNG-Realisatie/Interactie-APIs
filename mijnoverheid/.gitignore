@@ -7,3 +7,6 @@ dist
 # TheSans (Den Haag, trial) voeg je zelf toe. Zie FONTS.md.
 public/fonts/
 .netlify
+.env.local
+.env
+.env.development.local

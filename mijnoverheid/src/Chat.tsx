@@ -1,14 +1,38 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChatMessage } from "./chat/llm";
 import { SUGGESTIONS, type ChatApi } from "./chat/useChat";
+import type { VoiceApi } from "./chat/useVoice";
 import { toolLabels } from "./chat/tools";
 import { renderMarkdown } from "./chat/markdown";
+import { useStickToBottom } from "./chat/useStickToBottom";
+
+// Signaal dat verandert bij een nieuw bericht of een gespreksswitch, zodat de
+// auto-scroll dan weer onderaan plakt.
+function scrollSignal(chat: ChatApi): string {
+  const userCount = chat.convo.reduce((n, m) => (m.role === "user" ? n + 1 : n), 0);
+  return `${chat.activeId ?? "new"}:${userCount}`;
+}
 
 /* ─────────────────────────────  Zwevend widget  ───────────────────────────── */
 
-export function Chat({ chat, hideLauncher }: { chat: ChatApi; hideLauncher?: boolean }) {
+export function Chat({
+  chat,
+  voice,
+  hideLauncher,
+}: {
+  chat: ChatApi;
+  voice: VoiceApi;
+  hideLauncher?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+
+  useStickToBottom({
+    ref: bodyRef,
+    active: open && chat.hasConversation,
+    signal: scrollSignal(chat),
+  });
 
   // Esc verlaat de full-screen weergave (terug naar gedockt).
   useEffect(() => {
@@ -50,6 +74,7 @@ export function Chat({ chat, hideLauncher }: { chat: ChatApi; hideLauncher?: boo
                 {chat.unavailable ? "Niet beschikbaar" : "Beantwoordt vragen over uw zaken"}
               </small>
             </span>
+            <SpeakerToggle voice={voice} className="chat-header__btn" />
             {chat.hasConversation && (
               <button
                 type="button"
@@ -81,7 +106,7 @@ export function Chat({ chat, hideLauncher }: { chat: ChatApi; hideLauncher?: boo
             </button>
           </header>
 
-          <div className="chat-body">
+          <div className="chat-body" ref={bodyRef}>
             {chat.unavailable ? (
               <UnavailableNote />
             ) : !chat.hasConversation ? (
@@ -100,7 +125,9 @@ export function Chat({ chat, hideLauncher }: { chat: ChatApi; hideLauncher?: boo
             )}
           </div>
 
-          {!chat.unavailable && <ChatComposer chat={chat} autoFocus />}
+          {!chat.unavailable && (
+            <ChatComposer chat={chat} autoFocus voice={voice} enableSpacePtt />
+          )}
         </div>
       )}
     </>
@@ -112,12 +139,7 @@ export function Chat({ chat, hideLauncher }: { chat: ChatApi; hideLauncher?: boo
 // De berichtenstroom: gebruikersvragen, assistent-antwoorden (markdown),
 // tool-chips, live-streaming en de typ-indicator.
 export function ChatThread({ chat }: { chat: ChatApi }) {
-  const bottomRef = useRef<HTMLDivElement | null>(null);
   const bubbles = useMemo(() => renderBubbles(chat.convo), [chat.convo]);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [chat.convo, chat.liveText, chat.activeTool]);
 
   return (
     <div className="chat-thread">
@@ -170,9 +192,49 @@ export function ChatThread({ chat }: { chat: ChatApi }) {
       )}
 
       {chat.error && <div className="chat-error">{chat.error}</div>}
-      <div ref={bottomRef} />
     </div>
   );
+}
+
+// Typt voorbeeldvragen één voor één in en weer uit (geanimeerde placeholder).
+function useTypewriter(phrases: string[] | undefined, active: boolean): string {
+  const [text, setText] = useState("");
+  useEffect(() => {
+    if (!active || !phrases || phrases.length === 0) {
+      setText("");
+      return undefined;
+    }
+    let phrase = 0;
+    let char = 0;
+    let deleting = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      const full = phrases[phrase];
+      if (!deleting) {
+        char++;
+        setText(full.slice(0, char));
+        if (char >= full.length) {
+          deleting = true;
+          timer = setTimeout(tick, 1900);
+          return;
+        }
+        timer = setTimeout(tick, 45);
+      } else {
+        char--;
+        setText(full.slice(0, Math.max(0, char)));
+        if (char <= 0) {
+          deleting = false;
+          phrase = (phrase + 1) % phrases.length;
+          timer = setTimeout(tick, 350);
+          return;
+        }
+        timer = setTimeout(tick, 22);
+      }
+    };
+    timer = setTimeout(tick, 500);
+    return () => clearTimeout(timer);
+  }, [active, phrases]);
+  return text;
 }
 
 // Het invoerveld. variant "hero" maakt 'm groot en prominent (homepagina).
@@ -180,18 +242,27 @@ export function ChatComposer({
   chat,
   variant = "docked",
   placeholder = "Stel een vraag…",
+  rotatingPlaceholders,
   autoFocus = false,
   afterSend,
   forceNew = false,
+  voice,
+  enableSpacePtt = false,
 }: {
   chat: ChatApi;
   variant?: "docked" | "hero";
   placeholder?: string;
+  // Voorbeeldvragen die geanimeerd in/uit de placeholder typen (zolang leeg).
+  rotatingPlaceholders?: string[];
   autoFocus?: boolean;
   // Aangeroepen ná een geslaagde verzending (bijv. om naar /chat te navigeren).
   afterSend?: () => void;
   // Start altijd een nieuw gesprek (homepagina).
   forceNew?: boolean;
+  // Spraakbediening (optioneel).
+  voice?: VoiceApi;
+  // Spatie ingedrukt houden = praten (alleen op de actieve chat-oppervlakken).
+  enableSpacePtt?: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement | null>(null);
   useEffect(() => {
@@ -206,6 +277,46 @@ export function ChatComposer({
     afterSend?.();
   };
 
+  const onInterim = (t: string) => chat.setInput(t);
+
+  // Push-to-talk met de spatiebalk: ingedrukt houden om te praten, loslaten om
+  // te versturen. Alleen als er geen tekstveld focus heeft (anders typt spatie).
+  const submitRef = useRef(submit);
+  submitRef.current = submit;
+  useEffect(() => {
+    if (!enableSpacePtt || !voice?.supported) return undefined;
+    const editable = (el: Element | null) =>
+      !!el &&
+      (el.tagName === "TEXTAREA" ||
+        el.tagName === "INPUT" ||
+        (el as HTMLElement).isContentEditable);
+    const onDown = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || e.repeat || editable(document.activeElement)) return;
+      if (voice.recording || chat.busy) return;
+      e.preventDefault();
+      voice.startRecording(onInterim);
+    };
+    const onUp = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || !voice.recording) return;
+      e.preventDefault();
+      voice.stopRecording((t) => submitRef.current(t));
+    };
+    window.addEventListener("keydown", onDown);
+    window.addEventListener("keyup", onUp);
+    return () => {
+      window.removeEventListener("keydown", onDown);
+      window.removeEventListener("keyup", onUp);
+    };
+  }, [enableSpacePtt, voice, chat.busy]);
+
+  const rotating = !!rotatingPlaceholders && !chat.input && !voice?.recording;
+  const typed = useTypewriter(rotatingPlaceholders, rotating);
+  const effectivePlaceholder = voice?.recording
+    ? "Aan het luisteren…"
+    : rotating
+      ? `${typed}▏`
+      : placeholder;
+
   return (
     <form
       className={`chat-composer${variant === "hero" ? " chat-composer--hero" : ""}`}
@@ -214,10 +325,25 @@ export function ChatComposer({
         submit(chat.input);
       }}
     >
+      {voice?.supported && (
+        <button
+          type="button"
+          className={`chat-mic${voice.recording ? " is-recording" : ""}`}
+          onClick={() => {
+            if (chat.busy) return;
+            if (voice.recording) voice.stopRecording(submit);
+            else voice.startRecording(onInterim);
+          }}
+          aria-label={voice.recording ? "Opname stoppen en versturen" : "Inspreken"}
+          title={enableSpacePtt ? "Inspreken (of spatie ingedrukt houden)" : "Inspreken"}
+        >
+          <MicIcon />
+        </button>
+      )}
       <textarea
         ref={ref}
         className="chat-composer__input"
-        placeholder={placeholder}
+        placeholder={effectivePlaceholder}
         value={chat.input}
         rows={1}
         disabled={chat.busy}
@@ -283,6 +409,23 @@ export function ChatSuggestions({
         </button>
       ))}
     </div>
+  );
+}
+
+// Knop om gesproken antwoorden aan/uit te zetten (luidspreker).
+export function SpeakerToggle({ voice, className }: { voice: VoiceApi; className?: string }) {
+  if (!voice.canSpeak) return null;
+  return (
+    <button
+      type="button"
+      className={`chat-speaker${voice.speakReplies ? " is-on" : ""}${className ? ` ${className}` : ""}`}
+      onClick={voice.toggleSpeakReplies}
+      aria-pressed={voice.speakReplies}
+      aria-label={voice.speakReplies ? "Gesproken antwoorden uitzetten" : "Gesproken antwoorden aanzetten"}
+      title={voice.speakReplies ? "Gesproken antwoorden: aan" : "Gesproken antwoorden: uit"}
+    >
+      {voice.speakReplies ? <SpeakerOnIcon /> : <SpeakerOffIcon />}
+    </button>
   );
 }
 
@@ -405,6 +548,51 @@ function CheckIcon() {
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function MicIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" />
+      <path
+        d="M6 11a6 6 0 0 0 12 0M12 17v4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function SpeakerOnIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path fill="currentColor" d="M4 9v6h3l5 4V5L7 9H4Z" />
+      <path
+        d="M16 8.5a4 4 0 0 1 0 7M18.5 6a7 7 0 0 1 0 12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function SpeakerOffIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path fill="currentColor" d="M4 9v6h3l5 4V5L7 9H4Z" />
+      <path
+        d="M16 9l5 6M21 9l-5 6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
       />
     </svg>
   );

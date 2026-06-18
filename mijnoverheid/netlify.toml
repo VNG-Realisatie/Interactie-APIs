@@ -10,6 +10,10 @@
 [functions]
   node_bundler = "esbuild"
 
+# Lokale `netlify dev` op een eigen poort (8888 is bezet door een ander project).
+[dev]
+  port = 8899
+
 # De app gebruikt hash-routing (#/...), dus geen SPA-rewrite nodig. Wel een
 # nette korte alias naar de chat-proxy-function.
 [[redirects]]
