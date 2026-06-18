@@ -8,13 +8,18 @@ met een werkende **huisstijl-switcher**.
 > een dunne NLDS-conforme theming-laag = je eigen, gecontroleerde NLDS-implementatie
 > die in het ecosysteem past, maar zonder de 6-vendor-federatie en versie-churn.
 
-## AI-assistent (lokale LLM via Ollama)
+## AI-assistent (OpenRouter)
 
 De assistent is hét aanspreekpunt voor de hele overheid (gemeente én Rijk) en
 beantwoordt vragen over de eigen gegevens ("wat moet ik nog betalen?", "status
-van mijn zaken?"). Hij praat met een **lokale [Ollama](https://ollama.com)-instance**
-en heeft via **function-calling tools** echte toegang tot dezelfde mock-API's als
-de pagina's — de tool-calls verschijnen dan ook in de API-inspector.
+van mijn zaken?"). Hij praat met een LLM via **[OpenRouter](https://openrouter.ai)**
+(default model `deepseek/deepseek-chat`) en heeft via **function-calling tools**
+echte toegang tot dezelfde mock-API's als de pagina's — de tool-calls verschijnen
+dan ook in de API-inspector.
+
+De API-key blijft geheim via een **Netlify-function** (`netlify/functions/chat.ts`)
+die als proxy naar OpenRouter staat; de browser ziet de key nooit. De agent-loop
+(de tools die de mock-API's bevragen) draait wél in de browser.
 
 Er zijn twee ingangen, die één gedeelde conversatie voeden:
 
@@ -28,8 +33,9 @@ Gesprekken worden bewaard (localStorage). Via **Assistent** in de zijbalk opent
 het **gespreksoverzicht** (`#/assistent`): alle gesprekken met titel, laatste
 antwoord en datum — klik er een aan om verder te praten, of verwijder 'm.
 
-- **Code:** `src/Chat.tsx` (UI) + `src/chat/` (`ollama.ts` agent-loop met
-  streaming, `tools.ts` de API-tools, `markdown.ts` mini-renderer).
+- **Code:** `src/Chat.tsx` (UI) + `src/chat/` (`llm.ts` OpenRouter-client met
+  streaming-agent-loop, `tools.ts` de API-tools, `markdown.ts` mini-renderer) +
+  `netlify/functions/chat.ts` (key-proxy).
 - **Werkwijze:** het model krijgt tools als `get_taken`, `get_zaken`,
   `get_zaak_details`, `get_producten`, `get_afspraken`, `get_berichten`. De
   browser voert ze uit tegen de API's en geeft de uitkomst terug; het model vat
@@ -37,17 +43,29 @@ antwoord en datum — klik er een aan om verder te praten, of verwijder 'm.
 - **Thema's mee:** de widget gebruikt dezelfde `--color-*`-tokens, dus hij
   kleurt mee met de huisstijl-switcher.
 
-### Draaien
+### Lokaal draaien
+
+Zet je eigen OpenRouter-key in `mijnoverheid/.env.local` — dan praat de browser
+in dev rechtstreeks met OpenRouter (geen Netlify-function nodig):
 
 ```sh
-ollama pull qwen3.6        # of een ander model dat tools ondersteunt
-ollama serve               # standaard op http://localhost:11434
+# mijnoverheid/.env.local  (niet committen)
+VITE_OPENROUTER_API_KEY=sk-or-...
+VITE_OPENROUTER_MODEL=deepseek/deepseek-chat   # optioneel
 ```
 
-Het model wordt automatisch gedetecteerd (eerste qwen, anders het eerste model).
-Blokkeert de browser het verzoek (CORS), start Ollama dan met
-`OLLAMA_ORIGINS=* ollama serve`. Een andere host/poort stel je in via
-`VITE_OLLAMA_URL` (bijv. in `.env.local`).
+### Deploy (mijnoverheid.chat, via Netlify)
+
+De app draait als losse Netlify-site. Zet in de site-instellingen de **base
+directory** op `mijnoverheid` en de env vars:
+
+```sh
+netlify env:set OPENROUTER_API_KEY sk-or-...
+netlify env:set OPENROUTER_MODEL deepseek/deepseek-chat   # optioneel
+```
+
+`netlify.toml` regelt build (`pnpm build`), publish (`dist`) en de function.
+De mock-API's komen van `vng-interactie-mocks.fly.dev` (CORS staat dat toe).
 
 ## Wat dit bewijst
 

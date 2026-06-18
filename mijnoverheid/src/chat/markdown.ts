@@ -54,6 +54,35 @@ export function renderMarkdown(input: string): string {
       continue;
     }
 
+    // Tabel (GFM): een |-rij gevolgd door een scheidingsrij |---|---|.
+    if (
+      /^\s*\|.*\|\s*$/.test(line) &&
+      i + 1 < lines.length &&
+      /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i + 1]) &&
+      lines[i + 1].includes("-")
+    ) {
+      closeList();
+      const splitRow = (row: string) =>
+        row
+          .trim()
+          .replace(/^\||\|$/g, "")
+          .split("|")
+          .map((c) => c.trim());
+      const headers = splitRow(line);
+      i += 2; // kop- en scheidingsrij overslaan
+      const rows: string[][] = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        rows.push(splitRow(lines[i]));
+        i++;
+      }
+      const head = `<thead><tr>${headers.map((h) => `<th>${inline(h)}</th>`).join("")}</tr></thead>`;
+      const bodyRows = rows
+        .map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`)
+        .join("");
+      out.push(`<table>${head}<tbody>${bodyRows}</tbody></table>`);
+      continue;
+    }
+
     // Koppen (#, ##, ###)
     const heading = line.match(/^(#{1,3})\s+(.*)$/);
     if (heading) {

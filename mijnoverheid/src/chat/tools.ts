@@ -10,7 +10,7 @@ export type ApiCall = (path: string, init?: RequestInit) => Promise<Response>;
 // Dezelfde demo-klant als de pagina's gebruiken.
 const KLANT_ID = "a8f3c1d2-7e44-4b1a-9c0f-123456789abc";
 
-export interface OllamaTool {
+export interface Tool {
   type: "function";
   function: {
     name: string;
@@ -25,7 +25,7 @@ export interface OllamaTool {
 
 // De tool-definities die we aan het model meegeven. Beschrijvingen in het
 // Nederlands zodat het model goed snapt wanneer het wat moet ophalen.
-export function buildTools(): OllamaTool[] {
+export function buildTools(): Tool[] {
   const noArgs = {
     type: "object" as const,
     properties: {},

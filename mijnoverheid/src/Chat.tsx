@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ChatMessage } from "./chat/ollama";
+import type { ChatMessage } from "./chat/llm";
 import { SUGGESTIONS, type ChatApi } from "./chat/useChat";
 import { toolLabels } from "./chat/tools";
 import { renderMarkdown } from "./chat/markdown";
@@ -221,7 +221,6 @@ export function ChatComposer({
         value={chat.input}
         rows={1}
         disabled={chat.busy}
-        onFocus={() => chat.ensureModel()}
         onChange={(e) => {
           chat.setInput(e.target.value);
           e.target.style.height = "auto";
@@ -290,19 +289,11 @@ export function ChatSuggestions({
 export function UnavailableNote() {
   return (
     <div className="chat-intro">
-      <p className="chat-intro__greet">
-        De assistent kan geen verbinding maken met de lokale Ollama-instance.
+      <p className="chat-intro__greet">De assistent is op dit moment niet beschikbaar.</p>
+      <p className="chat-help-list">
+        De AI-dienst is nog niet geconfigureerd. Stel de OpenRouter-API-key in
+        (<code>OPENROUTER_API_KEY</code>) en probeer het opnieuw.
       </p>
-      <ul className="chat-help-list">
-        <li>
-          Start Ollama en zorg dat er een model is, bijvoorbeeld:&nbsp;
-          <code>ollama run qwen3.6</code>
-        </li>
-        <li>
-          Sta verzoeken vanuit de browser toe:&nbsp;
-          <code>OLLAMA_ORIGINS=* ollama serve</code>
-        </li>
-      </ul>
     </div>
   );
 }

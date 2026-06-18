@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { listModels, pickModel, runConversation, type ChatMessage } from "./ollama";
+import { NotConfiguredError, runConversation, type ChatMessage } from "./llm";
 import type { ApiCall } from "./tools";
 
 // De systeemprompt bepaalt de persona en stuurt het model naar de tools voor
@@ -53,7 +53,6 @@ export interface ChatApi {
   reset: () => void;
   openThread: (id: string) => void;
   deleteThread: (id: string) => void;
-  ensureModel: () => Promise<string | null>;
 }
 
 function loadThreads(): Conversation[] {
@@ -84,12 +83,10 @@ export function useChat(apiCall: ApiCall): ChatApi {
   const [busy, setBusy] = useState(false);
   const [liveText, setLiveText] = useState("");
   const [activeTool, setActiveTool] = useState<string | null>(null);
-  const [model, setModel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unavailable, setUnavailable] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
-  const detectingRef = useRef<Promise<string | null> | null>(null);
 
   // Bewaar gesprekken zodat ze een herlaad overleven (zoals moderne chatbots).
   useEffect(() => {
@@ -119,43 +116,13 @@ export function useChat(apiCall: ApiCall): ChatApi {
     });
   }, []);
 
-  // Detecteert Ollama + kiest een model. Lui en idempotent.
-  const ensureModel = useCallback(async (): Promise<string | null> => {
-    if (model) return model;
-    if (detectingRef.current) return detectingRef.current;
-    const p = (async () => {
-      try {
-        const chosen = pickModel(await listModels());
-        if (chosen) {
-          setModel(chosen);
-          setUnavailable(false);
-          return chosen;
-        }
-        setUnavailable(true);
-        return null;
-      } catch {
-        setUnavailable(true);
-        return null;
-      } finally {
-        detectingRef.current = null;
-      }
-    })();
-    detectingRef.current = p;
-    return p;
-  }, [model]);
-
   const send = useCallback(
     async (text: string, forceNew = false) => {
       const trimmed = text.trim();
       if (!trimmed || busy) return;
 
-      const activeModel = model ?? (await ensureModel());
-      if (!activeModel) {
-        setUnavailable(true);
-        return;
-      }
-
       setError(null);
+      setUnavailable(false);
       setInput("");
 
       // Bepaal of we in een bestaand gesprek typen of een nieuw gesprek starten.
@@ -181,7 +148,6 @@ export function useChat(apiCall: ApiCall): ChatApi {
       abortRef.current = controller;
       try {
         const appended = await runConversation({
-          model: activeModel,
           messages: convoNow,
           apiCall,
           signal: controller.signal,
@@ -195,7 +161,9 @@ export function useChat(apiCall: ApiCall): ChatApi {
         });
         upsert(id!, [...convoNow, ...appended], title);
       } catch (err: any) {
-        if (err?.name !== "AbortError") {
+        if (err instanceof NotConfiguredError) {
+          setUnavailable(true);
+        } else if (err?.name !== "AbortError") {
           setError(err?.message || "Er ging iets mis bij het ophalen van een antwoord.");
         }
       } finally {
@@ -205,7 +173,7 @@ export function useChat(apiCall: ApiCall): ChatApi {
         abortRef.current = null;
       }
     },
-    [busy, model, activeId, threads, apiCall, ensureModel, upsert],
+    [busy, activeId, threads, apiCall, upsert],
   );
 
   const stop = useCallback(() => abortRef.current?.abort(), []);
@@ -259,6 +227,5 @@ export function useChat(apiCall: ApiCall): ChatApi {
     reset,
     openThread,
     deleteThread,
-    ensureModel,
   };
 }
