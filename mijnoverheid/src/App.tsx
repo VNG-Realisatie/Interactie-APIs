@@ -2,6 +2,8 @@ import { createContext, Fragment, useCallback, useContext, useEffect, useState }
 import { Accordion } from "@ark-ui/react/accordion";
 import { Select, createListCollection } from "@ark-ui/react/select";
 import { Tabs } from "@ark-ui/react/tabs";
+import { Chat, ChatThread, ChatComposer, ChatSuggestions, UnavailableNote } from "./Chat";
+import { useChat, type ChatApi } from "./chat/useChat";
 
 const themes = createListCollection({
   items: [
@@ -113,6 +115,8 @@ const customRequestDefaults = {
 
 type PageKey =
   | "home"
+  | "chat"
+  | "assistent"
   | "dossier"
   | "taken"
   | "berichten"
@@ -141,6 +145,7 @@ type NavItem = {
 const nav: NavItem[] = [
   // Persoonlijke / overzicht-items bovenaan.
   { label: "Home", icon: "icon-grid", key: "home" },
+  { label: "Assistent", icon: "icon-chat", key: "assistent" },
   { label: "Mijn taken", icon: "icon-checks", key: "taken" },
   { label: "Mijn berichten", icon: "icon-mail", key: "berichten", badge: 9 },
   { label: "Mijn zaken", icon: "icon-folder", key: "zaken" },
@@ -175,6 +180,8 @@ const labels: Record<string, string> = {
   dossier: "Nabestaandendossier",
   brief: "Contactpersoon doorgeven aan de Belastingdienst",
   "zaak-detail": "Zaak detail",
+  assistent: "Assistent",
+  chat: "Gesprek",
 };
 
 // Volledige takenlijst voor de Mijn taken-pagina, met categorie + status.
@@ -739,6 +746,7 @@ function HomePage({
   onTaakClick,
   onRetryTaken,
   onRetryZaken,
+  chat,
 }: {
   go: (p: PageKey) => void;
   taken: Loadable<{ open: Taak[]; done: Taak[] }>;
@@ -746,37 +754,47 @@ function HomePage({
   onTaakClick: (t: Taak) => void;
   onRetryTaken: () => void;
   onRetryZaken: () => void;
+  chat: ChatApi;
 }) {
   const takenOpen = taken.data.open;
-  const openCount = takenOpen.filter(
-    (t) => t.cat === "belangrijkste" || t.cat === "ingevuld",
-  ).length;
   const openZaken = cases.data.filter(
     (z) => z.status === "Open" || z.status?.toLowerCase() === "open",
   );
+
+  // Een gesprek starten vanaf Home is een echte navigatie naar /chat, zodat de
+  // back-knop terugkeert naar deze overzichtspagina.
+  const startChat = () => go("chat");
+
   return (
     <>
       <h1>Hallo Jeroen van Drouwen</h1>
       <p className="intro">
-        In ‘Mijn omgeving’ kunt u zelf uw persoonlijke zaken regelen wanneer het u uitkomt. U kunt
-        bijvoorbeeld uw rekeningen betalen en zien wanneer uw aanvraag klaar is.
+        In ‘Mijn omgeving’ kunt u zelf uw persoonlijke zaken regelen wanneer het u uitkomt. Stel
+        hieronder uw vraag, of bekijk uw taken en zaken.
       </p>
 
-      <a className="dossier" href="#/dossier" onClick={navLink(go, "dossier")}>
-        <span className="dossier__icon">
-          <Icon id="icon-clipboard" />
-        </span>
-        <span>
-          <span className="dossier__title">Nabestaandendossier</span>
-          <span className="dossier__text">
-            Na het overlijden van uw partner Cees moet er veel geregeld worden. Bekijk gebundeld wat
-            er al automatisch is geregeld en wat nog uw aandacht vraagt.
+      <section className="home-hero" aria-label="Vraag de assistent">
+        <div className="home-hero__head">
+          <span className="home-hero__icon" aria-hidden="true">
+            <Icon id="icon-chat" />
           </span>
-        </span>
-        <span className="dossier__cta">
-          {openCount} taken openstaand <Icon id="icon-arrow" />
-        </span>
-      </a>
+          <div>
+            <h2 className="home-hero__title">Vraag de AI-assistent</h2>
+            <p className="home-hero__sub">
+              Eén aanspreekpunt voor uw gemeente en het Rijk — over uw taken, zaken, berichten en
+              afspraken.
+            </p>
+          </div>
+        </div>
+        <ChatComposer
+          chat={chat}
+          variant="hero"
+          placeholder="Waarmee kan ik u helpen?"
+          afterSend={startChat}
+          forceNew
+        />
+        <ChatSuggestions chat={chat} afterSend={startChat} forceNew />
+      </section>
 
       <section className="section">
         <h2>Mijn taken</h2>
@@ -2203,6 +2221,138 @@ function Footer({ brand }: { brand: Brand }) {
   );
 }
 
+// Gerichte chat-weergave op de /chat-route. Alleen de chat; de navigatie blijft
+// in de shell. Bereikbaar door een gesprek te starten vanaf Home (echte
+// navigatie, dus de back-knop gaat terug naar het overzicht).
+function ChatPage({ chat, go }: { chat: ChatApi; go: (p: PageKey) => void }) {
+  return (
+    <div className="home-chat home-chat--active">
+      <div className="home-chat__head">
+        <h1>Assistent</h1>
+        <div className="home-chat__head-actions">
+          <a
+            className="home-chat__new"
+            href="#/assistent"
+            onClick={(e) => {
+              e.preventDefault();
+              go("assistent");
+            }}
+          >
+            Alle gesprekken
+          </a>
+          <button type="button" className="home-chat__new" onClick={chat.reset}>
+            Nieuw gesprek
+          </button>
+        </div>
+      </div>
+      {chat.unavailable ? <UnavailableNote /> : <ChatThread chat={chat} />}
+      <div className="home-chat__composer">
+        <ChatComposer chat={chat} variant="hero" placeholder="Stel een vervolgvraag…" autoFocus />
+      </div>
+    </div>
+  );
+}
+
+// Overzicht van alle bewaarde gesprekken met de assistent. Bereikbaar vanuit de
+// zijbalk ("Assistent"). Een gesprek openen zet het actief en gaat naar /chat.
+function AssistentPage({ chat, go }: { chat: ChatApi; go: (p: PageKey) => void }) {
+  const threads = [...chat.threads].sort((a, b) => b.updatedAt - a.updatedAt);
+
+  const lastText = (msgs: { role: string; content: string }[]) => {
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      const m = msgs[i];
+      if ((m.role === "assistant" || m.role === "user") && m.content.trim()) return m.content.trim();
+    }
+    return "";
+  };
+  const fmtDate = (ms: number) => {
+    try {
+      return new Date(ms).toLocaleDateString("nl-NL", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } catch {
+      return "";
+    }
+  };
+
+  const startNew = () => {
+    chat.reset();
+    go("chat");
+  };
+
+  return (
+    <>
+      <div className="assistent-head">
+        <div>
+          <h1>Assistent</h1>
+          <p className="page-sub">
+            Uw gesprekken met de assistent over uw zaken bij de gemeente en het Rijk.
+          </p>
+        </div>
+        <button type="button" className="button-primary assistent-new" onClick={startNew}>
+          <Icon id="icon-chat" /> Nieuw gesprek
+        </button>
+      </div>
+
+      {threads.length ? (
+        <div className="panel gesprek-lijst">
+          {threads.map((t) => {
+            const vragen = t.messages.filter((m) => m.role === "user").length;
+            return (
+              <div key={t.id} className="gesprek-rij">
+                <a
+                  className="gesprek-rij__main"
+                  href="#/chat"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    chat.openThread(t.id);
+                    go("chat");
+                  }}
+                >
+                  <span className="gesprek-rij__icon">
+                    <Icon id="icon-chat" />
+                  </span>
+                  <span className="gesprek-rij__body">
+                    <span className="gesprek-rij__title">{t.title}</span>
+                    <span className="gesprek-rij__snippet">{lastText(t.messages)}</span>
+                    <span className="gesprek-rij__meta">
+                      {fmtDate(t.updatedAt)} · {vragen} {vragen === 1 ? "vraag" : "vragen"}
+                    </span>
+                  </span>
+                  <span className="task__arrow">
+                    <Icon id="icon-arrow" />
+                  </span>
+                </a>
+                <button
+                  type="button"
+                  className="gesprek-rij__del"
+                  aria-label={`Verwijder gesprek: ${t.title}`}
+                  title="Verwijderen"
+                  onClick={() => chat.deleteThread(t.id)}
+                >
+                  &times;
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="panel gesprek-leeg">
+          <span className="gesprek-leeg__icon" aria-hidden="true">
+            <Icon id="icon-chat" />
+          </span>
+          <p>U heeft nog geen gesprekken. Stel uw eerste vraag aan de assistent.</p>
+          <button type="button" className="button-primary" onClick={startNew}>
+            Nieuw gesprek starten
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
 export function App() {
   const [theme, setTheme] = useState("rijk");
   const [page, go] = useHashRoute();
@@ -2314,6 +2464,17 @@ export function App() {
     },
     [apiBases],
   );
+
+  // Eén helper voor de chat-assistent: bouwt de URL (incl. endpoint-overrides)
+  // en logt de call in de API-inspector, net als de pagina's zelf. Zo bevraagt
+  // de AI exact dezelfde lokale API's.
+  const chatApiCall = useCallback(
+    (path: string, init?: RequestInit) => trackedFetch(buildUrl(path), init),
+    [buildUrl, trackedFetch],
+  );
+
+  // Eén gedeelde chat-instantie voor zowel de homepagina als het zwevende widget.
+  const chat = useChat(chatApiCall);
 
   function applyApiBases() {
     const next: Record<string, string> = {};
@@ -2596,6 +2757,8 @@ export function App() {
 
   const built = [
     "home",
+    "chat",
+    "assistent",
     "dossier",
     "taken",
     "berichten",
@@ -2611,6 +2774,10 @@ export function App() {
   ];
 
   const brand = brands[theme] ?? brands.rijk;
+
+  // Op de /chat-route staat de chat centraal: FAQ en footer verbergen we, de
+  // navigatie (masthead, breadcrumb, sidebar) blijft altijd staan.
+  const homeChatActive = page === "chat";
 
   return (
     <>
@@ -2800,8 +2967,11 @@ export function App() {
                 onTaakClick={handleTaakClick}
                 onRetryTaken={loadTaken}
                 onRetryZaken={loadZaken}
+                chat={chat}
               />
             )}
+            {page === "chat" && <ChatPage chat={chat} go={go} />}
+            {page === "assistent" && <AssistentPage chat={chat} go={go} />}
             {page === "dossier" && (
               <DossierPage taken={taken} onTaakClick={handleTaakClick} onRetry={loadTaken} />
             )}
@@ -2831,11 +3001,13 @@ export function App() {
             {!built.includes(page) && <Placeholder title={labels[page]} />}
           </InspectorOpenContext.Provider>
 
-          <Faq page={page} />
+          {!homeChatActive && <Faq page={page} />}
         </main>
       </div>
 
-      <Footer brand={brand} />
+      {!homeChatActive && <Footer brand={brand} />}
+
+      <Chat chat={chat} hideLauncher={page === "home" || page === "chat"} />
 
       {searchOpen && (
         <div className="search-overlay" onClick={closeSearch}>

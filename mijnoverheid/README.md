@@ -8,6 +8,47 @@ met een werkende **huisstijl-switcher**.
 > een dunne NLDS-conforme theming-laag = je eigen, gecontroleerde NLDS-implementatie
 > die in het ecosysteem past, maar zonder de 6-vendor-federatie en versie-churn.
 
+## AI-assistent (lokale LLM via Ollama)
+
+De assistent is hét aanspreekpunt voor de hele overheid (gemeente én Rijk) en
+beantwoordt vragen over de eigen gegevens ("wat moet ik nog betalen?", "status
+van mijn zaken?"). Hij praat met een **lokale [Ollama](https://ollama.com)-instance**
+en heeft via **function-calling tools** echte toegang tot dezelfde mock-API's als
+de pagina's — de tool-calls verschijnen dan ook in de API-inspector.
+
+Er zijn twee ingangen, die één gedeelde conversatie voeden:
+
+- **Grote invoer op de homepagina.** Een gesprek starten navigeert naar de
+  `#/chat`-route (de back-knop gaat dus terug naar het overzicht); daar staat de
+  chat centraal terwijl de navigatie blijft.
+- **Zwevend widget** rechtsonder op de overige pagina's, met een
+  full-screen-knop.
+
+Gesprekken worden bewaard (localStorage). Via **Assistent** in de zijbalk opent
+het **gespreksoverzicht** (`#/assistent`): alle gesprekken met titel, laatste
+antwoord en datum — klik er een aan om verder te praten, of verwijder 'm.
+
+- **Code:** `src/Chat.tsx` (UI) + `src/chat/` (`ollama.ts` agent-loop met
+  streaming, `tools.ts` de API-tools, `markdown.ts` mini-renderer).
+- **Werkwijze:** het model krijgt tools als `get_taken`, `get_zaken`,
+  `get_zaak_details`, `get_producten`, `get_afspraken`, `get_berichten`. De
+  browser voert ze uit tegen de API's en geeft de uitkomst terug; het model vat
+  samen in het Nederlands. Streaming + tool-rondes in één beurt.
+- **Thema's mee:** de widget gebruikt dezelfde `--color-*`-tokens, dus hij
+  kleurt mee met de huisstijl-switcher.
+
+### Draaien
+
+```sh
+ollama pull qwen3.6        # of een ander model dat tools ondersteunt
+ollama serve               # standaard op http://localhost:11434
+```
+
+Het model wordt automatisch gedetecteerd (eerste qwen, anders het eerste model).
+Blokkeert de browser het verzoek (CORS), start Ollama dan met
+`OLLAMA_ORIGINS=* ollama serve`. Een andere host/poort stel je in via
+`VITE_OLLAMA_URL` (bijv. in `.env.local`).
+
 ## Wat dit bewijst
 
 - **Eén app, elke huisstijl.** De switcher (zelf een Ark UI `Select`) wisselt
