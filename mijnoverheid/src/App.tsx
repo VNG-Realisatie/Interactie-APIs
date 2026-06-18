@@ -2357,6 +2357,18 @@ export function App() {
   const [theme, setTheme] = useState("rijk");
   const [page, go] = useHashRoute();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Wegklikbare demo-banner; keuze onthouden zodat hij niet terugkomt.
+  const [bannerOpen, setBannerOpen] = useState(
+    () => typeof window !== "undefined" && localStorage.getItem("mijnoverheid-demo-banner") !== "dismissed",
+  );
+  const dismissBanner = () => {
+    setBannerOpen(false);
+    try {
+      localStorage.setItem("mijnoverheid-demo-banner", "dismissed");
+    } catch {
+      /* opslag geblokkeerd — niet kritiek */
+    }
+  };
   // Welke sidebar-groepen (bijv. Producten) zijn handmatig in-/uitgeklapt.
   const [openNav, setOpenNav] = useState<Record<string, boolean>>({});
 
@@ -2781,6 +2793,22 @@ export function App() {
 
   return (
     <>
+      {bannerOpen && (
+        <div className="demo-banner" role="note">
+          <span className="demo-banner__text">
+            <strong>Demo van VNG Realisatie.</strong> Deze applicatie onderzoekt hoe we digitale
+            overheidsdienstverlening kunnen vormgeven. De getoonde data is fictief.
+          </span>
+          <button
+            type="button"
+            className="demo-banner__close"
+            onClick={dismissBanner}
+            aria-label="Melding sluiten"
+          >
+            &times;
+          </button>
+        </div>
+      )}
       <header className="masthead">
         {brand.lint && (
           <span className="masthead__lint" aria-hidden="true">
