@@ -58,6 +58,11 @@ export default function Sidebar({ data, params, navigate }) {
                 Bijdragen
               </a>
             </li>
+            <li>
+              <a href="/?view=conformance" onClick={(e) => go(e, "view=conformance")}>
+                Conformiteit
+              </a>
+            </li>
           </ul>
         </div>
 

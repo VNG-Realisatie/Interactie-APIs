@@ -2379,7 +2379,6 @@ function AssistentPage({ chat, go }: { chat: ChatApi; go: (p: PageKey) => void }
     </>
   );
 }
-
 export function App() {
   const [theme, setTheme] = useState("rijk");
   const [page, go] = useHashRoute();

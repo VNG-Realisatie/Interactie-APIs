@@ -4,6 +4,7 @@ import HomeView from "./HomeView";
 import MarkdownView from "./MarkdownView";
 import FileView from "./FileView";
 import ScalarView from "./ScalarView";
+import ConformanceView from "./ConformanceView";
 
 function getParams() {
   const params = new URLSearchParams(window.location.search);
@@ -11,6 +12,7 @@ function getParams() {
     url: params.get("url"),
     doc: params.get("doc"),
     file: params.get("file"),
+    view: params.get("view"),
   };
 }
 
@@ -35,7 +37,9 @@ export default function App() {
   };
 
   let view;
-  if (params.url) {
+  if (params.view === "conformance") {
+    view = <ConformanceView />;
+  } else if (params.url) {
     view = <ScalarView url={params.url} portalData={portalData} navigate={navigate} />;
   } else if (params.doc) {
     view = <MarkdownView path={params.doc} portalData={portalData} />;

@@ -875,3 +875,168 @@ a {
     filter: brightness(0) invert(1);
   }
 }
+
+/* ─────────────────  Conformiteit / leveranciers  ───────────────── */
+.conf-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.conf-card h2 {
+  margin: 0 0 16px;
+}
+.conf-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.conf-form-url {
+  grid-column: 1 / -1;
+}
+.conf-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.conf-form input,
+.conf-form select {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  background: var(--bg-surface);
+}
+.conf-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.conf-error {
+  margin-top: 14px;
+  padding: 10px 13px;
+  border-radius: 8px;
+  background: #fdecea;
+  color: #8a1c1c;
+  font-size: 0.9rem;
+}
+.conf-result {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.conf-score {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+}
+.conf-score strong {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.conf-score-ok {
+  background: #e7f5ec;
+  color: #1c6b38;
+}
+.conf-score-warn {
+  background: #fdf3e3;
+  color: #8a5a17;
+}
+.conf-score-bad {
+  background: #fdecea;
+  color: #8a1c1c;
+}
+.conf-op {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+}
+.conf-op-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-weight: 700;
+  color: #fff;
+}
+.conf-op-badge.is-pass {
+  background: #2e7d32;
+}
+.conf-op-badge.is-fail {
+  background: #c62828;
+}
+.conf-op-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.conf-op-body small {
+  color: var(--text-muted);
+}
+.conf-violations {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: #8a1c1c;
+  font-size: 0.85rem;
+}
+.conf-register {
+  display: flex;
+  flex-direction: column;
+}
+.conf-row {
+  display: grid;
+  grid-template-columns: 1fr auto 56px auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 6px;
+  border-bottom: 1px solid var(--border-color);
+}
+.conf-row:last-child {
+  border-bottom: none;
+}
+.conf-row-vendor {
+  font-weight: 600;
+}
+.conf-row-api {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.conf-row-score {
+  text-align: center;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 0;
+  font-size: 0.85rem;
+}
+.conf-row-date {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .conf-form { grid-template-columns: 1fr; }
+  .conf-row { grid-template-columns: 1fr auto; row-gap: 4px; }
+  .conf-row-date { grid-column: 1 / -1; }
+}
+.conf-op-badge.is-skip {
+  background: var(--text-muted);
+}
+.conf-op.is-skipped {
+  opacity: 0.6;
+}
