@@ -1,0 +1,48 @@
+# Deployt de standalone MijnOverheid-demo (incl. Netlify-functions: chat/voice)
+# naar https://mijnoverheid.chat bij elke push naar main die mijnoverheid/ raakt.
+#
+# Benodigde GitHub secret:
+#   NETLIFY_AUTH_TOKEN  — een Netlify personal access token
+#                         (Netlify → User settings → Applications → New access token)
+#
+# De site-ID is geen geheim en staat hieronder hardcoded.
+name: Deploy mijnoverheid.chat
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mijnoverheid/**"
+      - ".github/workflows/mijnoverheid-deploy.yml"
+  workflow_dispatch: {}
+
+# Voorkom overlappende deploys naar dezelfde site.
+concurrency:
+  group: deploy-mijnoverheid-chat
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build & deploy naar Netlify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: mijnoverheid/pnpm-lock.yaml
+
+      # `--build` draait het build-commando uit mijnoverheid/netlify.toml
+      # (pnpm install + pnpm build) en bundelt de functions via esbuild.
+      - name: Netlify deploy (prod)
+        working-directory: mijnoverheid
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 94c437cd-7dbf-4349-b650-0b1ab88b6b17
+        run: npx --yes netlify-cli deploy --build --prod --message "CI deploy ${{ github.sha }}"
