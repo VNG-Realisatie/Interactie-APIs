@@ -36,6 +36,7 @@ const apiEndpoints: { key: string; label: string }[] = [
   { key: "producten", label: "MijnProducten" },
   { key: "agenda", label: "MijnAgenda" },
   { key: "gesprekken", label: "MijnGesprekken" },
+  { key: "openplan-plannen", label: "MijnPlan" },
 ];
 
 function readStoredApiBases(): Record<string, string> {
@@ -135,17 +136,15 @@ type PageKey =
   | "brief"
   | "zaak-detail";
 
-type NavChild = { label: string; key: PageKey };
 type NavItem = {
   label: string;
   icon: string;
   key: PageKey;
   badge?: number;
-  children?: NavChild[];
   dividerBefore?: boolean;
 };
 const nav: NavItem[] = [
-  // Persoonlijke / overzicht-items bovenaan.
+  // MijnServices bovenaan.
   { label: "Home", icon: "icon-grid", key: "home" },
   { label: "Assistent", icon: "icon-chat", key: "assistent" },
   { label: "Mijn taken", icon: "icon-checks", key: "taken" },
@@ -153,33 +152,18 @@ const nav: NavItem[] = [
   { label: "Mijn zaken", icon: "icon-folder", key: "zaken" },
   { label: "Mijn agenda", icon: "icon-calendar", key: "agenda" },
   { label: "Mijn plan", icon: "icon-plan", key: "plan" },
-  { label: "Mijn gegevens", icon: "icon-user", key: "gegevens" },
-  // Producten & diensten onderaan, visueel gescheiden.
-  { label: "Belastingzaken", icon: "icon-euro", key: "belastingzaken", dividerBefore: true },
+  { label: "Mijn producten", icon: "icon-card", key: "producten" },
+  // Thematische producten/diensten onderaan, visueel gescheiden.
+  { label: "Parkeren", icon: "icon-parking", key: "parkeren", dividerBefore: true },
+  { label: "Erfpacht", icon: "icon-building", key: "erfpacht" },
+  { label: "Vakantieverhuur", icon: "icon-bed", key: "vakantieverhuur" },
+  { label: "Belastingzaken", icon: "icon-euro", key: "belastingzaken" },
+  { label: "Nabestaandendossier", icon: "icon-clipboard", key: "dossier" },
   { label: "WOZ", icon: "icon-home", key: "woz" },
-  {
-    label: "Mijn producten",
-    icon: "icon-card",
-    key: "producten",
-    // Parkeren/Erfpacht/Vakantieverhuur zijn specifieke producten (vergunning/
-    // contract/melding) en staan daarom als subitems onder Mijn producten.
-    children: [
-      { label: "Parkeren", key: "parkeren" },
-      { label: "Erfpacht", key: "erfpacht" },
-      { label: "Vakantieverhuur", key: "vakantieverhuur" },
-    ],
-  },
+  { label: "Mijn gegevens", icon: "icon-user", key: "gegevens" },
 ];
-// Platte lijst (incl. subitems) voor labels, routes en zoekindex.
-const navFlat: NavChild[] = nav.flatMap((n) => [
-  { key: n.key, label: n.label },
-  ...(n.children ?? []),
-]);
 const labels: Record<string, string> = {
-  ...Object.fromEntries(navFlat.map((n) => [n.key, n.label])),
-  // Nabestaandendossier staat niet meer in de sidebar, maar de route/breadcrumb
-  // moet blijven werken (bereikbaar via Home-CTA en MijnPlan).
-  dossier: "Nabestaandendossier",
+  ...Object.fromEntries(nav.map((n) => [n.key, n.label])),
   brief: "Contactpersoon doorgeven aan de Belastingdienst",
   "zaak-detail": "Zaak detail",
   assistent: "Assistent",
@@ -431,8 +415,6 @@ const formatConversationDate = (isoString?: string) => {
     return isoString || "";
   }
 };
-const planDoelen = [{ titel: "Passende ondersteuning thuis", meta: "1 afspraak gepland" }];
-
 type FaqItem = { q: string; a: string };
 
 // Algemene FAQ; terugval voor pagina's zonder eigen vragen (bijv. Home, brief).
@@ -615,10 +597,6 @@ const faqsByPage: Partial<Record<PageKey, FaqItem[]>> = {
     {
       q: "Wie is mijn contactpersoon?",
       a: "Uw consulent staat vermeld onder Contactpersonen. U kunt hen bellen met vragen over uw situatie of ondersteuning.",
-    },
-    {
-      q: "Hoe open ik mijn Nabestaandendossier?",
-      a: "Het Nabestaandendossier bundelt alles rondom een overlijden. U opent het vanuit Mijn plan om te zien wat er nog uw aandacht vraagt.",
     },
   ],
   gegevens: [
@@ -854,7 +832,15 @@ function HomePage({
   );
 }
 
-function TaakPanelRow({ taak, onClick }: { taak: Taak; onClick?: () => void }) {
+function TaakPanelRow({
+  taak,
+  onClick,
+  done,
+}: {
+  taak: Taak;
+  onClick?: () => void;
+  done?: boolean;
+}) {
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
       e.preventDefault();
@@ -866,6 +852,11 @@ function TaakPanelRow({ taak, onClick }: { taak: Taak; onClick?: () => void }) {
       <span className="task__main">
         <span className="task__title">
           {taak.titel}
+          {done && (
+            <span className="task__pill task__pill--done">
+              <Icon id="icon-check" className="icon task__pill-icon" /> Afgerond
+            </span>
+          )}
           {taak.ai && <span className="task__pill">Ingevuld door AI</span>}
         </span>
         <span className="task__org">{taak.org}</span>
@@ -956,7 +947,7 @@ function TakenPage({
             <div className="panel taken-panel">
               {doneFiltered.length ? (
                 doneFiltered.map((t) => (
-                  <TaakPanelRow key={t.titel} taak={t} onClick={() => onTaakClick(t)} />
+                  <TaakPanelRow key={t.titel} taak={t} done onClick={() => onTaakClick(t)} />
                 ))
               ) : (
                 <p className="panel-empty">Geen afgeronde taken gevonden.</p>
@@ -1750,63 +1741,161 @@ function ZaakDetailPage({
   );
 }
 
-function GegevensPage() {
+const KLANT_PARTIJ_UUID = "a8f3c1d2-7e44-4b1a-9c0f-123456789abc";
+
+type GegevensData = {
+  email?: string;
+  telefoon?: string;
+  naam?: string;
+  bsn?: string;
+  woonadres?: string;
+  postadres?: string;
+};
+
+function formatPartijAdres(adres?: {
+  straatnaam?: string;
+  huisnummer?: number;
+  huisnummertoevoeging?: string;
+  postcode?: string;
+  stad?: string;
+  adresregel1?: string;
+  adresregel2?: string;
+  adresregel3?: string;
+}): string | undefined {
+  if (!adres) return undefined;
+  if (adres.straatnaam) {
+    const nr = [adres.huisnummer, adres.huisnummertoevoeging].filter(Boolean).join("");
+    const plaats = [adres.postcode, adres.stad].filter(Boolean).join(" ");
+    return [ `${adres.straatnaam} ${nr}`.trim(), plaats ].filter(Boolean).join(", ");
+  }
+  const regels = [adres.adresregel1, adres.adresregel2, adres.adresregel3].filter(Boolean);
+  return regels.length ? regels.join(", ") : undefined;
+}
+
+function maskBsn(objectId?: string): string | undefined {
+  if (!objectId) return undefined;
+  const digits = objectId.replace(/\D/g, "");
+  if (digits.length < 3) return undefined;
+  return `••••••${digits.slice(-3)}`;
+}
+
+function mapPartijToGegevens(partij: Record<string, any>): GegevensData {
+  const digitale: any[] =
+    partij._expand?.digitale_adressen ??
+    (Array.isArray(partij.digitaleAdressen) &&
+    partij.digitaleAdressen[0]?.adres
+      ? partij.digitaleAdressen
+      : []);
+
+  const emailEntry = digitale.find((d) => d.soortDigitaalAdres === "email");
+  const phoneEntry = digitale.find((d) => d.soortDigitaalAdres === "telefoonnummer");
+
+  const contact = partij.partijIdentificatie?.contactnaam;
+  const naam =
+    partij.volledigeNaam ||
+    [contact?.voornaam, contact?.voorvoegselAchternaam, contact?.achternaam]
+      .filter(Boolean)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim() ||
+    undefined;
+
+  const bsnEntry = (partij.partijIdentificatoren ?? []).find(
+    (pi: any) => pi.partijIdentificator?.codeSoortObjectId === "bsn",
+  );
+
+  const woonadres = formatPartijAdres(partij.bezoekadres);
+  const postRaw = formatPartijAdres(partij.correspondentieadres);
+  const postadres =
+    postRaw && woonadres && postRaw === woonadres ? "Gelijk aan woonadres" : postRaw;
+
+  const telefoonRaw = phoneEntry?.adres;
+  const telefoon =
+    telefoonRaw && /^0\d{9}$/.test(telefoonRaw)
+      ? `${telefoonRaw.slice(0, 2)} ${telefoonRaw.slice(2)}`
+      : telefoonRaw;
+
+  return {
+    email: emailEntry?.adres,
+    telefoon,
+    naam,
+    bsn: maskBsn(bsnEntry?.partijIdentificator?.objectId),
+    woonadres,
+    postadres,
+  };
+}
+
+function GegevensPage({
+  gegevens,
+  onRetry,
+}: {
+  gegevens: Loadable<GegevensData>;
+  onRetry: () => void;
+}) {
+  const g = gegevens.data;
+  const dash = (v?: string) => v || "—";
+
   return (
     <>
-      <h1>
-        Mijn gegevens <DemoBadge />
-      </h1>
+      <h1>Mijn gegevens</h1>
+      <p className="page-sub">
+        Contact- en adresgegevens uit het klantinteractieregister (Open Klant).
+      </p>
 
-      <div className="datasection" id="contactgegevens">
-        <div className="datasection__head">
-          <h2>Contactgegevens</h2>
-          <a href="#">Wijzigen</a>
-        </div>
-        <dl className="datalist">
-          <dt>E-mailadres</dt>
-          <dd>jeroen@example.test</dd>
-          <dt>Telefoonnummer</dt>
-          <dd>06 12345678</dd>
-        </dl>
-      </div>
+      <DataBoundary state={gegevens} naam="Gegevens" onRetry={onRetry}>
+        <>
+          <div className="datasection" id="contactgegevens">
+            <div className="datasection__head">
+              <h2>Contactgegevens</h2>
+              <a href="#">Wijzigen</a>
+            </div>
+            <dl className="datalist">
+              <dt>E-mailadres</dt>
+              <dd>{dash(g.email)}</dd>
+              <dt>Telefoonnummer</dt>
+              <dd>{dash(g.telefoon)}</dd>
+            </dl>
+          </div>
 
-      <div className="datasection" id="persoonsgegevens">
-        <div className="datasection__head">
-          <h2>Persoonsgegevens</h2>
-          <a href="#">Wijzigen</a>
-        </div>
-        <dl className="datalist">
-          <dt>Naam</dt>
-          <dd>Jeroen van Drouwen</dd>
-          <dt>Geboortedatum</dt>
-          <dd>14 maart 1981</dd>
-          <dt>Burgerservicenummer</dt>
-          <dd>••••••782</dd>
-        </dl>
-        <h3 style={{ marginTop: 20 }}>Zie ook</h3>
-        <ul>
-          <li>
-            <a href="#">Bekijk hoe de gemeente met persoonsgegevens omgaat</a>
-          </li>
-        </ul>
-      </div>
+          <div className="datasection" id="persoonsgegevens">
+            <div className="datasection__head">
+              <h2>Persoonsgegevens</h2>
+              <a href="#">Wijzigen</a>
+            </div>
+            <dl className="datalist">
+              <dt>Naam</dt>
+              <dd>{dash(g.naam)}</dd>
+              <dt>Burgerservicenummer</dt>
+              <dd>{dash(g.bsn)}</dd>
+            </dl>
+            <h3 style={{ marginTop: 20 }}>Zie ook</h3>
+            <ul>
+              <li>
+                <a href="#">Bekijk hoe de gemeente met persoonsgegevens omgaat</a>
+              </li>
+            </ul>
+          </div>
 
-      <div className="datasection" id="adresgegevens">
-        <div className="datasection__head">
-          <h2>Adresgegevens</h2>
-          <a href="#">Wijzigen</a>
-        </div>
-        <dl className="datalist">
-          <dt>Woonadres</dt>
-          <dd>Keukenlaan 133, 1234 AB Voorbeeld</dd>
-          <dt>Postadres</dt>
-          <dd>Gelijk aan woonadres</dd>
-        </dl>
-      </div>
+          <div className="datasection" id="adresgegevens">
+            <div className="datasection__head">
+              <h2>Adresgegevens</h2>
+              <a href="#">Wijzigen</a>
+            </div>
+            <dl className="datalist">
+              <dt>Woonadres</dt>
+              <dd>{dash(g.woonadres)}</dd>
+              <dt>Postadres</dt>
+              <dd>{dash(g.postadres)}</dd>
+            </dl>
+          </div>
+        </>
+      </DataBoundary>
 
       <div className="datasection" id="meldingen">
         <div className="datasection__head">
-          <h2>Meldingen</h2>
+          <h2>
+            Meldingen <DemoBadge />
+          </h2>
           <a href="#">Wijzigen</a>
         </div>
         <dl className="datalist">
@@ -2086,39 +2175,52 @@ function AgendaPage({
   );
 }
 
-function PlanPage({ go }: { go: (p: PageKey) => void }) {
+function PlanPage({
+  plan,
+  onRetry,
+}: {
+  plan: Loadable<{ plan: any; doelen: any[] }>;
+  onRetry: () => void;
+}) {
+  const doelen = plan.data.doelen;
+  const statusLabel = (s?: string) =>
+    s === "afgerond" ? "Afgerond" : s === "geannuleerd" ? "Geannuleerd" : "Actief";
   return (
     <>
-      <h1>
-        Mijn plan <DemoBadge />
-      </h1>
-      <p className="page-sub">Overzicht van doelen, taken, afspraken en contactpersonen.</p>
-      <section className="section" style={{ marginTop: 8 }}>
-        <h2>Mijn doelen</h2>
-        <div className="cards">
-          <a className="card" href="#/dossier" onClick={navLink(go, "dossier")}>
-            <span className="card__title">Nabestaandendossier</span>
-            <span className="card__id">
-              Bekijk dossier <Icon id="icon-arrow" />
-            </span>
-          </a>
-          {planDoelen.map((d) => (
-            <div className="card" key={d.titel} style={{ cursor: "default" }}>
-              <span className="card__title">{d.titel}</span>
-              <span className="card__id">{d.meta}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-      <section className="section">
-        <h2>Contactpersonen</h2>
-        <dl className="datalist">
-          <dt>Consulent</dt>
-          <dd>R. de Vries</dd>
-          <dt>Telefoon</dt>
-          <dd>14 000</dd>
-        </dl>
-      </section>
+      <h1>Mijn plan</h1>
+      <p className="page-sub">Uw plan met doelen, opgehaald uit het Open Plan-register.</p>
+      <DataBoundary state={plan} naam="Plan" onRetry={onRetry}>
+        {plan.data.plan && (
+          <section className="section" style={{ marginTop: 8 }}>
+            <h2>{plan.data.plan.titel || "Mijn plan"}</h2>
+            {plan.data.plan.notitie && <p className="page-sub">{plan.data.plan.notitie}</p>}
+          </section>
+        )}
+        <section className="section" style={{ marginTop: 8 }}>
+          <h2>Mijn doelen</h2>
+          <div className="cards">
+            {doelen.length ? (
+              doelen.map((d: any) => (
+                <div className="card" key={d.uuid || d.titel} style={{ cursor: "default" }}>
+                  <span className="card__title">{d.titel}</span>
+                  <span className="card__id">{statusLabel(d.status)}</span>
+                </div>
+              ))
+            ) : (
+              <p className="panel-empty">U heeft nog geen doelen.</p>
+            )}
+          </div>
+        </section>
+        <section className="section">
+          <h2>Contactpersonen</h2>
+          <dl className="datalist">
+            <dt>Consulent</dt>
+            <dd>R. de Vries</dd>
+            <dt>Telefoon</dt>
+            <dd>14 000</dd>
+          </dl>
+        </section>
+      </DataBoundary>
     </>
   );
 }
@@ -2396,9 +2498,6 @@ export function App() {
       /* opslag geblokkeerd — niet kritiek */
     }
   };
-  // Welke sidebar-groepen (bijv. Producten) zijn handmatig in-/uitgeklapt.
-  const [openNav, setOpenNav] = useState<Record<string, boolean>>({});
-
   // Voorkom scrollen van de achtergrond zolang het fullscreen-menu open is.
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -2417,6 +2516,11 @@ export function App() {
     data: { open: [], done: [] },
   });
   const [products, setProducts] = useState<Loadable<any[]>>({ status: "loading", data: [] });
+  const [plan, setPlan] = useState<Loadable<{ plan: any; doelen: any[] }>>({
+    status: "loading",
+    data: { plan: null, doelen: [] },
+  });
+  const [gegevens, setGegevens] = useState<Loadable<GegevensData>>({ status: "loading", data: {} });
   const [appointments, setAppointments] = useState<Loadable<any[]>>({
     status: "loading",
     data: [],
@@ -2652,6 +2756,33 @@ export function App() {
     }
   }, [buildUrl, trackedFetch]);
 
+  // MijnPlan: doelen + plan uit het Open Plan-register (mock). Twee lijst-calls
+  // (plan + doel) parallel; de eerste plan-resource is het actieve plan.
+  const loadPlan = useCallback(async () => {
+    setPlan((s) => ({ ...s, status: "loading", error: undefined }));
+    try {
+      const [planRes, doelRes] = await Promise.all([
+        trackedFetch(buildUrl(`/apis/rest/openplan-plannen/next/plan`), {
+          headers: { ...defaultMockHeaders },
+        }),
+        trackedFetch(buildUrl(`/apis/rest/openplan-plannen/next/doel`), {
+          headers: { ...defaultMockHeaders },
+        }),
+      ]);
+      const planData = await jsonOrThrow(planRes);
+      const doelData = await jsonOrThrow(doelRes);
+      setPlan({
+        status: "ready",
+        data: {
+          plan: (planData?.results || [])[0] || null,
+          doelen: doelData?.results || [],
+        },
+      });
+    } catch (err) {
+      setPlan({ status: "error", data: { plan: null, doelen: [] }, error: errText(err) });
+    }
+  }, [buildUrl, trackedFetch]);
+
   const loadAgenda = useCallback(async () => {
     setAppointments((s) => ({ ...s, status: "loading", error: undefined }));
     try {
@@ -2711,13 +2842,35 @@ export function App() {
     }
   }, [buildUrl, trackedFetch]);
 
+  const loadGegevens = useCallback(async () => {
+    setGegevens((s) => ({ ...s, status: "loading", error: undefined }));
+    try {
+      const expand = encodeURIComponent("digitaleAdressen");
+      const res = await trackedFetch(
+        buildUrl(
+          `/apis/rest/openklant-klantinteracties/mijnoverheid-demo/partijen/${KLANT_PARTIJ_UUID}?expand=${expand}`,
+        ),
+        {
+          method: "GET",
+          headers: { ...defaultMockHeaders, Authorization: "Token demo-token" },
+        },
+      );
+      const data = await jsonOrThrow(res);
+      setGegevens({ status: "ready", data: mapPartijToGegevens(data) });
+    } catch (err) {
+      setGegevens({ status: "error", data: {}, error: errText(err) });
+    }
+  }, [buildUrl, trackedFetch]);
+
   useEffect(() => {
     loadTaken();
     loadProducten();
     loadAgenda();
     loadGesprekken();
     loadZaken();
-  }, [loadTaken, loadProducten, loadAgenda, loadGesprekken, loadZaken]);
+    loadGegevens();
+    loadPlan();
+  }, [loadTaken, loadProducten, loadAgenda, loadGesprekken, loadZaken, loadGegevens, loadPlan]);
 
   const handleTaakClick = (t: Taak) => {
     setSelectedTask(t);
@@ -2777,7 +2930,7 @@ export function App() {
   const searchQ = searchQuery.trim().toLowerCase();
   const searchResults = searchQ
     ? [
-        ...navFlat.map((n) => ({
+        ...nav.map((n) => ({
           group: "Pagina",
           title: n.label,
           sub: "",
@@ -2949,69 +3102,25 @@ export function App() {
               const sidebarLabel = n.label
                 .replace(/^Mijn\s+/, "")
                 .replace(/^\w/, (c) => c.toUpperCase());
-              const childKeys = (n.children ?? []).map((c) => c.key);
-              const groupOpen = openNav[n.key] ?? (page === n.key || childKeys.includes(page));
-
-              const itemLink = (
-                <a
-                  href={`#/${n.key}`}
-                  aria-current={page === n.key ? "page" : undefined}
-                  className={page === n.key ? "is-current" : ""}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    go(n.key);
-                    setMenuOpen(false);
-                    if (n.children) setOpenNav((s) => ({ ...s, [n.key]: true }));
-                  }}
-                >
-                  <Icon id={n.icon} />
-                  <span>{sidebarLabel}</span>
-                  {!!badgeCount && <span className="sidenav__badge">{badgeCount}</span>}
-                </a>
-              );
 
               return (
                 <Fragment key={n.key}>
                   {n.dividerBefore && <li className="sidenav__divider" aria-hidden="true" />}
-                  <li className={n.children ? "sidenav__group" : undefined}>
-                    {n.children ? (
-                      <>
-                        <div className="sidenav__group-row">
-                          {itemLink}
-                          <button
-                            type="button"
-                            className={`sidenav__toggle${groupOpen ? " is-open" : ""}`}
-                            aria-expanded={groupOpen}
-                            aria-label={`${sidebarLabel} ${groupOpen ? "inklappen" : "uitklappen"}`}
-                            onClick={() => setOpenNav((s) => ({ ...s, [n.key]: !groupOpen }))}
-                          >
-                            <span aria-hidden="true">›</span>
-                          </button>
-                        </div>
-                        {groupOpen && (
-                          <ul className="sidenav__sublist">
-                            {n.children.map((c) => (
-                              <li key={c.key}>
-                                <a
-                                  href={`#/${c.key}`}
-                                  aria-current={page === c.key ? "page" : undefined}
-                                  className={page === c.key ? "is-current" : ""}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    go(c.key);
-                                    setMenuOpen(false);
-                                  }}
-                                >
-                                  <span>{c.label}</span>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </>
-                    ) : (
-                      itemLink
-                    )}
+                  <li>
+                    <a
+                      href={`#/${n.key}`}
+                      aria-current={page === n.key ? "page" : undefined}
+                      className={page === n.key ? "is-current" : ""}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        go(n.key);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <Icon id={n.icon} />
+                      <span>{sidebarLabel}</span>
+                      {!!badgeCount && <span className="sidenav__badge">{badgeCount}</span>}
+                    </a>
                   </li>
                 </Fragment>
               );
@@ -3069,12 +3178,12 @@ export function App() {
                 onRetry={() => lastCaseUuid && loadCaseDetail(lastCaseUuid)}
               />
             )}
-            {page === "gegevens" && <GegevensPage />}
+            {page === "gegevens" && <GegevensPage gegevens={gegevens} onRetry={loadGegevens} />}
             {page === "brief" && <BriefPage go={go} selectedTask={selectedTask} />}
             {page === "producten" && <ProductenPage products={products} onRetry={loadProducten} />}
             {page === "belastingzaken" && <BelastingzakenPage />}
             {page === "agenda" && <AgendaPage appointments={appointments} onRetry={loadAgenda} />}
-            {page === "plan" && <PlanPage go={go} />}
+            {page === "plan" && <PlanPage plan={plan} onRetry={loadPlan} />}
             {page in themeData && <ThemePage data={themeData[page]} />}
             {!built.includes(page) && <Placeholder title={labels[page]} />}
           </InspectorOpenContext.Provider>

@@ -132,6 +132,20 @@ a.table-row:active,
   font-weight: 700;
   white-space: nowrap;
 }
+/* "Afgerond"-variant: groen met vinkje. */
+.task__pill--done {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  /* Status-tokens: donkergroen op zacht groen, AA-contrast. */
+  background: var(--ok-bg);
+  color: var(--ok-fg);
+}
+.task__pill-icon {
+  width: 1.05em;
+  height: 1.05em;
+  stroke-width: 2.4;
+}
 
 /* --- Masthead -------------------------------------------------------- */
 .masthead {
@@ -297,58 +311,12 @@ a.table-row:active,
   background: var(--color-accent);
   color: var(--color-on-accent);
 }
-/* Scheidingslijn tussen persoonlijke items en producten/diensten. */
+/* Scheidingslijn tussen MijnServices en thematische diensten. */
 .sidenav__divider {
   height: 1px;
   background: var(--color-border-soft);
   margin: 10px 8px;
   padding: 0;
-}
-/* Inklapbare groep (Mijn producten): link + uitklap-knop op één rij. */
-.sidenav__group-row {
-  display: flex;
-  align-items: center;
-}
-.sidenav__group-row > a {
-  flex: 1;
-  min-width: 0;
-}
-.sidenav__toggle {
-  flex: none;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text);
-  font-size: 1.4rem;
-  line-height: 1;
-  border-radius: var(--border-radius);
-}
-.sidenav__toggle:hover {
-  background: var(--color-hover);
-}
-.sidenav__toggle > span {
-  display: inline-block;
-  transition: transform 0.15s ease;
-}
-.sidenav__toggle.is-open > span {
-  transform: rotate(90deg);
-}
-.sidenav .sidenav__sublist {
-  margin: 2px 0 8px;
-}
-.sidenav .sidenav__sublist a {
-  grid-template-columns: 1fr auto;
-  padding-left: 56px;
-  font-size: 1rem;
-  color: var(--color-muted);
-}
-.sidenav .sidenav__sublist a.is-current {
-  color: var(--color-text);
 }
 /* Kop met sluitknop: alleen in het fullscreen-menu op mobiel. */
 .sidenav__mobile-head {
