@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "File Upload",
+  "description": "Dit schema beschrijft de data-structuren voor een two-step upload proces (zoals gebruikt bij cloud storage oplossingen via S3 pre-signed URLs). Traditionele `multipart/form-data` uploads via een API gateway hebben als nadeel dat grote bestanden het geheugen van de applicatieserver zwaar belasten en moeilijk schalen omdat de volledige file via de API routeert. Door gebruik te maken van dit two-step patroon communiceert de client eerst enkel de metadata via `FileMetadata`. De API retourneert vervolgens een `FileUploadInformatie` object met een tijdelijke (pre-signed) URL en een stabiele `Bestand` representatie. De client uploadt de ruwe binaire data daarna direct naar de opslaglaag (zoals een S3 bucket), waardoor de backend wordt ontlast en uiterst grote bestanden betrouwbaar verwerkt kunnen worden. Na de upload kan de client het bestand als normale API-resource blijven raadplegen.",
+  "$defs": {
+    "FileMetadata": {
+      "type": "object",
+      "description": "Metadata voor het aanmaken van een nieuw bestands-record, voorafgaand aan de daadwerkelijke upload.",
+      "required": ["bestandsnaam", "bestandsomvang"],
+      "properties": {
+        "bestandsnaam": {
+          "type": "string",
+          "description": "De naam van het bestand inclusief extensie.",
+          "example": "bijlage.pdf"
+        },
+        "bestandsomvang": {
+          "type": "integer",
+          "format": "int64",
+          "description": "De verwachte grootte van het bestand in bytes. Belangrijk voor validatie bij het genereren van de pre-signed URL.",
+          "example": 1048576
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Het MIME-type van het bestand. Handig voor S3 om de juiste Content-Type metadata mee te geven.",
+          "example": "application/pdf"
+        },
+        "titel": {
+          "type": "string",
+          "description": "Een optionele, menselijk leesbare titel voor het bestand.",
+          "example": "Aanvullende bewijsstukken"
+        }
+      }
+    },
+    "FileUploadInformatie": {
+      "type": "object",
+      "description": "Antwoord van de API met de instructies en de pre-signed URL om het fysieke bestand te uploaden, plus de API-representatie van het aangemaakte bestands-record.",
+      "required": ["fileId", "uploadUrl", "verlooptOp", "bestand"],
+      "properties": {
+        "fileId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "De unieke identificatie van het zojuist aangemaakte bestands-record.",
+          "example": "717815f6-1939-4fd2-93f0-83d25bad154e"
+        },
+        "uploadUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "De tijdelijke (pre-signed) URL waar de client het binaire bestand naartoe kan sturen via een HTTP PUT request.",
+          "example": "https://my-bucket.s3.eu-central-1.amazonaws.com/uploads/123?X-Amz-Signature=..."
+        },
+        "verlooptOp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Het exacte tijdstip (ISO 8601) waarop de uploadUrl zijn geldigheid verliest.",
+          "example": "2026-07-02T10:15:00Z"
+        },
+        "bestand": {
+          "$ref": "#/$defs/Bestand"
+        }
+      }
+    },
+    "Bestand": {
+      "type": "object",
+      "description": "Stabiele API-representatie van het bestand. Deze resource blijft beschikbaar nadat de tijdelijke uploadUrl is verlopen en laat de client zien welk bestand is geregistreerd en wat de verwerkingsstatus is.",
+      "required": ["fileId", "url", "bestandsnaam", "bestandsomvang", "status", "aangemaaktOp"],
+      "properties": {
+        "fileId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "De unieke identificatie van het bestands-record.",
+          "example": "717815f6-1939-4fd2-93f0-83d25bad154e"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "De stabiele API-URL waarmee de client de metadata en status van dit bestand kan opvragen.",
+          "example": "https://api.example.com/bestanden/717815f6-1939-4fd2-93f0-83d25bad154e"
+        },
+        "bestandsnaam": {
+          "type": "string",
+          "description": "De naam van het bestand inclusief extensie.",
+          "example": "bijlage.pdf"
+        },
+        "bestandsomvang": {
+          "type": "integer",
+          "format": "int64",
+          "description": "De verwachte of vastgestelde grootte van het bestand in bytes.",
+          "example": 1048576
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Het MIME-type van het bestand.",
+          "example": "application/pdf"
+        },
+        "titel": {
+          "type": "string",
+          "description": "Een optionele, menselijk leesbare titel voor het bestand.",
+          "example": "Aanvullende bewijsstukken"
+        },
+        "status": {
+          "type": "string",
+          "description": "De status van het bestand binnen het uploadproces.",
+          "enum": ["uploadInAfwachting", "beschikbaar", "geweigerd", "verlopen"],
+          "example": "uploadInAfwachting"
+        },
+        "aangemaaktOp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Het moment waarop het bestands-record is aangemaakt.",
+          "example": "2026-07-02T10:00:00Z"
+        },
+        "geuploadOp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Het moment waarop het fysieke bestand succesvol is ontvangen door de opslaglaag.",
+          "example": "2026-07-02T10:02:00Z"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optionele tijdelijke URL waarmee een geautoriseerde client het fysieke bestand kan downloaden. Laat dit veld weg zolang het bestand nog niet beschikbaar is.",
+          "example": "https://my-bucket.s3.eu-central-1.amazonaws.com/uploads/123?X-Amz-Signature=..."
+        }
+      }
+    }
+  }
+}
