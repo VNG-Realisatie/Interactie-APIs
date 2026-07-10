@@ -12,6 +12,7 @@
     "@ark-ui/react": "latest",
     "@opengemeenten/iconset-react": "^2.0.0",
     "@opengemeenten/iconset-web-component": "^2.0.0",
+    "nlds-light": "github:joepio/nlds-light#v0.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

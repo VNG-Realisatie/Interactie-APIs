@@ -1069,7 +1069,7 @@ a.table-row:hover .bericht__subject {
 
 /* ==========================================================================
    Nabestaandendossier / MijnPlannen addition
-   (status-kleuren + --radius-pill staan als tokens in contract.css)
+   (status-kleuren + --radius-pill staan als tokens in het nlds-light-contract)
    ========================================================================== */
 
 .plannen-page {
