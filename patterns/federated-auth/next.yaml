@@ -1,0 +1,120 @@
+# Federated-Auth Pattern
+# Herbruikbare OAuth2/OpenAPI-bouwstenen om een API veilig rechtstreeks
+# door een publieke client (browser, wallet-app) aan te laten roepen,
+# zonder aggregerende tussenlaag. Herkomst: architectuurdiscussie over
+# "client haalt data direct bij de bron op" (bijv. NL Portal frontend
+# rechtstreeks naar Open Klant, geen backend-per-portaal ertussen).
+
+title: Federatief-ready authenticatie
+description: |
+  Maakt een API geschikt om **rechtstreeks door een publieke client**
+  (een browser-app of native app, niet alleen server-naar-server) te
+  worden aangeroepen, zonder dat daarvoor een aggregerende BFF/gateway
+  nodig is die alle gevoelige data ziet. Vervangt het "één breed
+  servicecredential dat overal bij kan"-patroon door: één keer inloggen,
+  daarna per bron een smal, aan de aanvrager gebonden token.
+
+  **Wat dit pattern wél in OpenAPI vastlegt** (herbruikbare fragmenten,
+  hieronder):
+  1. Een OAuth2 securityScheme met zowel `authorizationCode` (voor
+     publieke clients — vereist PKCE; OpenAPI kent geen apart
+     PKCE-vlag, dit is een eis aan de implementatie) als
+     `clientCredentials` (voor bestaande M2M-consumers) als flow.
+  2. Een `DPoP`-headerparameter (RFC 9449) om tokens aan de sleutel van
+     de aanvrager te binden — het publieke-client-equivalent van
+     certificate-bound tokens (RFC 8705), zodat een gestolen token
+     onbruikbaar is zonder de bijbehorende private key.
+  3. Een gestandaardiseerde `403`-response voor het geval een verzoek
+     wél geauthenticeerd maar niet gemachtigd is voor déze specifieke
+     resource.
+
+  **Wat dit pattern NIET in OpenAPI kan vastleggen** (implementatie-eisen,
+  niet uit te drukken in een schema — hier genoemd zodat ze niet vergeten
+  worden bij het toepassen van dit pattern):
+  - **Autorisatie op recordniveau, afgedwongen door de bron zelf.** De
+    API MOET valideren dat de identiteit (bijv. BSN/pseudoniem-claim) in
+    het token overeenkomt met de betrokkene van de opgevraagde resource.
+    Een geldig token voor persoon A, gebruikt om data van persoon B op te
+    vragen, MOET de `403`-response hieronder opleveren. Dit is het
+    belangrijkste punt: zonder een aggregerende backend die vooraf
+    filtert, is dit de enige plek waar dat nog gebeurt.
+  - **Audience-restrictie (RFC 8707).** Tokens zijn alleen geldig voor
+    déze API, niet herbruikbaar bij andere bronnen.
+  - **CORS** voor de geregistreerde portal-origins.
+  - **Toegangslogging bij de bron**: wie heeft wanneer welke data van
+    welke burger opgevraagd — noodzakelijk juist omdat er geen centrale
+    gateway meer is die dit voor je logt.
+  - **Korte tokenlevensduur + refresh-token-rotatie** (OAuth2 Security
+    BCP) — publieke/browser-clients zijn kwetsbaarder (XSS) dan een
+    backend, dus dit weegt zwaarder dan bij M2M-koppelingen.
+  - **Discovery**: publiceer OAuth Authorization Server Metadata
+    (RFC 8414) zodat endpoints en ondersteunde mechanismen machinaal
+    ontdekt kunnen worden.
+
+  **Gebruik.** Neem de securityScheme over in de eigen
+  `components.securitySchemes` onder een zelfgekozen naam (OpenAPI's
+  `security:`-requirement verwijst naar scheme-namen, niet naar een
+  `$ref`, dus de sleutelnaam moet lokaal bestaan):
+  ```yaml
+  components:
+    securitySchemes:
+      FederatedOAuth2:
+        $ref: '../../../patterns/federated-auth/next.yaml#/securitySchemes/FederatedOAuth2'
+  security:
+    - FederatedOAuth2: [resource:lezen]
+  ```
+  Voeg de `DPoPProof`-parameter toe aan operaties die sender-constrained
+  tokens vereisen, en de `403`-response aan elke operatie die
+  burgerdata retourneert.
+
+securitySchemes:
+  FederatedOAuth2:
+    type: oauth2
+    description: |
+      OAuth 2.0 met twee ondersteunde flows. Publieke clients (browsers,
+      native apps) gebruiken `authorizationCode` — de autorisatieserver
+      MOET PKCE (RFC 7636) afdwingen voor deze flow, aangezien publieke
+      clients geen client secret veilig kunnen bewaren. Vertrouwde
+      systeem-tot-systeem-consumers kunnen `clientCredentials` blijven
+      gebruiken. Vervang de voorbeeldscope hieronder door API-specifieke
+      scopes op functioneel niveau (bijv. `zaken:lezen`, niet één brede
+      "alles"-scope).
+    flows:
+      authorizationCode:
+        authorizationUrl: https://auth.example.nl/oauth2/authorize
+        tokenUrl: https://auth.example.nl/oauth2/token
+        scopes:
+          resource:lezen: "Voorbeeldscope — vervang door API-specifieke scopes."
+      clientCredentials:
+        tokenUrl: https://auth.example.nl/oauth2/token
+        scopes:
+          resource:lezen: "Voorbeeldscope — vervang door API-specifieke scopes."
+
+parameters:
+  DPoPProof:
+    name: DPoP
+    in: header
+    required: false
+    description: |
+      Proof-of-possession JWT conform RFC 9449 (DPoP). Bindt het
+      meegestuurde access token aan de sleutel waarmee dit verzoek is
+      ondertekend. De bron MOET verifiëren dat de sleutel in dit bewijs
+      overeenkomt met de `cnf`-claim in het token, anders `401`. Verplicht
+      te ondersteunen zodra `authorizationCode` (publieke clients) wordt
+      gebruikt; optioneel bij `clientCredentials`, waar mTLS-gebonden
+      tokens (RFC 8705) een alternatief zijn.
+    schema:
+      type: string
+
+responses:
+  RecordNietGemachtigd:
+    description: |
+      De aanvrager is geauthenticeerd (geldig token), maar niet gemachtigd
+      voor déze specifieke resource — bijvoorbeeld een burger die met een
+      geldig eigen token de gegevens van een andere burger opvraagt. Dit
+      is een andere situatie dan een ontbrekend/ongeldig token (`401`):
+      de identiteit staat vast, de bevoegdheid ontbreekt voor dít record.
+    content:
+      application/problem+json:
+        schema:
+          $ref: "../../schemas/fout/v0.0.1.json#/$defs/Fout"

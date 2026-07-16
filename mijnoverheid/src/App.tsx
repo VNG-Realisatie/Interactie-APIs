@@ -37,7 +37,34 @@ const apiEndpoints: { key: string; label: string }[] = [
   { key: "agenda", label: "MijnAgenda" },
   { key: "gesprekken", label: "MijnGesprekken" },
   { key: "openplan-plannen", label: "MijnPlan" },
+  { key: "openklant-klantinteracties", label: "MijnGegevens" },
 ];
+
+// Services die NIET automatisch de discovery-default mogen overnemen: het
+// discovery-manifest kiest generiek de 'primaire' versie per service (next,
+// anders hoogste semver), maar loadGegevens() hieronder hardcodet bewust de
+// 'mijnoverheid-demo'-variant van openklant-klantinteracties (met de
+// demo-persona en expand-gedrag die deze app nodig heeft) — niet de
+// generieke v0.7.0 die discovery zou kiezen. Automatisch overnemen zou de
+// Gegevens-tab stilzwijgend op een andere, incompatibele mock-vorm zetten.
+// Handmatig overriden via de API-inspector blijft voor deze service gewoon
+// mogelijk; alleen de STANDAARDwaarde negeert discovery hier.
+const DISCOVERY_AUTOAPPLY_EXCLUDED = new Set(["openklant-klantinteracties"]);
+
+type DiscoveryStatus = "loading" | "ok" | "unavailable";
+
+async function fetchDiscoveredBases(): Promise<Record<string, string>> {
+  const res = await fetch(`${getDefaultApiBase()}/.well-known/federated-resources`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const manifest = await res.json();
+  const map: Record<string, string> = {};
+  for (const r of manifest.resources || []) {
+    if (r && typeof r.service === "string" && typeof r.baseUrl === "string") {
+      map[r.service] = r.baseUrl;
+    }
+  }
+  return map;
+}
 
 function readStoredApiBases(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -2543,6 +2570,31 @@ export function App() {
   // Per-API endpoint-overrides: applied (apiBases) + bewerkbare concepten (drafts).
   const [apiBases, setApiBases] = useState<Record<string, string>>(readStoredApiBases);
   const [apiBaseDrafts, setApiBaseDrafts] = useState<Record<string, string>>(readStoredApiBases);
+  // Standaard-endpoints ontdekt via GET /.well-known/federated-resources op
+  // de huidige default-basis (mocks lokaal, fly.dev in productie). Vervangt
+  // de vroeger hardcoded per-API standaardpaden; handmatige overrides
+  // (apiBases hierboven) blijven altijd voorrang houden.
+  const [discoveredBases, setDiscoveredBases] = useState<Record<string, string>>({});
+  const [discoveryStatus, setDiscoveryStatus] = useState<DiscoveryStatus>("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchDiscoveredBases()
+      .then((map) => {
+        if (!cancelled) {
+          setDiscoveredBases(map);
+          setDiscoveryStatus("ok");
+        }
+      })
+      .catch(() => {
+        // Bijv. op fly.dev: die mocks hebben dit endpoint (nog) niet. Val
+        // stil terug op de oude hardcoded standaardpaden.
+        if (!cancelled) setDiscoveryStatus("unavailable");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [customMethod, setCustomMethod] = useState(customRequestDefaults.method);
   const [customPath, setCustomPath] = useState(customRequestDefaults.path);
   const [customBody, setCustomBody] = useState(customRequestDefaults.body);
@@ -2590,22 +2642,27 @@ export function App() {
     }
   }, []);
 
-  // Bouwt de volledige URL voor een call. Heeft de API een eigen endpoint, dan
-  // vervangt dat het standaarddeel t/m de versie (…/apis/rest/{api}/{versie});
-  // anders wordt het standaard-endpoint gebruikt.
+  // Bouwt de volledige URL voor een call. Volgorde: (1) handmatige override
+  // uit de API-inspector, (2) de via discovery ontdekte standaard-basis voor
+  // deze service (tenzij uitgesloten, zie DISCOVERY_AUTOAPPLY_EXCLUDED), (3)
+  // de oude hardcoded standaard-basis. In geval (1)/(2) vervangt de
+  // gevonden basis het standaarddeel t/m de versie (…/apis/rest/{api}/{versie}).
   const buildUrl = useCallback(
     (pathOrUrl: string) => {
       const trimmed = pathOrUrl.trim();
       if (/^https?:\/\//i.test(trimmed)) return trimmed;
       const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-      const override = normalizeApiBase(apiBases[apiFromPath(path)] || "");
-      if (override) {
+      const api = apiFromPath(path);
+      const override = normalizeApiBase(apiBases[api] || "");
+      const discovered = DISCOVERY_AUTOAPPLY_EXCLUDED.has(api) ? "" : discoveredBases[api] || "";
+      const effectiveBase = override || discovered;
+      if (effectiveBase) {
         const prefix = path.match(/^\/apis\/rest\/[^/]+\/[^/]+/)?.[0] ?? "";
-        return `${override}${path.slice(prefix.length)}`;
+        return `${effectiveBase}${path.slice(prefix.length)}`;
       }
       return `${getDefaultApiBase()}${path}`;
     },
-    [apiBases],
+    [apiBases, discoveredBases],
   );
 
   // Eén helper voor de chat-assistent: bouwt de URL (incl. endpoint-overrides)
@@ -3326,7 +3383,11 @@ export function App() {
                           onChange={(e) =>
                             setApiBaseDrafts((prev) => ({ ...prev, [key]: e.target.value }))
                           }
-                          placeholder={defaultApiEndpoint(key)}
+                          placeholder={
+                            !DISCOVERY_AUTOAPPLY_EXCLUDED.has(key) && discoveredBases[key]
+                              ? discoveredBases[key]
+                              : defaultApiEndpoint(key)
+                          }
                           aria-label={`Endpoint voor ${label}`}
                         />
                       </div>
@@ -3442,7 +3503,14 @@ export function App() {
                 </div>
               </div>
             </div>
-            <div className="api-inspector__footer">Standaard: {getDefaultApiBase()}</div>
+            <div className="api-inspector__footer">
+              Standaard: {getDefaultApiBase()}
+              {discoveryStatus === "loading" && " · discovery-manifest laden…"}
+              {discoveryStatus === "ok" &&
+                ` · ${Object.keys(discoveredBases).length} endpoints ontdekt via /.well-known/federated-resources`}
+              {discoveryStatus === "unavailable" &&
+                " · geen discovery-manifest gevonden, standaardpaden gebruikt"}
+            </div>
           </div>
         )}
 
