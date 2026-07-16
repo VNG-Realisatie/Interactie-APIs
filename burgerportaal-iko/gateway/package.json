@@ -1,0 +1,19 @@
+{
+  "name": "burgerportaal-bff-gateway",
+  "version": "1.0.0",
+  "description": "BFF Gateway for Burgerportaal IKO",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express-session": "^1.18.0",
+    "openid-client": "^5.6.5",
+    "jose": "^5.9.6"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "burgerportaal-iko",
+  "version": "1.0.0",
+  "description": "Burgerportaal op IKO stack",
+  "private": true,
+  "scripts": {
+    "demo": "node demo.mjs",
+    "start": "docker compose -f deploy/docker-compose.yml up -d",
+    "stop": "docker compose -f deploy/docker-compose.yml down",
+    "seed": "cd iko-config && npm install && node seed-iko.js",
+    "logs": "docker compose -f deploy/docker-compose.yml logs -f",
+    "dev": "npm run start && npm run seed"
+  }
+}

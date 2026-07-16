@@ -1,0 +1,224 @@
+name: burgerportaal-iko
+
+services:
+
+    # 1. Frontend: Vite React application
+    # Host-poort 5181 zodat dit naast de MijnOverheid-app (5180) kan draaien.
+    frontend:
+        container_name: burgerportaal-frontend
+        build:
+            context: ../frontend
+            dockerfile: Dockerfile
+        ports:
+            - "5181:5180"
+        environment:
+            - VITE_PORT=5180
+        depends_on:
+            - gateway
+
+    # 2. BFF Gateway: Node/Express
+    gateway:
+        container_name: burgerportaal-gateway
+        build:
+            context: ../gateway
+            dockerfile: Dockerfile
+        ports:
+            - "3000:3000"
+        environment:
+            - PORT=3000
+            - MOCK_AUTH=false
+            - MOCK_BSN=569312863
+            - FRONTEND_URL=http://localhost:5181
+            - IKO_URL=http://iko-application:8080
+            - KEYCLOAK_INTERNAL_URL=http://keycloak:8082/auth/realms/valtimo
+            - KEYCLOAK_EXTERNAL_URL=http://localhost:8082/auth/realms/valtimo
+            - IKO_CLIENT_ID=iko
+            - IKO_CLIENT_SECRET=ThisIsNotASecret
+        depends_on:
+            - iko-application
+
+    # 3. IKO Application (Ritense)
+    iko-application:
+        container_name: iko-application
+        image: ghcr.io/integraal-klant-en-objectbeeld/iko:latest
+        ports:
+            - "8080:8080"
+        environment:
+            - SPRING_CACHE_TYPE=redis
+            - SPRING_DATA_REDIS_HOST=iko-redis
+            - SPRING_DATA_REDIS_PORT=6379
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://iko-database:5432/iko-db
+            - SPRING_DATASOURCE_USERNAME=iko-admin
+            - SPRING_DATASOURCE_PASSWORD=secret
+            - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
+            - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUERURI=http://keycloak:8082/auth/realms/valtimo
+            - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENTID=iko
+            - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENTSECRET=ThisIsNotASecret
+            - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI=http://keycloak:8082/auth/realms/valtimo
+            - IKO_CRYPTO_KEY=dGhpcy1pcy1hLXNlY3JldC1rZXktMzItYnl0ZXMtcGE=
+            - SERVER_SERVLET_SESSION_COOKIE_SECURE=false
+        volumes:
+            - ../../apis:/openapi-specs:ro
+        depends_on:
+            iko-redis:
+                condition: service_started
+            keycloak:
+                condition: service_started
+            iko-database:
+                condition: service_healthy
+
+    # IKO Database (PostgreSQL)
+    iko-database:
+        container_name: iko-database
+        image: postgres:15-alpine
+        environment:
+            - POSTGRES_DB=iko-db
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_USER=iko-admin
+        ports:
+            - "5432:5432"
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U iko-admin -d iko-db"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    # IKO Redis
+    iko-redis:
+        container_name: iko-redis
+        image: redis:8.0-M02-alpine
+        ports:
+            - "6379:6379"
+
+    # 4. Keycloak Identity Provider
+    keycloak:
+        container_name: iko-keycloak
+        depends_on:
+            - keycloak-database
+        image: quay.io/keycloak/keycloak:24.0.1
+        ports:
+            - "8082:8082"
+        environment:
+            - KEYCLOAK_ADMIN=admin
+            - KEYCLOAK_ADMIN_PASSWORD=admin
+            - KC_DB=postgres
+            - KC_DB_URL=jdbc:postgresql://keycloak-database/keycloak
+            - KC_DB_USERNAME=keycloak
+            - KC_DB_PASSWORD=keycloak
+            - KC_FEATURES=token-exchange,admin-fine-grained-authz
+            - KC_HTTP_RELATIVE_PATH=/auth
+            - PROXY_ADDRESS_FORWARDING=true
+            - KC_HTTP_ENABLED=true
+            - KC_HTTPS_ENABLED=false
+        volumes:
+            - ./keycloak:/opt/keycloak/data/import
+        command: "start-dev --import-realm --http-port=8082"
+
+    keycloak-database:
+        container_name: iko-keycloak-database
+        image: postgres:15-alpine
+        ports:
+            - "5439:5432"
+        environment:
+            - POSTGRES_DB=keycloak
+            - POSTGRES_USER=keycloak
+            - POSTGRES_PASSWORD=keycloak
+
+    # 5. VNG API Lab Mocks (Lab Gateway + Prism subprocesses)
+    lab-mocks:
+        container_name: burgerportaal-lab-mocks
+        build:
+            context: ../../
+            dockerfile: Dockerfile
+        ports:
+            - "4010:4010"
+        environment:
+            - MOCK_GATEWAY_PORT=4010
+            - PRISM_BASE_PORT=5000
+            - PRISM_HOST=127.0.0.1
+        # Mount specs so Prism reads them dynamically
+        volumes:
+            - ../../apis:/app/apis:ro
+            - ../../schemas:/app/schemas:ro
+            - ../../patterns:/app/patterns:ro
+
+    # 6. Common Ground Mock: Open Klant
+    open-klant:
+        container_name: iko-open-klant
+        image: maykinmedia/open-klant:2.10.0
+        platform: linux/amd64
+        environment:
+            - DJANGO_SETTINGS_MODULE=openklant.conf.docker
+            - SECRET_KEY=django-insecure-$$8s@b*ds4t84-q_2#c0j0506@!l2q6r5_pq5e!vm^_9c*#^66b
+            - DB_NAME=openklant
+            - DB_USER=openklant
+            - DB_PASSWORD=openklant
+            - DB_HOST=open-klant-database
+            - CACHE_DEFAULT=open-klant-redis:6379/0
+            - CACHE_AXES=open-klant-redis:6379/0
+            - ALLOWED_HOSTS=*
+            - DISABLE_2FA=True
+        ports:
+            - "8006:8000"
+        depends_on:
+            - open-klant-database
+
+    open-klant-database:
+        container_name: iko-open-klant-database
+        image: postgres:15-alpine
+        environment:
+            - POSTGRES_DB=openklant
+            - POSTGRES_USER=openklant
+            - POSTGRES_PASSWORD=openklant
+        volumes:
+            - ../../scratchpad/iko-src/imports/open-klanten:/docker-entrypoint-initdb.d
+        ports:
+            - "54323:5432"
+
+    open-klant-redis:
+        container_name: iko-open-klant-redis
+        image: redis:7.4-alpine
+
+    # 7. Common Ground Mock: Open Zaak
+    openzaak:
+        container_name: iko-openzaak
+        image: openzaak/open-zaak:1.20.0
+        platform: linux/amd64
+        environment:
+            - DB_HOST=openzaak-database
+            - DB_PORT=5432
+            - SECRET_KEY=veryRestrictedSecretKey
+            - DB_USER=openzaak
+            - DB_PASSWORD=openzaak
+            - DB_NAME=openzaak
+            - CACHE_DEFAULT=openzaak-redis:6379/0
+            - CACHE_AXES=openzaak-redis:6379/0
+            - DEBUG=true
+            - ALLOWED_HOSTS=localhost,host.docker.internal,172.17.0.1,openzaak
+            - OPENZAAK_SUPERUSER_USERNAME=admin
+            - OPENZAAK_SUPERUSER_EMAIL=admin@admin.org
+            - DJANGO_SUPERUSER_PASSWORD=admin
+            - SENDFILE_BACKEND=django_sendfile.backends.simple
+            - NOTIFICATIONS_DISABLED=true
+            - DISABLE_2FA=True
+        ports:
+            - "8001:8000"
+        depends_on:
+            - openzaak-database
+            - openzaak-redis
+
+    openzaak-database:
+        container_name: iko-openzaak-database
+        image: postgis/postgis:15-3.3-alpine
+        environment:
+            - POSTGRES_USER=openzaak
+            - POSTGRES_PASSWORD=openzaak
+            - POSTGRES_DB=openzaak
+        volumes:
+            - ../../scratchpad/iko-src/imports/open-zaak:/docker-entrypoint-initdb.d
+        ports:
+            - "5433:5432"
+
+    openzaak-redis:
+        container_name: iko-openzaak-redis
+        image: redis:7.4-alpine

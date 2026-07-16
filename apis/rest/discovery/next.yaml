@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: Service Discovery
+  version: next
+  description: |
+    Vertelt een client welke services er zijn en waar (`baseUrl`), met een
+    link naar de volledige contractbeschrijving per service (`specUrl`) —
+    inclusief hoe daarmee te authenticeren, want dat staat al canoniek in
+    de OpenAPI-spec zelf. Dit endpoint dupliceert dat bewust niet.
+
+    Onbeveiligd: vergelijkbaar met OAuth's eigen
+    `.well-known/oauth-authorization-server` (RFC 8414) is dit statische
+    deploymentconfiguratie, geen persoonsgegevens.
+  contact:
+    name: VNG API Lab
+    url: https://github.com/VNG-Realisatie/vng-api-lab
+
+servers:
+  - url: http://localhost:3000
+    description: Lokale burgerportaal-iko gateway (demo)
+  - url: http://localhost:4010
+    description: Lokale VNG API Lab-mocks
+
+tags:
+  - name: Discovery
+    description: Service discovery
+
+paths:
+  /.well-known/federated-resources:
+    get:
+      summary: Lijst beschikbare services
+      operationId: listServices
+      tags:
+        - Discovery
+      description: |
+        Geeft het actuele register van services terug. Dit is één operatie
+        op meerdere servers (zie `servers` hierboven), geen gemerged
+        register — elke server retourneert alleen zijn eigen services.
+      responses:
+        "200":
+          description: Het discovery-manifest.
+          content:
+            application/json:
+              schema:
+                $ref: "../../../schemas/discovery/v0.0.1.json#/$defs/ResourceRegistry"
+              example:
+                gemeente: "Gemeente Voorbeeld (demo)"
+                generatedAt: "2026-07-16T10:00:00Z"
+                resources:
+                  - service: taken
+                    baseUrl: "http://localhost:3000/api/federated"
+                    specUrl: "/docs/bundled/apis_rest_taken_next.yaml"
+                    label: "Mijn taken"
+                  - service: zaken
+                    baseUrl: "http://localhost:4010/apis/rest/zaken/next"
+                    specUrl: "/docs/bundled/apis_rest_zaken_next.yaml"
+                    label: "Zaken (mock)"

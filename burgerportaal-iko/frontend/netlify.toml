@@ -1,0 +1,22 @@
+# Netlify-config voor de standalone MijnOverheid-demo (mijnoverheid.chat).
+# Zet in de Netlify-site de "base directory" op `mijnoverheid` zodat deze config
+# en de build daar draaien.
+
+[build]
+  command = "pnpm install --frozen-lockfile && pnpm build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Lokale `netlify dev` op een eigen poort (8888 is bezet door een ander project).
+[dev]
+  port = 8899
+
+# De app gebruikt hash-routing (#/...), dus geen SPA-rewrite nodig. Wel een
+# nette korte alias naar de chat-proxy-function.
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200

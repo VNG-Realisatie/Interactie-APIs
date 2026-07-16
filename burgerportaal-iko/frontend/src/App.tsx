@@ -17,10 +17,10 @@ const themes = createListCollection({
 });
 
 function getDefaultApiBase() {
-  if (typeof window === "undefined") return "https://vng-interactie-mocks.fly.dev";
+  if (typeof window === "undefined") return "http://localhost:3000";
   return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://localhost:41837"
-    : "https://vng-interactie-mocks.fly.dev";
+    ? "http://localhost:3000"
+    : window.location.origin;
 }
 
 function normalizeApiBase(value: string) {
@@ -37,34 +37,7 @@ const apiEndpoints: { key: string; label: string }[] = [
   { key: "agenda", label: "MijnAgenda" },
   { key: "gesprekken", label: "MijnGesprekken" },
   { key: "openplan-plannen", label: "MijnPlan" },
-  { key: "openklant-klantinteracties", label: "MijnGegevens" },
 ];
-
-// Services die NIET automatisch de discovery-default mogen overnemen: het
-// discovery-manifest kiest generiek de 'primaire' versie per service (next,
-// anders hoogste semver), maar loadGegevens() hieronder hardcodet bewust de
-// 'mijnoverheid-demo'-variant van openklant-klantinteracties (met de
-// demo-persona en expand-gedrag die deze app nodig heeft) — niet de
-// generieke v0.7.0 die discovery zou kiezen. Automatisch overnemen zou de
-// Gegevens-tab stilzwijgend op een andere, incompatibele mock-vorm zetten.
-// Handmatig overriden via de API-inspector blijft voor deze service gewoon
-// mogelijk; alleen de STANDAARDwaarde negeert discovery hier.
-const DISCOVERY_AUTOAPPLY_EXCLUDED = new Set(["openklant-klantinteracties"]);
-
-type DiscoveryStatus = "loading" | "ok" | "unavailable";
-
-async function fetchDiscoveredBases(): Promise<Record<string, string>> {
-  const res = await fetch(`${getDefaultApiBase()}/.well-known/federated-resources`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const manifest = await res.json();
-  const map: Record<string, string> = {};
-  for (const r of manifest.resources || []) {
-    if (r && typeof r.service === "string" && typeof r.baseUrl === "string") {
-      map[r.service] = r.baseUrl;
-    }
-  }
-  return map;
-}
 
 function readStoredApiBases(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -2510,9 +2483,35 @@ function AssistentPage({ chat, go }: { chat: ChatApi; go: (p: PageKey) => void }
 }
 
 export function App() {
+  const [authState, setAuthState] = useState<{
+    status: "checking" | "authenticated" | "unauthenticated";
+    user: any | null;
+  }>({ status: "checking", user: null });
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${getDefaultApiBase()}/api/auth/session`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (data.authenticated) {
+          setAuthState({ status: "authenticated", user: data.user });
+        } else {
+          setAuthState({ status: "unauthenticated", user: null });
+        }
+      } catch (err) {
+        console.error("Auth check failed, using fallback:", err);
+        setAuthState({ status: "authenticated", user: null });
+      }
+    }
+    checkAuth();
+  }, []);
+
   const [theme, setTheme] = useState("rijk");
   const [page, go] = useHashRoute();
   const [menuOpen, setMenuOpen] = useState(false);
+
   // Wegklikbare demo-banner; keuze onthouden zodat hij niet terugkomt.
   const [bannerOpen, setBannerOpen] = useState(
     () => typeof window !== "undefined" && localStorage.getItem("mijnoverheid-demo-banner") !== "dismissed",
@@ -2537,6 +2536,20 @@ export function App() {
   useEffect(() => {
     setMenuOpen(false);
   }, [page]);
+
+  const handleLogout = useCallback(async (e: any) => {
+    e.preventDefault();
+    try {
+      await fetch(`${getDefaultApiBase()}/api/auth/logout`, {
+        credentials: "include"
+      });
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    }
+    setAuthState({ status: "unauthenticated", user: null });
+    setMenuOpen(false);
+    go("home");
+  }, [go]);
 
   const [taken, setTaken] = useState<Loadable<{ open: Taak[]; done: Taak[] }>>({
     status: "loading",
@@ -2570,31 +2583,6 @@ export function App() {
   // Per-API endpoint-overrides: applied (apiBases) + bewerkbare concepten (drafts).
   const [apiBases, setApiBases] = useState<Record<string, string>>(readStoredApiBases);
   const [apiBaseDrafts, setApiBaseDrafts] = useState<Record<string, string>>(readStoredApiBases);
-  // Standaard-endpoints ontdekt via GET /.well-known/federated-resources op
-  // de huidige default-basis (mocks lokaal, fly.dev in productie). Vervangt
-  // de vroeger hardcoded per-API standaardpaden; handmatige overrides
-  // (apiBases hierboven) blijven altijd voorrang houden.
-  const [discoveredBases, setDiscoveredBases] = useState<Record<string, string>>({});
-  const [discoveryStatus, setDiscoveryStatus] = useState<DiscoveryStatus>("loading");
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchDiscoveredBases()
-      .then((map) => {
-        if (!cancelled) {
-          setDiscoveredBases(map);
-          setDiscoveryStatus("ok");
-        }
-      })
-      .catch(() => {
-        // Bijv. op fly.dev: die mocks hebben dit endpoint (nog) niet. Val
-        // stil terug op de oude hardcoded standaardpaden.
-        if (!cancelled) setDiscoveryStatus("unavailable");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
   const [customMethod, setCustomMethod] = useState(customRequestDefaults.method);
   const [customPath, setCustomPath] = useState(customRequestDefaults.path);
   const [customBody, setCustomBody] = useState(customRequestDefaults.body);
@@ -2623,7 +2611,7 @@ export function App() {
     // Nieuwste bovenaan, zodat een verstuurd verzoek direct zichtbaar is.
     setApiLogs((prev) => [newLog, ...prev]);
     try {
-      const res = await fetch(url, options);
+      const res = await fetch(url, { ...options, credentials: "include" });
       setApiLogs((prev) =>
         prev.map((item) =>
           item.id === id
@@ -2642,34 +2630,59 @@ export function App() {
     }
   }, []);
 
-  // Bouwt de volledige URL voor een call. Volgorde: (1) handmatige override
-  // uit de API-inspector, (2) de via discovery ontdekte standaard-basis voor
-  // deze service (tenzij uitgesloten, zie DISCOVERY_AUTOAPPLY_EXCLUDED), (3)
-  // de oude hardcoded standaard-basis. In geval (1)/(2) vervangt de
-  // gevonden basis het standaarddeel t/m de versie (…/apis/rest/{api}/{versie}).
+  // Bouwt de volledige URL voor een call. Heeft de API een eigen endpoint, dan
+  // vervangt dat het standaarddeel t/m de versie (…/apis/rest/{api}/{versie});
+  // anders wordt het standaard-endpoint gebruikt.
   const buildUrl = useCallback(
     (pathOrUrl: string) => {
       const trimmed = pathOrUrl.trim();
       if (/^https?:\/\//i.test(trimmed)) return trimmed;
       const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-      const api = apiFromPath(path);
-      const override = normalizeApiBase(apiBases[api] || "");
-      const discovered = DISCOVERY_AUTOAPPLY_EXCLUDED.has(api) ? "" : discoveredBases[api] || "";
-      const effectiveBase = override || discovered;
-      if (effectiveBase) {
+      const override = normalizeApiBase(apiBases[apiFromPath(path)] || "");
+      if (override) {
         const prefix = path.match(/^\/apis\/rest\/[^/]+\/[^/]+/)?.[0] ?? "";
-        return `${effectiveBase}${path.slice(prefix.length)}`;
+        return `${override}${path.slice(prefix.length)}`;
       }
       return `${getDefaultApiBase()}${path}`;
     },
-    [apiBases, discoveredBases],
+    [apiBases],
   );
 
   // Eén helper voor de chat-assistent: bouwt de URL (incl. endpoint-overrides)
   // en logt de call in de API-inspector, net als de pagina's zelf. Zo bevraagt
   // de AI exact dezelfde lokale API's.
   const chatApiCall = useCallback(
-    (path: string, init?: RequestInit) => trackedFetch(buildUrl(path), init),
+    (path: string, init?: RequestInit) => {
+      let targetPath = path;
+      const cleanPath = path.trim().replace(/^\/+/, "/");
+      
+      if (cleanPath.startsWith("apis/rest/taken/") || cleanPath.startsWith("/apis/rest/taken/")) {
+        targetPath = "/api/portaal/taken";
+      } else if (cleanPath.startsWith("apis/rest/zaken/") || cleanPath.startsWith("/apis/rest/zaken/")) {
+        const m = cleanPath.match(/\/apis\/rest\/zaken\/[^/]+\/zaken\/([a-f0-9-]+)/i) || 
+                  cleanPath.match(/apis\/rest\/zaken\/[^/]+\/zaken\/([a-f0-9-]+)/i);
+        targetPath = m ? `/api/portaal/zaken/${m[1]}` : "/api/portaal/zaken";
+      } else if (cleanPath.startsWith("apis/rest/producten/") || cleanPath.startsWith("/apis/rest/producten/")) {
+        targetPath = "/api/portaal/producten";
+      } else if (cleanPath.startsWith("apis/rest/agenda/") || cleanPath.startsWith("/apis/rest/agenda/")) {
+        targetPath = "/api/portaal/agenda";
+      } else if (cleanPath.startsWith("apis/rest/gesprekken/") || cleanPath.startsWith("/apis/rest/gesprekken/")) {
+        targetPath = "/api/portaal/gesprekken";
+      } else if (cleanPath.startsWith("apis/rest/openplan-plannen/") || cleanPath.startsWith("/apis/rest/openplan-plannen/")) {
+        targetPath = "/api/portaal/plan";
+      } else if (cleanPath.startsWith("apis/rest/openklant-klantinteracties/") || cleanPath.startsWith("/apis/rest/openklant-klantinteracties/")) {
+        targetPath = "/api/portaal/gegevens";
+      }
+
+      // Since these are rewrites to the gateway, they are always GET requests
+      const options = {
+        ...init,
+        method: "GET",
+        body: undefined // GET requests don't have a body
+      };
+
+      return trackedFetch(buildUrl(targetPath), options);
+    },
     [buildUrl, trackedFetch],
   );
 
@@ -2756,14 +2769,7 @@ export function App() {
   const loadTaken = useCallback(async () => {
     setTaken((s) => ({ ...s, status: "loading", error: undefined }));
     try {
-      const res = await trackedFetch(buildUrl(`/apis/rest/taken/next/context/zoek`), {
-        method: "POST",
-        headers: { ...defaultMockHeaders },
-        body: JSON.stringify({
-          klantId: "a8f3c1d2-7e44-4b1a-9c0f-123456789abc",
-          include: ["taken"],
-        }),
-      });
+      const res = await trackedFetch(buildUrl(`/api/portaal/taken`));
       const data = await jsonOrThrow(res);
       const mapped: Taak[] = (data.taken || []).map((t: any) => {
         const isActionable = t.actieNodig !== false && t.status !== "ter-info";
@@ -2795,11 +2801,7 @@ export function App() {
   const loadProducten = useCallback(async () => {
     setProducts((s) => ({ ...s, status: "loading", error: undefined }));
     try {
-      const res = await trackedFetch(buildUrl(`/apis/rest/producten/next/producten/zoek`), {
-        method: "POST",
-        headers: { ...defaultMockHeaders },
-        body: JSON.stringify({ klantId: "a8f3c1d2-7e44-4b1a-9c0f-123456789abc" }),
-      });
+      const res = await trackedFetch(buildUrl(`/api/portaal/producten`));
       const data = await jsonOrThrow(res);
       const mapped = (data || []).map((p: any) => ({
         titel: p.naam,
@@ -2813,26 +2815,17 @@ export function App() {
     }
   }, [buildUrl, trackedFetch]);
 
-  // MijnPlan: doelen + plan uit het Open Plan-register (mock). Twee lijst-calls
-  // (plan + doel) parallel; de eerste plan-resource is het actieve plan.
+  // MijnPlan: doelen + plan uit het Open Plan-register (mock).
   const loadPlan = useCallback(async () => {
     setPlan((s) => ({ ...s, status: "loading", error: undefined }));
     try {
-      const [planRes, doelRes] = await Promise.all([
-        trackedFetch(buildUrl(`/apis/rest/openplan-plannen/next/plan`), {
-          headers: { ...defaultMockHeaders },
-        }),
-        trackedFetch(buildUrl(`/apis/rest/openplan-plannen/next/doel`), {
-          headers: { ...defaultMockHeaders },
-        }),
-      ]);
-      const planData = await jsonOrThrow(planRes);
-      const doelData = await jsonOrThrow(doelRes);
+      const res = await trackedFetch(buildUrl(`/api/portaal/plan`));
+      const data = await jsonOrThrow(res);
       setPlan({
         status: "ready",
         data: {
-          plan: (planData?.results || [])[0] || null,
-          doelen: doelData?.results || [],
+          plan: data.plan || null,
+          doelen: data.doelen || [],
         },
       });
     } catch (err) {
@@ -2843,13 +2836,7 @@ export function App() {
   const loadAgenda = useCallback(async () => {
     setAppointments((s) => ({ ...s, status: "loading", error: undefined }));
     try {
-      const res = await trackedFetch(buildUrl(`/apis/rest/agenda/next/afspraken/opvragen`), {
-        method: "POST",
-        headers: { ...defaultMockHeaders },
-        body: JSON.stringify({
-          identificaties: [{ type: "email", waarde: "jeroen@example.test" }],
-        }),
-      });
+      const res = await trackedFetch(buildUrl(`/api/portaal/agenda`));
       const data = await jsonOrThrow(res);
       const mapped = (data.afspraken || []).map((a: any) => ({
         titel: a.onderwerp,
@@ -2866,10 +2853,7 @@ export function App() {
   const loadGesprekken = useCallback(async () => {
     setConversations((s) => ({ ...s, status: "loading", error: undefined }));
     try {
-      const res = await trackedFetch(buildUrl(`/apis/rest/gesprekken/next/gesprekken`), {
-        method: "GET",
-        headers: { ...defaultMockHeaders },
-      });
+      const res = await trackedFetch(buildUrl(`/api/portaal/gesprekken`));
       const data = await jsonOrThrow(res);
       const mapped = (data.results || []).map((g: any, idx: number) => ({
         org: "Gemeente",
@@ -2887,11 +2871,7 @@ export function App() {
   const loadZaken = useCallback(async () => {
     setCases((s) => ({ ...s, status: "loading", error: undefined }));
     try {
-      const res = await trackedFetch(buildUrl(`/apis/rest/zaken/next/zaken/zoek`), {
-        method: "POST",
-        headers: { ...defaultMockHeaders },
-        body: JSON.stringify({ klantId: "a8f3c1d2-7e44-4b1a-9c0f-123456789abc" }),
-      });
+      const res = await trackedFetch(buildUrl(`/api/portaal/zaken`));
       const data = await jsonOrThrow(res);
       setCases({ status: "ready", data: Array.isArray(data) ? data : [] });
     } catch (err) {
@@ -2902,16 +2882,7 @@ export function App() {
   const loadGegevens = useCallback(async () => {
     setGegevens((s) => ({ ...s, status: "loading", error: undefined }));
     try {
-      const expand = encodeURIComponent("digitaleAdressen");
-      const res = await trackedFetch(
-        buildUrl(
-          `/apis/rest/openklant-klantinteracties/mijnoverheid-demo/partijen/${KLANT_PARTIJ_UUID}?expand=${expand}`,
-        ),
-        {
-          method: "GET",
-          headers: { ...defaultMockHeaders, Authorization: "Token demo-token" },
-        },
-      );
+      const res = await trackedFetch(buildUrl(`/api/portaal/gegevens`));
       const data = await jsonOrThrow(res);
       setGegevens({ status: "ready", data: mapPartijToGegevens(data) });
     } catch (err) {
@@ -2941,9 +2912,7 @@ export function App() {
       setLastCaseUuid(uuid);
       setSelectedCase({ status: "loading", data: null });
       try {
-        const res = await trackedFetch(buildUrl(`/apis/rest/zaken/next/zaken/${uuid}`), {
-          headers: { ...defaultMockHeaders },
-        });
+        const res = await trackedFetch(buildUrl(`/api/portaal/zaken/${uuid}`));
         if (!res.ok)
           throw new Error(`Verzoek mislukte (HTTP ${res.status} ${res.statusText || ""})`.trim());
         const data = await res.json();
@@ -3050,6 +3019,80 @@ export function App() {
   // navigatie (masthead, breadcrumb, sidebar) blijft altijd staan.
   const homeChatActive = page === "chat";
 
+  if (authState.status === "checking") {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontFamily: "sans-serif", color: "#666" }}>
+        Laden...
+      </div>
+    );
+  }
+
+  if (authState.status === "unauthenticated") {
+    return (
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        backgroundColor: "#f5f5f5",
+        fontFamily: "sans-serif",
+        padding: "20px"
+      }}>
+        <div style={{
+          width: "100%",
+          maxWidth: "400px",
+          backgroundColor: "#ffffff",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          padding: "40px 30px",
+          textAlign: "center"
+        }}>
+          <div style={{
+            fontSize: "36px",
+            fontWeight: "bold",
+            color: "#e21a22",
+            marginBottom: "10px",
+            letterSpacing: "-1px"
+          }}>
+            DigiD
+          </div>
+          <div style={{
+            fontSize: "14px",
+            color: "#666",
+            marginBottom: "30px"
+          }}>
+            Veilig inloggen bij de overheid
+          </div>
+          
+          <h2 style={{ fontSize: "20px", margin: "0 0 20px 0", color: "#333" }}>Inloggen</h2>
+          
+          <a 
+            href={`${getDefaultApiBase()}/api/auth/login`}
+            style={{
+              display: "block",
+              backgroundColor: "#e21a22",
+              color: "#ffffff",
+              textDecoration: "none",
+              padding: "12px 24px",
+              borderRadius: "4px",
+              fontWeight: "600",
+              fontSize: "16px",
+              boxShadow: "0 2px 4px rgba(226, 26, 34, 0.3)",
+              transition: "background-color 0.2s"
+            }}
+          >
+            Inloggen met DigiD
+          </a>
+          
+          <div style={{ marginTop: "30px", borderTop: "1px solid #eee", paddingTop: "20px", fontSize: "12px", color: "#999" }}>
+            Dit is een veilige koppeling voor het burgerportaal op IKO.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {bannerOpen && (
@@ -3099,7 +3142,7 @@ export function App() {
               <Icon id="icon-user" />
               Jeroen van Drouwen
             </a>
-            <a href="/">Uitloggen</a>
+            <a href="#" onClick={handleLogout}>Uitloggen</a>
           </div>
         </div>
       </header>
@@ -3196,7 +3239,7 @@ export function App() {
               <Icon id="icon-user" />
               <span>Jeroen van Drouwen</span>
             </a>
-            <a href="/">Uitloggen</a>
+            <a href="#" onClick={handleLogout}>Uitloggen</a>
           </div>
         </aside>
 
@@ -3383,11 +3426,7 @@ export function App() {
                           onChange={(e) =>
                             setApiBaseDrafts((prev) => ({ ...prev, [key]: e.target.value }))
                           }
-                          placeholder={
-                            !DISCOVERY_AUTOAPPLY_EXCLUDED.has(key) && discoveredBases[key]
-                              ? discoveredBases[key]
-                              : defaultApiEndpoint(key)
-                          }
+                          placeholder={defaultApiEndpoint(key)}
                           aria-label={`Endpoint voor ${label}`}
                         />
                       </div>
@@ -3503,14 +3542,7 @@ export function App() {
                 </div>
               </div>
             </div>
-            <div className="api-inspector__footer">
-              Standaard: {getDefaultApiBase()}
-              {discoveryStatus === "loading" && " · discovery-manifest laden…"}
-              {discoveryStatus === "ok" &&
-                ` · ${Object.keys(discoveredBases).length} endpoints ontdekt via /.well-known/federated-resources`}
-              {discoveryStatus === "unavailable" &&
-                " · geen discovery-manifest gevonden, standaardpaden gebruikt"}
-            </div>
+            <div className="api-inspector__footer">Standaard: {getDefaultApiBase()}</div>
           </div>
         )}
 
